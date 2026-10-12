@@ -912,3 +912,8 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .pour-foam{position:absolute;left:0;right:0;background:#FFF8E6;border-radius:6px 6px 0 0;transition:height .4s ease}
 .pour-band{position:absolute;left:-10px;right:-10px;border-block:2px dashed #7CF0B5;background:rgba(124,240,181,.16);z-index:2}
 .pour-spill{position:absolute;left:-14px;right:-14px;top:-6px;height:12px;background:#FFF8E6;border-radius:8px;z-index:3}
+.g.themed .lb-teaser{background:linear-gradient(140deg,color-mix(in srgb,var(--g-accent) 30%,#0E0A1F),#0E0A1F);border:1px solid color-mix(in srgb,var(--g-accent) 45%,transparent)}
+.g.themed .lb-teaser-foot{color:var(--g-accent)}
+.g-ex.t-versus{grid-column:1/-1;color:#1B1740}
+.t-offers{background:linear-gradient(135deg,#FFD9D3,#FFB3A8)}
+.g-ex.span{grid-column:1/-1}

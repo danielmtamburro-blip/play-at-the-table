@@ -3,8 +3,7 @@ import HeroPhone from "@/components/HeroPhone";
 import { Logo } from "@/components/Logo";
 import PilotForm from "@/components/PilotForm";
 import { CONTACT_EMAIL } from "@/lib/content";
-import { DEMO_SLUG, SAMPLE_VENUE } from "@/lib/sample";
-import { getVenue } from "@/lib/venue";
+import { SHOWCASE_VENUE } from "@/lib/showcase";
 
 export const revalidate = 60;
 
@@ -35,7 +34,6 @@ const FAQ = [
 ];
 
 export default async function Landing() {
-  const venue = (await getVenue(DEMO_SLUG)) ?? SAMPLE_VENUE;
 
   return (
     <div id="landing">
@@ -83,7 +81,7 @@ export default async function Landing() {
                 <a className="btn btn-primary" href="#pilot">
                   Book a free pilot
                 </a>
-                <a className="btn btn-ghost" href={`/v/${DEMO_SLUG}`}>
+                <a className="btn btn-ghost" href="/v/saffron-terrace/12">
                   Open the guest demo
                 </a>
               </div>
@@ -93,7 +91,7 @@ export default async function Landing() {
                 <span>Update without reprinting</span>
               </div>
             </div>
-            <HeroPhone venue={venue} />
+            <HeroPhone venue={SHOWCASE_VENUE} />
           </div>
         </section>
         <div className="confetti" role="presentation" />
