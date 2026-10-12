@@ -43,7 +43,7 @@ export type ExtraKey =
   | "tonight" | "playNow" | "seeAll" | "explore" | "qMenu" | "qDrinks" | "qServer" | "qBill" | "qOffers" | "qWifi"
   | "tabHome" | "tabMenu" | "tabPlay" | "tabOffers" | "food" | "all" | "popular" | "challengeGo" | "eventToday" | "offerTag"
   | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag"
-  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions" | "barGames" | "barGamesS" | "contact" | "call" | "email" | "hours" | "access" | "review" | "demoContact";
+  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions" | "barGames" | "barGamesS" | "contact" | "call" | "email" | "hours" | "access" | "review" | "demoContact" | "forEveryone" | "mixCelebrate" | "mixDarts" | "mixSplit" | "mixBill" | "mixPour" | "mixLocal" | "mixReview";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -98,6 +98,8 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     nearbySub: "Places we love around the area, hand-picked by the team.", directions: "Directions",
     barGames: "Darts & pool", barGamesS: "Scorers for the board and table",
     contact: "Contact us", call: "Call", email: "Email", hours: "Opening hours", access: "Accessibility & parking",
+    forEveryone: "Something for everyone", mixCelebrate: "Birthday party mode", mixDarts: "Darts scorer", mixSplit: "Split the bill",
+    mixBill: "Bill time", mixPour: "Pour it right", mixLocal: "Local guide", mixReview: "Leave a review",
     review: "Enjoyed your visit? Leave us a review", demoContact: "This is a demo venue, so these buttons don't contact anyone.",
   },
   ar: {
@@ -151,6 +153,8 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     nearbySub: "أماكن نحبها في المنطقة، اختارها فريقنا.", directions: "الاتجاهات",
     barGames: "السهام والبلياردو", barGamesS: "حاسبات للوحة والطاولة",
     contact: "تواصل معنا", call: "اتصال", email: "البريد", hours: "ساعات العمل", access: "إمكانية الوصول والمواقف",
+    forEveryone: "شيء للجميع", mixCelebrate: "وضع حفلة عيد الميلاد", mixDarts: "حاسبة السهام", mixSplit: "قسّم الحساب",
+    mixBill: "وقت الحساب", mixPour: "صبّها صح", mixLocal: "دليل المنطقة", mixReview: "اترك تقييماً",
     review: "استمتعت بزيارتك؟ اترك لنا تقييماً", demoContact: "هذا مكان تجريبي، لذلك لا تتصل هذه الأزرار بأحد.",
   },
 };

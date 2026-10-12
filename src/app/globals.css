@@ -1331,3 +1331,15 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .ct-actions{grid-template-columns:repeat(auto-fit,minmax(64px,1fr))}
 .ct-btn{flex-direction:column;gap:3px;padding:7px 4px;font-size:.74rem}
 .ct-btn svg{width:17px;height:17px}
+
+/* "Something for everyone" row */
+.mx-card{text-decoration:none;background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.mx-card small{background:var(--surface-2)}
+.mx-card .glass-ico{position:absolute;top:12px;inset-inline-start:12px}
+.mx-kids{background:linear-gradient(150deg,#FFF0B8,#FFC94A);color:#1B1740;border:0}
+.mx-kids small{background:rgba(255,255,255,.55)}
+.mx-celebrate{background:linear-gradient(150deg,#FF9AD5,#B14BFF);color:#fff;border:0}
+.mx-celebrate small{background:rgba(255,255,255,.25)}
+.mx-celebrate .g-gcard-ico{background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,.15))}
+.mxi-group{--c1:#5FE6CF;--c2:#11A08F}.mxi-date{--c1:#FF8FB8;--c2:#E2366F}.mxi-bar{--c1:#7BE08A;--c2:#1E7A45}
+.mxi-bill{--c1:#FFD36B;--c2:#F09A1B}.mxi-drink{--c1:#FFB36B;--c2:#F06A1E}.mxi-nearby{--c1:#6BE3FF;--c2:#1C8FD6}.mxi-review{--c1:#FFE27A;--c2:#F2A900}
