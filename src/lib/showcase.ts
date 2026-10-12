@@ -35,7 +35,6 @@ export const SHOWCASE_VENUE: Venue = {
   ],
   brandColor: "#E3A94B",
   logoUrl: "/showcase/saffron-logo.svg",
-  coverUrl: "/showcase/saffron-cover.webp",
   theme: { bg: "#15100C", card: "#211912", text: "#F7EEE2", accent: "#E3A94B", bgImage: "", dim: 55, tiles: "colourful", cover: "venue" },
   games: { _drinkAge: 21, darts: true, pool: true },
   modules: { ...SAMPLE_VENUE.modules, drink: true, service: true, celebrate: true, nearby: true },

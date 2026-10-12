@@ -1,5 +1,5 @@
 "use client";
-import { Glyph } from "../glyphs";
+import { Glyph, gameGlyph } from "../glyphs";
 import BrandCover from "../BrandCover";
 import { useState } from "react";
 import { ALLERGEN, DAYS, DIET } from "@/lib/content";
@@ -7,7 +7,7 @@ import { anyGameOn, drinkAge, gameOn } from "@/lib/games";
 import type { MenuItem, Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { useService } from "./Service";
-import { GameCard, venueGames } from "./Play";
+import { gameIcon, venueGames } from "./Play";
 import { ICON } from "../icons";
 
 /* ---------- Home ---------- */
@@ -230,7 +230,7 @@ export function Home() {
   const x = EXTRA[lang];
   const m = venue.modules;
   const games = (k: "kids" | "group" | "date" | "drink") => anyGameOn(venue.games as Record<string, boolean>, k);
-  const top = venueGames(venue).filter((g) => g.group !== "drink").slice(0, 8);
+  const mix = useMix();
 
   const explore: [string, string, string][] = [];
   if (m.kids && games("kids")) explore.push(["kids", x.kidsGames, tr("kidsS")]);
@@ -278,16 +278,66 @@ export function Home() {
           </div>
         </section>
       )}
-      {top.length > 0 && (
-        <Scroller title={x.playNow} more={() => go("play")}>
-          {top.map((g) => (
-            <GameCard key={g.key} g={g} />
-          ))}
+      {mix.length > 0 && (
+        <Scroller title={x.forEveryone} more={() => go("play")}>
+          {mix.map((c) =>
+            c.href ? (
+              <a key={c.k} className={`g-gcard mx-card mx-${c.tone}`} href={c.href} target="_blank" rel="noopener noreferrer" data-card={c.k}>
+                <MixIcon c={c} />
+                <b>{c.title}</b>
+                <small>{c.tag}</small>
+              </a>
+            ) : (
+              <button key={c.k} className={`g-gcard mx-card mx-${c.tone}`} onClick={() => go(c.k)} data-card={c.k}>
+                <MixIcon c={c} />
+                <b>{c.title}</b>
+                <small>{c.tag}</small>
+              </button>
+            ),
+          )}
         </Scroller>
       )}
       <ContactCard />
     </>
   );
+}
+
+type MixCard = { k: string; title: string; tag: string; tone: string; emoji?: string; glyph?: string; href?: string };
+
+function MixIcon({ c }: { c: MixCard }) {
+  return c.emoji ? (
+    <span className="g-gcard-ico" aria-hidden="true">
+      {c.emoji}
+    </span>
+  ) : (
+    <span className={`glass-ico mxi-${c.tone}`} aria-hidden="true">
+      <Glyph k={c.glyph ?? "star"} />
+    </span>
+  );
+}
+
+/** One thing from each part of the app, so guests see everything on offer. */
+function useMix(): MixCard[] {
+  const { venue, lang, L } = useGuest();
+  const x = EXTRA[lang];
+  const m = venue.modules;
+  const all = venueGames(venue);
+  const on = (k: string) => all.some((g) => g.key === k);
+  const first = (group: string, prefer: string[]) => prefer.map((k) => all.find((g) => g.key === k)).find(Boolean) ?? all.find((g) => g.group === group);
+  const out: MixCard[] = [];
+  const kid = first("kids", ["penalty", "racer", "keepy"]);
+  if (kid) out.push({ k: kid.key, title: L(kid.title), tag: x.kidsTag, tone: "kids", emoji: gameIcon(kid) });
+  const adult = first("group", ["trivia", "wordguess", "charades"]);
+  if (adult) out.push({ k: adult.key, title: L(adult.title), tag: x.adultsTag, tone: "group", glyph: gameGlyph(adult) });
+  if (m.celebrate) out.push({ k: "celebrate", title: x.mixCelebrate, tag: x.celebrate, tone: "celebrate", emoji: "🎂" });
+  const date = first("date", ["deck:first"]);
+  if (date) out.push({ k: date.key, title: L(date.title), tag: x.dateTag, tone: "date", glyph: "heart" });
+  if (on("darts")) out.push({ k: "darts", title: x.mixDarts, tag: x.barGames, tone: "bar", glyph: "target" });
+  if (on("split")) out.push({ k: "split", title: x.mixSplit, tag: x.mixBill, tone: "bill", glyph: "calc" });
+  if (m.drink && on("pour")) out.push({ k: "pour", title: x.mixPour, tag: x.drinkTag, tone: "drink", glyph: "glass" });
+  if (m.nearby && venue.nearby.length) out.push({ k: "nearby", title: x.nearby, tag: x.mixLocal, tone: "nearby", glyph: "pin" });
+  if (venue.reviewUrl) out.push({ k: "review", title: x.mixReview, tag: x.feedback, tone: "review", glyph: "star", href: venue.reviewUrl });
+  return out;
 }
 
 /** Contact us: address, hours, call, WhatsApp, email, Instagram and a review link. */
@@ -332,17 +382,6 @@ function ContactCard() {
             <div>
               <b>{x.hours}</b>
               <span>{L(venue.hours)}</span>
-            </div>
-          </div>
-        )}
-        {L(venue.access) && (
-          <div className="ct-row">
-            <span className="glass-ico sm ct-ico" aria-hidden="true">
-              <Glyph k="access" />
-            </span>
-            <div>
-              <b>{x.access}</b>
-              <span>{L(venue.access)}</span>
             </div>
           </div>
         )}
