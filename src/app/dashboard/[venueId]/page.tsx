@@ -3,26 +3,31 @@ import { notFound } from "next/navigation";
 import DashHeader from "@/components/dashboard/DashHeader";
 import CoasterDesigner from "@/components/dashboard/CoasterDesigner";
 import { EventsEditor, MenuEditor, OffersEditor } from "@/components/dashboard/editors";
+import FeedbackTab from "@/components/dashboard/FeedbackTab";
 import GamesEditor from "@/components/dashboard/GamesEditor";
 import MenuSource from "@/components/dashboard/MenuSource";
 import SetupChecklist from "@/components/dashboard/SetupChecklist";
 import ProfileForm from "@/components/dashboard/ProfileForm";
 import QrCodes from "@/components/dashboard/QrCodes";
+import StaffRequests from "@/components/dashboard/StaffRequests";
 import Stats from "@/components/dashboard/Stats";
 import { requireUser } from "@/lib/auth";
+import { moduleOn } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Edit venue · Play at the Table", robots: { index: false } };
+export const metadata: Metadata = { title: "Edit venue · Play at Your Table", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 const TABS = [
-  ["details", "Details"],
-  ["menu", "Menu"],
-  ["games", "Games"],
-  ["events", "What's on"],
-  ["offers", "Offers"],
-  ["coaster", "Coaster design"],
-  ["qr", "Plain QR codes"],
-  ["stats", "Stats"],
+  ["details", "Details", "🏠"],
+  ["menu", "Menu", "🍽️"],
+  ["games", "Games", "🎲"],
+  ["events", "What's on", "🎵"],
+  ["offers", "Offers", "🏷️"],
+  ["coaster", "Coaster studio", "🎨"],
+  ["requests", "Live requests", "🙋"],
+  ["feedback", "Feedback", "💬"],
+  ["stats", "Stats", "📊"],
+  ["qr", "Plain QR codes", "🔳"],
 ] as const;
 
 export default async function VenueDashboard({
@@ -46,6 +51,11 @@ export default async function VenueDashboard({
     .eq("id", venueId)
     .maybeSingle();
   if (!venue) notFound();
+  const { count: waiting } = await sb
+    .from("service_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("venue_id", venue.id)
+    .eq("status", "open");
 
   return (
     <div className="dash">
@@ -66,10 +76,14 @@ export default async function VenueDashboard({
           </a>
         </div>
         <SetupChecklist venue={venue} />
-        <nav className="tabs" aria-label="Venue sections">
-          {TABS.map(([k, label]) => (
+        <nav className="dash-nav" aria-label="Venue sections">
+          {TABS.map(([k, label, ico]) => (
             <a key={k} href={`?tab=${k}`} aria-current={tab === k ? "page" : undefined}>
+              <span className="nav-ico" aria-hidden="true">
+                {ico}
+              </span>
               {label}
+              {k === "requests" && (waiting ?? 0) > 0 && <span className="nav-dot" aria-label={`${waiting} waiting`} />}
             </a>
           ))}
         </nav>
@@ -86,6 +100,8 @@ export default async function VenueDashboard({
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}
+        {tab === "requests" && <StaffRequests venueId={venue.id} enabled={moduleOn(venue.modules, "service")} />}
+        {tab === "feedback" && <FeedbackTab venueId={venue.id} enabled={moduleOn(venue.modules, "feedback")} />}
         {tab === "stats" && <Stats venueId={venue.id} />}
       </main>
     </div>

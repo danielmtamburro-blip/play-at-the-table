@@ -1,7 +1,7 @@
 import "server-only";
 import { getPublicClient } from "./supabase/server";
 import { DEMO_SLUG, SAMPLE_VENUE } from "./sample";
-import { MODULE_KEYS, type Modules, type Venue } from "./types";
+import { MODULE_KEYS, moduleOn, type Modules, type Venue } from "./types";
 
 /** Today's date in Dubai as YYYY-MM-DD. */
 export function dubaiToday(): string {
@@ -15,7 +15,7 @@ const hhmm = (t: string) => String(t).slice(0, 5);
 
 export function normaliseModules(raw: unknown): Modules {
   const m = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  return Object.fromEntries(MODULE_KEYS.map((k) => [k, m[k] !== false])) as Modules;
+  return Object.fromEntries(MODULE_KEYS.map((k) => [k, moduleOn(m, k)])) as Modules;
 }
 
 /**

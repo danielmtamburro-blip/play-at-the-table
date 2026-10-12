@@ -1,4 +1,4 @@
-/** The Play at the Table mark: a five-colour ring with a play button. */
+/** The Play at Your Table mark: a five-colour ring with a play button. */
 export function LogoMark({ size = 38, className }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" className={className} aria-hidden="true" style={{ flex: "none" }}>
@@ -15,9 +15,9 @@ export function LogoMark({ size = 38, className }: { size?: number; className?: 
 
 export function Logo({ href = "/" }: { href?: string }) {
   return (
-    <a className="logo" href={href} aria-label="Play at the Table home">
+    <a className="logo" href={href} aria-label="Play at Your Table home">
       <LogoMark className="logo-mark" />
-      <span>Play at the Table</span>
+      <span>Play at Your Table</span>
     </a>
   );
 }

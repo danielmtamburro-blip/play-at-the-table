@@ -18,7 +18,7 @@ function parseTable(parts?: string[]): string | null | undefined {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const v = await getVenue(slug);
-  return v ? { title: `${v.name.en} · Play at the Table`, robots: { index: false } } : { title: "Play at the Table" };
+  return v ? { title: `${v.name.en} · Play at Your Table`, robots: { index: false } } : { title: "Play at Your Table" };
 }
 
 export default async function GuestPage({ params }: { params: Params }) {

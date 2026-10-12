@@ -57,10 +57,10 @@ export default function GamesEditor({ venue }: { venue: Row }) {
                 <label key={g.key} className={`game-card${games[g.key] ? " on" : ""}`}>
                   <input type="checkbox" checked={games[g.key]} onChange={(e) => setGames({ ...games, [g.key]: e.target.checked })} />
                   <span>
-                    <b>{g.name}</b>
+                    <b>{g.title.en}</b>
                     {g.ages && <span className="badge" style={{ marginInlineStart: 8 }}>Ages {g.ages}</span>}
                     <br />
-                    <span className="small muted">{g.desc}</span>
+                    <span className="small muted">{g.sub.en}</span>
                   </span>
                 </label>
               ))}

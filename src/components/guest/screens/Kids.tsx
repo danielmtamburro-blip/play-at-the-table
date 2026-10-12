@@ -1,36 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CHALLENGES, KIDS_QUIZ, type TKey } from "@/lib/content";
-import { gameOn } from "@/lib/games";
+import { CHALLENGES } from "@/lib/content";
 import { shuffle, useGuest } from "../context";
-
-export function KidsHub() {
-  const { tr, go, venue } = useGuest();
-  const pick = (k: TKey, age: string) => gameOn(venue.games, k) && (
-    <button className="g-pick bg-kids" onClick={() => go(k)}>
-      <b>{tr(k)}</b>
-      <span>{tr(`${k}S` as TKey)}</span>
-      <span className="age">
-        {tr("ages")} {age}
-      </span>
-    </button>
-  );
-  return (
-    <>
-      <div>
-        <h2 className="g-h">{tr("kidsTitle")}</h2>
-        <p className="g-sub">{tr("kidsSub")}</p>
-      </div>
-      <div className="g-list">
-        {pick("colour", "3+")}
-        {pick("memory", "4+")}
-        {pick("quiz", "6+")}
-        {pick("challenge", "4+")}
-      </div>
-      <p className="g-note">{tr("playTogether")}</p>
-    </>
-  );
-}
 
 /* ---------- Colouring (tap-to-fill canvas) ---------- */
 
@@ -258,81 +229,6 @@ export function Memory() {
             </button>
           </div>
         </div>
-      )}
-    </>
-  );
-}
-
-/* ---------- Kids' quiz ---------- */
-
-const newQuiz = () => ({ order: shuffle(KIDS_QUIZ).slice(0, 5), i: 0, score: 0, ans: null as number | null });
-
-export function Quiz() {
-  const { tr, L, log } = useGuest();
-  const [z, setZ] = useState(newQuiz);
-  const over = z.i >= z.order.length;
-  useEffect(() => {
-    if (over) log("game_finish", { item: "quiz", value: z.score });
-  }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (z.i >= z.order.length)
-    return (
-      <>
-        <div>
-          <h2 className="g-h">{tr("quiz")}</h2>
-        </div>
-        <div className="prompt kids">
-          <span className="count">{tr("quiz")}</span>
-          <p>
-            {tr("score")} {z.score} {tr("of")} {z.order.length}!
-          </p>
-        </div>
-        <button
-          className="g-btn"
-          onClick={() => {
-            setZ(newQuiz());
-            log("game_start", { item: "quiz" });
-          }}
-        >
-          {tr("playAgain")}
-        </button>
-      </>
-    );
-
-  const q = z.order[z.i];
-  return (
-    <>
-      <div>
-        <h2 className="g-h">{tr("quiz")}</h2>
-      </div>
-      <div className="prompt kids">
-        <span className="count">
-          {z.i + 1} / {z.order.length}
-        </span>
-        <p>{L(q.q)}</p>
-      </div>
-      <div className="quiz-opts">
-        {q.o.map((o, i) => {
-          const cls = z.ans == null ? "" : i === q.a ? "right" : i === z.ans ? "wrong" : "";
-          return (
-            <button
-              key={i}
-              className={cls}
-              disabled={z.ans != null}
-              onClick={() => setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) })}
-            >
-              {L(o)}
-            </button>
-          );
-        })}
-      </div>
-      <p className="feedback" aria-live="polite">
-        {z.ans == null ? "" : z.ans === q.a ? tr("correct") : `${tr("notQuite")} ${L(q.o[q.a])}.`}
-      </p>
-      {z.ans != null && (
-        <button className="g-btn" onClick={() => setZ({ ...z, i: z.i + 1, ans: null })}>
-          {tr("next")}
-        </button>
       )}
     </>
   );

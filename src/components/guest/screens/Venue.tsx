@@ -4,6 +4,7 @@ import { ALLERGEN, DAYS, DIET, type TKey } from "@/lib/content";
 import { anyGameOn } from "@/lib/games";
 import type { Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
+import { ServiceBar } from "./Service";
 import { ICON } from "../icons";
 
 /* ---------- Home ---------- */
@@ -31,7 +32,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export function Home() {
-  const { venue, tr, L, lang, go, log } = useGuest();
+  const { venue, tr, L, lang, go, log, demo } = useGuest();
   const m = venue.modules;
   const shown = (k: keyof typeof m) =>
     m[k] && (k === "kids" || k === "group" || k === "date" ? anyGameOn(venue.games, k) : true);
@@ -47,6 +48,7 @@ export function Home() {
     ] as [keyof typeof m, string][]
   ).filter(([k]) => shown(k));
   if (m.offers && !m.events) tiles.push(["offers", "t-events"]);
+  if (m.feedback) tiles.push(["feedback", "t-feedback"]);
 
   return (
     <>
@@ -66,14 +68,15 @@ export function Home() {
           <span style={{ fontSize: ".85rem", opacity: 0.95 }}>{L(featured.desc)}</span>
         </button>
       )}
+      <ServiceBar demo={demo} />
       <div className="g-grid">
         {tiles.map(([k, cls]) => (
           <button key={k} className={`g-tile ${cls}`} onClick={() => go(k)}>
             {ICON[k]}
             <div>
-              <b>{tr(k as TKey)}</b>
+              <b>{k === "feedback" ? EXTRA[lang].feedback : tr(k as TKey)}</b>
               <br />
-              <span>{k === "offers" ? EXTRA[lang].offersS : tr(`${k}S` as TKey)}</span>
+              <span>{k === "offers" ? EXTRA[lang].offersS : k === "feedback" ? EXTRA[lang].feedbackS : tr(`${k}S` as TKey)}</span>
             </div>
           </button>
         ))}

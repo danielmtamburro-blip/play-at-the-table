@@ -1,4 +1,4 @@
-# Play at the Table
+# Play at Your Table
 
 A QR coaster for restaurant and café tables in Dubai. Guests scan it with their phone camera and get the venue's menu, offers, events and games for kids, friends and couples, in English and Arabic. There's no app to download and no sign-up.
 

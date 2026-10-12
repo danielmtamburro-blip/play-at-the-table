@@ -3,7 +3,7 @@ import CreateVenue from "@/components/dashboard/CreateVenue";
 import DashHeader from "@/components/dashboard/DashHeader";
 import { requireUser } from "@/lib/auth";
 
-export const metadata: Metadata = { title: "Dashboard · Play at the Table", robots: { index: false } };
+export const metadata: Metadata = { title: "Dashboard · Play at Your Table", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {

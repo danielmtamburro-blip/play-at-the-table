@@ -7,8 +7,12 @@ import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/t
 import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { GuestContext, useGuest, type GuestCtx } from "./context";
 import { BackIcon } from "./icons";
-import { DateHub, Deck, GroupHub, Picker, Quick, ThisOrThat } from "./screens/Games";
-import { Challenge, Colour, KidsHub, Memory, Quiz } from "./screens/Kids";
+import { GROUP_Q, KIDS_QUIZ, THIS_THAT } from "@/lib/content";
+import { ADULT_TRIVIA, ADULT_WYR, ANIMAL_QUIZ, CATEGORIES, CHARADES, EMOJI_PUZZLES, KIDS_RIDDLES, KIDS_WYR, MOST_LIKELY, NEVER_HAVE_I } from "@/lib/gameContent";
+import { CountIt, GameHub, Charades, NameFive, OddOneOut, Pairs, PromptCards, QuizGame, Reveal, TicTacToe } from "./screens/Engines";
+import { Deck, Picker } from "./screens/Games";
+import { Challenge, Colour, Memory } from "./screens/Kids";
+import { Feedback } from "./screens/Service";
 import { Events, Home, Menu, Offers } from "./screens/Venue";
 
 type Props = {
@@ -110,8 +114,9 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
         log("redeem", { module: "offers", item: o.title.en });
       },
       log,
+      demo: embedded,
     };
-  }, [lang, venue, table, go, log]);
+  }, [lang, venue, table, go, log, embedded]);
 
   const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   const { tr, L } = ctx;
@@ -123,16 +128,33 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       case "drinks": return <Menu kind="drinks" />;
       case "events": return <Events />;
       case "offers": return <Offers />;
-      case "kids": return <KidsHub />;
+      case "feedback": return <Feedback demo={embedded} onDone={back} />;
+      // Section hubs
+      case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={tr("kidsSub")} note={tr("playTogether")} />;
+      case "group": return <GameHub group="group" title={tr("groupTitle")} sub={tr("groupSub")} />;
+      case "date": return <GameHub group="date" title={tr("dateTitle")} sub={tr("dateSub")} />;
+      // Kids (10)
       case "colour": return <Colour />;
       case "memory": return <Memory />;
-      case "quiz": return <Quiz />;
+      case "oddone": return <OddOneOut k="oddone" />;
+      case "count": return <CountIt k="count" />;
+      case "tictactoe": return <TicTacToe k="tictactoe" />;
+      case "quiz": return <QuizGame k="quiz" questions={KIDS_QUIZ} tone="kids" />;
+      case "animals": return <QuizGame k="animals" questions={ANIMAL_QUIZ} tone="kids" />;
+      case "riddles": return <Reveal k="riddles" items={KIDS_RIDDLES} tone="kids" />;
+      case "kwyr": return <Pairs k="kwyr" pairs={KIDS_WYR} />;
       case "challenge": return <Challenge />;
-      case "group": return <GroupHub />;
-      case "quick": return <Quick />;
-      case "tot": return <ThisOrThat />;
+      // Groups (10)
+      case "quick": return <PromptCards k="quick" items={GROUP_Q} tone="group" />;
+      case "tot": return <Pairs k="tot" pairs={THIS_THAT} />;
+      case "wyr": return <Pairs k="wyr" pairs={ADULT_WYR} />;
+      case "likely": return <PromptCards k="likely" items={MOST_LIKELY} tone="group" />;
+      case "never": return <PromptCards k="never" items={NEVER_HAVE_I} tone="group" />;
+      case "charades": return <Charades k="charades" words={CHARADES} />;
+      case "categories": return <NameFive k="categories" cats={CATEGORIES} />;
+      case "emoji": return <Reveal k="emoji" items={EMOJI_PUZZLES} tone="group" big />;
+      case "trivia": return <QuizGame k="trivia" questions={ADULT_TRIVIA} tone="group" />;
       case "picker": return <Picker />;
-      case "date": return <DateHub />;
       default: return <Home />;
     }
   })();

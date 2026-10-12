@@ -2,7 +2,7 @@
 // Venue-specific content (menus, offers, events) lives in Supabase.
 import type { Loc } from "./types";
 
-export const CONTACT_EMAIL = "hello@playatthetable.com";
+export const CONTACT_EMAIL = "hello@playatyourtable.com";
 
 export const DIET: Record<string, Loc> = {
   "V": {
@@ -667,7 +667,7 @@ const T_EN = {
   "privacyTitle": "Your privacy",
   "privacyText": "This page doesn't ask for your name or contact details and doesn't save game answers or drawings. The venue only sees totals, like how many people opened the menu.",
   "close": "Close",
-  "powered": "Powered by Play at the Table",
+  "powered": "Powered by Play at Your Table",
   "back": "Back",
   "home": "Home"
 };
@@ -768,7 +768,7 @@ export const T: Record<"en" | "ar", Record<TKey, string>> = {
     "privacyTitle": "خصوصيتك",
     "privacyText": "هذه الصفحة لا تطلب اسمك أو بيانات الاتصال ولا تحفظ إجابات الألعاب أو الرسومات. المطعم يرى الأرقام الإجمالية فقط، مثل عدد من فتحوا القائمة.",
     "close": "إغلاق",
-    "powered": "بدعم من Play at the Table",
+    "powered": "بدعم من Play at Your Table",
     "back": "رجوع",
     "home": "الرئيسية"
   },

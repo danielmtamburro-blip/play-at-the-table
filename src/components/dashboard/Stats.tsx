@@ -19,9 +19,10 @@ type Report = {
 const SECTION_NAMES: Record<string, string> = {
   menu: "Food menu", drinks: "Drinks", events: "What's on", offers: "Offers", kids: "Kids' corner",
   group: "Play together", date: "Date night", deck: "Date-night deck",
-  ...Object.fromEntries(GAMES.map((g) => [g.key, g.name])),
+  feedback: "Feedback", service_call: "Call server taps", service_bill: "Bill please taps",
+  ...Object.fromEntries(GAMES.map((g) => [g.key, g.title.en])),
 };
-const gameName = (k: string) => GAMES.find((g) => g.key === k)?.name ?? k;
+const gameName = (k: string) => GAMES.find((g) => g.key === k)?.title.en ?? k;
 
 const RANGES = [
   { key: "today", label: "Today" },

@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
-import { MODULE_KEYS, type ModuleKey } from "@/lib/types";
+import { MODULE_KEYS, moduleOn, type ModuleKey } from "@/lib/types";
 import type { Row } from "./CrudList";
 
 const MODULE_LABELS: Record<ModuleKey, string> = {
@@ -13,6 +13,8 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   date: "Date night",
   events: "What's on",
   offers: "Offers",
+  feedback: "Guest feedback",
+  service: "Call server / Bill please buttons",
 };
 
 const TEXT_FIELDS: [key: string, label: string, rtl?: boolean][] = [
@@ -36,7 +38,7 @@ export default function ProfileForm({ venue }: { venue: Row }) {
   const router = useRouter();
   const [v, setV] = useState<Row>(venue);
   const [modules, setModules] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(MODULE_KEYS.map((k) => [k, venue.modules?.[k] !== false])),
+    Object.fromEntries(MODULE_KEYS.map((k) => [k, moduleOn(venue.modules, k)])),
   );
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);

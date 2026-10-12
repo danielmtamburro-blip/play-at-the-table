@@ -47,6 +47,14 @@ export const ICON: Record<string, React.ReactNode> = {
       <circle cx="22.5" cy="21" r="3.5" />
     </svg>
   ),
+  feedback: (
+    <svg {...base}>
+      <circle cx="16" cy="16" r="12" />
+      <path d="M11 19c1.3 1.7 3 2.5 5 2.5s3.7-.8 5-2.5" />
+      <circle cx="12" cy="13" r="1.4" fill="currentColor" />
+      <circle cx="20" cy="13" r="1.4" fill="currentColor" />
+    </svg>
+  ),
   offers: (
     <svg {...base}>
       <path d="M4 16V6a2 2 0 0 1 2-2h10l12 12-12 12z" />
