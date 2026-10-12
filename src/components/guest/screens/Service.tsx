@@ -5,12 +5,12 @@ import { EXTRA, useGuest, type ExtraKey } from "../context";
 
 /* ---------- Call server / Bill please (home screen) ---------- */
 
-export function ServiceBar({ demo }: { demo: boolean }) {
+/** Sends a "call server" or "bill please" request for this table (cooldown 60s per kind). */
+export function useService(demo: boolean) {
   const { venue, table, lang, log } = useGuest();
   const x = EXTRA[lang];
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [cool, setCool] = useState<Record<string, boolean>>({});
-  if (!venue.modules.service) return null;
 
   async function call(kind: "server" | "bill") {
     if (!table) return setMsg({ ok: false, text: x.noTable });
@@ -25,6 +25,14 @@ export function ServiceBar({ demo }: { demo: boolean }) {
     }
     setMsg(error.code === "23505" ? { ok: true, text: x.already } : { ok: false, text: x.tryLater });
   }
+  return { on: venue.modules.service, msg, cool, call };
+}
+
+export function ServiceBar({ demo }: { demo: boolean }) {
+  const { lang } = useGuest();
+  const x = EXTRA[lang];
+  const { on, msg, cool, call } = useService(demo);
+  if (!on) return null;
 
   return (
     <div className="g-service">

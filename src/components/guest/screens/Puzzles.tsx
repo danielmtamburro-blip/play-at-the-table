@@ -5,6 +5,7 @@ import { CROSSWORD_BANK, WORDGUESS_ANSWERS, WORDSEARCH_THEMES } from "@/lib/game
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { useScores } from "../Leaderboard";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -32,7 +33,7 @@ function useStopwatch(running: boolean, resetKey: unknown) {
     const t = setInterval(() => setS((x) => x + 1), 1000);
     return () => clearInterval(t);
   }, [running]);
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  return Object.assign(`${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`, { secs: s });
 }
 
 /* ================= Sudoku ================= */
@@ -93,8 +94,9 @@ export function Sudoku({ k }: { k: string }) {
   const bad = useMemo(() => conflicts(cells), [cells]);
   const done = cells.every(Boolean) && bad.size === 0;
   const time = useStopwatch(!done, game);
+  const { report } = useScores();
   useEffect(() => {
-    if (done) log("game_finish", { item: k });
+    if (done) (log("game_finish", { item: k }), report(k, Math.max(30, time.secs)));
   }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = (l: Level) => {
@@ -477,6 +479,7 @@ function score(guess: string, answer: string): Mark[] {
 
 export function WordGuess({ k }: { k: string }) {
   const { lang, log } = useGuest();
+  const { report } = useScores();
   const ui = useUi();
   const [answer, setAnswer] = useState(() => WORDGUESS_ANSWERS[Math.floor(Math.random() * WORDGUESS_ANSWERS.length)]);
   const [rows, setRows] = useState<string[]>([]);
@@ -495,6 +498,7 @@ export function WordGuess({ k }: { k: string }) {
       setRows(next);
       setDraft("");
       if (draft === answer || next.length >= 6) log("game_finish", { item: k, value: draft === answer ? next.length : 0 });
+      if (draft === answer) report(k, next.length);
       return;
     }
     if (draft.length < 5) setDraft((d) => d + key);

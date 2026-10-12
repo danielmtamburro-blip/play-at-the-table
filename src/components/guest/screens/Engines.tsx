@@ -5,6 +5,7 @@ import { COUNT_ITEMS, ODD_SETS } from "@/lib/gameContent";
 import { CATS, GAMES, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Lang, Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
+import { useScores } from "../Leaderboard";
 
 type Tone = "kids" | "group" | "date";
 
@@ -439,8 +440,9 @@ export function OddOneOut({ k }: { k: string }) {
   const [r, setR] = useState(make);
   const [wrong, setWrong] = useState<number | null>(null);
   const over = round > ODD_ROUNDS;
+  const { report } = useScores();
   useEffect(() => {
-    if (over) log("game_finish", { item: k, value: score });
+    if (over) (log("game_finish", { item: k, value: score }), report(k, score));
   }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (over)
@@ -516,8 +518,9 @@ export function CountIt({ k }: { k: string }) {
   const [r, setR] = useState(make);
   const [picked, setPicked] = useState<number | null>(null);
   const over = round > COUNT_ROUNDS;
+  const { report } = useScores();
   useEffect(() => {
-    if (over) log("game_finish", { item: k, value: score });
+    if (over) (log("game_finish", { item: k, value: score }), report(k, score));
   }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (over)

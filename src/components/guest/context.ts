@@ -21,6 +21,8 @@ export type GuestCtx = {
   log: (event: TrackEvent, opts?: TrackOpts) => void;
   /** True inside the sales-page phone demo: nothing is sent. */
   demo: boolean;
+  /** Switch English ⇄ Arabic (remembered on this phone). */
+  toggleLang: () => void;
 };
 
 export const GuestContext = createContext<GuestCtx | null>(null);
@@ -38,7 +40,10 @@ export type ExtraKey =
   | "feedback" | "feedbackS" | "fbTitle" | "fbSub" | "fbComment" | "fbSend" | "fbThanks" | "fbThanksSub" | "fbDone"
   | "fb1" | "fb2" | "fb3" | "fb4" | "fb5"
   | "welcomeTo" | "whatToDo" | "adults" | "adultsS" | "drink" | "drinkS" | "ageQ" | "ageYes" | "ageNo" | "ageBlocked" | "drinkNote"
-  | "wifi" | "pass" | "kidsSub" | "wifiName" | "kidsGames" | "versus" | "versusS";
+  | "wifi" | "pass" | "kidsSub" | "wifiName" | "kidsGames" | "versus" | "versusS"
+  | "tonight" | "playNow" | "seeAll" | "explore" | "qMenu" | "qDrinks" | "qServer" | "qBill" | "qOffers" | "qWifi"
+  | "tabHome" | "tabMenu" | "tabPlay" | "tabOffers" | "food" | "all" | "popular" | "challengeGo" | "eventToday" | "offerTag"
+  | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -83,6 +88,11 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     versus: "Challenge another table",
     versusS: "Live head-to-head games for points",
     kidsSub: "Games for every age, from colouring to football. No sign-up, no links, nothing is uploaded.",
+    tonight: "Tonight", playNow: "Play now", seeAll: "See all", explore: "Explore",
+    qMenu: "Menu", qDrinks: "Drinks", qServer: "Server", qBill: "Bill", qOffers: "Offers", qWifi: "Wi-Fi",
+    tabHome: "Home", tabMenu: "Menu", tabPlay: "Play", tabOffers: "Offers", food: "Food", all: "All",
+    popular: "Popular right now", challengeGo: "Challenge", eventToday: "Today", offerTag: "Offer",
+    playSub: "Games for everyone at the table", kidsTag: "Kids", adultsTag: "Adults", dateTag: "Date night", drinkTag: "Drinking",
   },
   ar: {
     empty: "لا يوجد شيء هنا بعد. اسأل النادل.",
@@ -125,6 +135,11 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     versus: "تحدَّ طاولة أخرى",
     versusS: "ألعاب مباشرة وجهاً لوجه لجمع النقاط",
     kidsSub: "ألعاب لكل الأعمار، من التلوين إلى كرة القدم. بدون تسجيل أو روابط، ولا يتم رفع أي شيء.",
+    tonight: "الليلة", playNow: "العب الآن", seeAll: "عرض الكل", explore: "استكشف",
+    qMenu: "القائمة", qDrinks: "المشروبات", qServer: "النادل", qBill: "الحساب", qOffers: "العروض", qWifi: "واي فاي",
+    tabHome: "الرئيسية", tabMenu: "القائمة", tabPlay: "العب", tabOffers: "العروض", food: "الطعام", all: "الكل",
+    popular: "الأكثر لعباً الآن", challengeGo: "تحدَّ", eventToday: "اليوم", offerTag: "عرض",
+    playSub: "ألعاب لكل من على الطاولة", kidsTag: "أطفال", adultsTag: "كبار", dateTag: "سهرة لشخصين", drinkTag: "مشروبات",
   },
 };
 

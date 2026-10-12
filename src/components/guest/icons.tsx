@@ -69,6 +69,21 @@ export const ICON: Record<string, React.ReactNode> = {
       <circle cx="20" cy="13" r="1.4" fill="currentColor" />
     </svg>
   ),
+  home: (
+    <svg {...base}>
+      <path d="M4 15L16 5l12 10" />
+      <path d="M8 12v14h16V12" />
+      <path d="M13 26v-7h6v7" />
+    </svg>
+  ),
+  play: (
+    <svg {...base}>
+      <rect x="3" y="9" width="26" height="15" rx="7.5" />
+      <path d="M10 13v7M6.5 16.5h7" />
+      <circle cx="21" cy="15" r="1.4" fill="currentColor" />
+      <circle cx="24" cy="18.5" r="1.4" fill="currentColor" />
+    </svg>
+  ),
   offers: (
     <svg {...base}>
       <path d="M4 16V6a2 2 0 0 1 2-2h10l12 12-12 12z" />

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CHALLENGES } from "@/lib/content";
 import { shuffle, useGuest } from "../context";
+import { useScores } from "../Leaderboard";
 
 /* ---------- Colouring (tap-to-fill canvas) ---------- */
 
@@ -176,8 +177,9 @@ export function Memory() {
   const { tr, log } = useGuest();
   const [m, setM] = useState(newDeck);
   const won = m.done.length === m.cards.length;
+  const { report } = useScores();
   useEffect(() => {
-    if (won) log("game_finish", { item: "memory", value: m.moves });
+    if (won) (log("game_finish", { item: "memory", value: m.moves }), report("memory", m.moves));
   }, [won]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const flip = (i: number) => {

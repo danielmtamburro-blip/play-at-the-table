@@ -51,6 +51,7 @@ export const GAMES: GameInfo[] = [
   { key: "hilo", group: "drink", cat: "cards", icon: "🃏", title: L("Higher or lower", "أعلى أم أقل"), sub: L("Guess the next card. Wrong? Take a sip", "خمّن البطاقة التالية. أخطأت؟ خذ رشفة") },
   { key: "kings", group: "drink", cat: "cards", icon: "👑", title: L("Card rules", "قواعد البطاقات"), sub: L("Draw a card, every card has a rule", "اسحب بطاقة، لكل بطاقة قاعدة") },
   { key: "dice", group: "drink", cat: "cards", icon: "🎲", title: L("Drink dice", "نرد المشروبات"), sub: L("Roll two dice and follow the rule", "ارمِ نردين واتبع القاعدة") },
+  { key: "pour", group: "drink", cat: "cards", icon: "🍺", title: L("Pour it right", "صبّها صح"), sub: L("Hold to pour, stop on the line. Spill it? Sip", "اضغط للصب وتوقف عند الخط. انسكب؟ رشفة") },
   { key: "sipwheel", group: "drink", cat: "cards", icon: "🎡", title: L("Sip wheel", "عجلة الرشفات"), sub: L("Spin to see who sips next", "لف العجلة لترى من يرتشف") },
   { key: "dnever", group: "drink", cat: "talk", icon: "🙊", title: L("Never have I ever: sip edition", "لم يسبق لي أبداً: نسخة الرشفات"), sub: L("If you have, take a sip", "إذا فعلتها، خذ رشفة") },
   { key: "dlikely", group: "drink", cat: "talk", icon: "👉", title: L("Most likely to: sip edition", "من الأكثر احتمالاً: نسخة الرشفات"), sub: L("Point on three. Most votes sips", "أشيروا عند العد لثلاثة. صاحب أكثر الأصوات يرتشف") },
