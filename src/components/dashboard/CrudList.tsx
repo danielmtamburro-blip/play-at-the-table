@@ -1,7 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { arabicPairs, useAutoArabic } from "@/lib/autoArabic";
 import { getBrowserClient } from "@/lib/supabase/client";
+import ArabicLabel from "./ArabicLabel";
 
 export type Row = Record<string, any>;
 
@@ -50,6 +52,7 @@ function Editor({ row, props, onDone }: { row: Row; props: Props; onDone: () => 
   const [state, setState] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: string, v: unknown) => setDraft((d) => ({ ...d, [k]: v }));
+  const ar = useAutoArabic(draft, (k, v) => set(k, v), arabicPairs(props.fields.map((f) => f.key)));
   const isNew = !row.id;
 
   async function save(e: React.FormEvent) {
@@ -113,9 +116,13 @@ function Editor({ row, props, onDone }: { row: Row; props: Props; onDone: () => 
             );
           return (
             <div key={f.key} className={`field${f.full || f.type === "textarea" ? " full" : ""}`}>
-              <label htmlFor={id}>{f.label}</label>
+              {f.dir === "rtl" && f.key.endsWith("_ar") ? (
+                <ArabicLabel htmlFor={id} label={f.label} busy={ar.busy.has(f.key.slice(0, -3))} onTranslate={() => ar.now(f.key.slice(0, -3))} />
+              ) : (
+                <label htmlFor={id}>{f.label}</label>
+              )}
               {f.type === "textarea" ? (
-                <textarea id={id} dir={f.dir} value={v ?? ""} onChange={(e) => set(f.key, e.target.value)} />
+                <textarea id={id} dir={f.dir} value={v ?? ""} onChange={(e) => (f.dir === "rtl" && ar.manual(f.key), set(f.key, e.target.value))} />
               ) : f.type === "select" ? (
                 <select id={id} value={v ?? ""} required={f.required} onChange={(e) => set(f.key, e.target.value)}>
                   {!f.required && <option value="">—</option>}
@@ -134,7 +141,7 @@ function Editor({ row, props, onDone }: { row: Row; props: Props; onDone: () => 
                   min={f.type === "number" ? 0 : undefined}
                   required={f.required}
                   value={v == null ? "" : f.type === "time" ? String(v).slice(0, 5) : v}
-                  onChange={(e) => set(f.key, e.target.value)}
+                  onChange={(e) => (f.dir === "rtl" && ar.manual(f.key), set(f.key, e.target.value))}
                 />
               )}
               {f.hint && <span className="small muted">{f.hint}</span>}
