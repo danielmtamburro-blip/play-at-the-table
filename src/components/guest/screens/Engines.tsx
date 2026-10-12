@@ -44,7 +44,7 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
   const cls = group === "kids" ? "bg-kids" : group === "group" ? "bg-group" : "bg-date";
   const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && venue.games?.[g.key] !== false);
   const card = (g: GameInfo) => (
-    <button key={g.key} className={`g-pick ${cls}`} onClick={() => go(g.key)}>
+    <button key={g.key} className={`g-pick ${cls}`} data-game={g.key} onClick={() => go(g.key)}>
       {g.icon && (
         <span className="g-pick-ico" aria-hidden="true">
           {g.icon}
@@ -105,7 +105,7 @@ function BillBanner() {
   const { go, L } = useGuest();
   const g = GAMES.find((x) => x.key === "bill")!;
   return (
-    <button className="g-feature" onClick={() => go("bill")}>
+    <button className="g-feature" data-game="bill" onClick={() => go("bill")}>
       <span className="g-feature-ico" aria-hidden="true">
         🎡
       </span>

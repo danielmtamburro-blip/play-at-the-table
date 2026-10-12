@@ -29,7 +29,7 @@ export function ServiceBar({ demo }: { demo: boolean }) {
   return (
     <div className="g-service">
       <div className="g-row">
-        <button className="g-btn service" onClick={() => call("server")} disabled={cool.server}>
+        <button className="g-btn service" data-act="call" onClick={() => call("server")} disabled={cool.server}>
           🙋 {x.callServer}
         </button>
         <button className="g-btn service alt" onClick={() => call("bill")} disabled={cool.bill}>

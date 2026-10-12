@@ -1,5 +1,5 @@
-import GuestApp from "@/components/guest/GuestApp";
 import HashRedirect from "@/components/HashRedirect";
+import HeroPhone from "@/components/HeroPhone";
 import { Logo } from "@/components/Logo";
 import PilotForm from "@/components/PilotForm";
 import { CONTACT_EMAIL } from "@/lib/content";
@@ -82,14 +82,7 @@ export default async function Landing() {
                 <span>Update without reprinting</span>
               </div>
             </div>
-            <div className="phone-stage">
-              <div className="phone">
-                <div className="phone-screen">
-                  <GuestApp venue={venue} table="12" embedded />
-                </div>
-              </div>
-              <p className="phone-note">This is the live guest experience. Tap around: it&apos;s what diners see when they scan.</p>
-            </div>
+            <HeroPhone venue={venue} />
           </div>
         </section>
         <div className="confetti" role="presentation" />

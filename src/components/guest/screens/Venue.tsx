@@ -160,7 +160,7 @@ export function Home() {
         {tiles.map(([k, cls]) => {
           const [t, sub] = label(k);
           return (
-            <button key={k} className={`g-tile ${cls}`} onClick={() => go(k)}>
+            <button key={k} className={`g-tile ${cls}`} data-tile={k} onClick={() => go(k)}>
               {ICON[k]}
               <div>
                 <b>{t}</b>

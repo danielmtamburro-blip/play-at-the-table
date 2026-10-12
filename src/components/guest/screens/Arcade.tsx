@@ -252,7 +252,7 @@ export function Penalty({ k }: { k: string }) {
         )}
       </div>
       {phase === "aim" && (
-        <button className="g-btn" onClick={shoot}>
+        <button className="g-btn" data-act="shoot" onClick={shoot}>
           {ui.shoot}
         </button>
       )}

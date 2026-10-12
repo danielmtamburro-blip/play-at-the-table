@@ -701,3 +701,11 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .vs-swords{font-size:2.6rem;line-height:1}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
 .guest-shell .vs-incoming{position:fixed;max-width:500px;margin-inline:auto}
+
+/* ---------- self-playing demo phone ---------- */
+.tour-layer{position:absolute;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.tour-finger{position:absolute;left:0;top:0;font-size:2.4rem;line-height:1;margin:-6px 0 0 -16px;opacity:0;transition:transform .6s cubic-bezier(.3,.7,.3,1),opacity .3s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.tour-finger.show{opacity:1}
+.tour-ripple{position:absolute;left:4px;top:-2px;width:34px;height:34px;border-radius:50%;background:rgba(110,75,255,.45);transform:scale(0);animation:ripple .55s ease-out}
+@keyframes ripple{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.phone-caption{position:relative;z-index:5;margin-top:-58px;min-height:3em;max-width:340px;text-align:center;font-family:var(--display);font-weight:700;font-size:1.05rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 18px;box-shadow:var(--shadow);animation:fadeIn .5s ease}

@@ -6,6 +6,7 @@ import { GAMES } from "@/lib/games";
 import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
+import DemoTour from "./DemoTour";
 import { BackIcon } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
 import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, SPORTS_TRIVIA, TABLE_RULES } from "@/lib/gameContent";
@@ -25,6 +26,9 @@ type Props = {
   table?: string | null;
   /** Running inside the phone mock-up on the sales page (no analytics, inner scrolling). */
   embedded?: boolean;
+  /** Play a self-running tour (sales page phone). */
+  autoplay?: boolean;
+  onCaption?: (text: string) => void;
 };
 
 function Redeem({ offer, onClose }: { offer: Offer; onClose: () => void }) {
@@ -51,7 +55,7 @@ function Redeem({ offer, onClose }: { offer: Offer; onClose: () => void }) {
   );
 }
 
-export default function GuestApp({ venue, table = null, embedded = false }: Props) {
+export default function GuestApp({ venue, table = null, embedded = false, autoplay = false, onCaption }: Props) {
   const [lang, setLang] = useState<Lang>("en");
   const [stack, setStack] = useState<string[]>(["home"]);
   const [redeemOffer, setRedeemOffer] = useState<Offer | null>(null);
@@ -247,6 +251,7 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
           </div>
         )}
         {redeemOffer && <Redeem offer={redeemOffer} onClose={() => setRedeemOffer(null)} />}
+        {autoplay && <DemoTour root={rootRef} body={bodyRef} onCaption={onCaption} />}
       </div>
       </VersusProvider>
     </GuestContext.Provider>

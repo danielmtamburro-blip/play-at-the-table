@@ -136,7 +136,7 @@ export function SpinWheel({ k, mode }: { k: string; mode: "bill" | "sip" }) {
         </div>
       )}
 
-      <button className="g-btn" onClick={spin} disabled={spinning || names.length < 2}>
+      <button className="g-btn" data-act="spin" onClick={spin} disabled={spinning || names.length < 2}>
         {spinning ? ui.spinning : winner ? ui.again : ui.spin}
       </button>
 
