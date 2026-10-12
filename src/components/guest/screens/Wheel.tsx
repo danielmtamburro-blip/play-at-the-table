@@ -1,4 +1,5 @@
 "use client";
+import { buzz, HAPTIC } from "@/lib/haptics";
 // "Who pays the bill?" / Sip wheel, plus card and dice drinking games. Names never leave the phone.
 import { useEffect, useRef, useState } from "react";
 import { CARD_RULES, DICE_RULES } from "@/lib/gameContent";
@@ -95,7 +96,7 @@ export function SpinWheel({ k, mode }: { k: string; mode: "bill" | "sip" }) {
             setSpinning(false);
             setWinner(names[target.current]);
             log("game_finish", { item: k });
-            navigator.vibrate?.(80);
+            buzz(80);
           }}
           role="img"
           aria-label="Wheel"
@@ -220,12 +221,13 @@ export function HigherLower({ k }: { k: string }) {
     else if (diff > 0 === higher) {
       setStreak((s) => s + 1);
       setMsg({ t: ui.right, tone: "ok" });
+      buzz();
     } else {
       if (streak >= 3) log("game_finish", { item: k, value: streak });
       if (streak >= 1) report(k, streak);
       setStreak(0);
       setMsg({ t: ui.wrong, tone: "bad" });
-      navigator.vibrate?.(60);
+      buzz(HAPTIC.bad);
     }
     setCur(next);
     setPos(p + 1);

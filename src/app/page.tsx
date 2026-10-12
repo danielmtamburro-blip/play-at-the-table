@@ -3,7 +3,11 @@ import HeroPhone from "@/components/HeroPhone";
 import { Logo } from "@/components/Logo";
 import PilotForm from "@/components/PilotForm";
 import { CONTACT_EMAIL } from "@/lib/content";
-import { SHOWCASE_VENUE } from "@/lib/showcase";
+import { SHOWCASE_VENUE, showcaseToday } from "@/lib/showcase";
+import TryOnPhone from "@/components/landing/TryOnPhone";
+import VenueGets from "@/components/landing/VenueGets";
+import { WhatsAppButton, WhatsAppFloat } from "@/components/landing/WhatsApp";
+import YourVenue from "@/components/landing/YourVenue";
 
 export const revalidate = 60;
 
@@ -38,6 +42,7 @@ export default async function Landing() {
   return (
     <div id="landing">
       <HashRedirect />
+      <WhatsAppFloat />
       <header className="nav">
         <div className="wrap">
           <Logo href="#top" />
@@ -85,6 +90,7 @@ export default async function Landing() {
                   Open the guest demo
                 </a>
               </div>
+              <TryOnPhone />
               <div className="hero-meta">
                 <span>No app download</span>
                 <span>English &amp; العربية</span>
@@ -132,6 +138,28 @@ export default async function Landing() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="block" id="your-venue">
+          <div className="wrap">
+            <div className="section-head">
+              <span className="eyebrow">See it with your venue</span>
+              <h2>Picture it in your place</h2>
+              <p>Type your venue&apos;s name, pick your colour and add your logo. The phone shows your guest page straight away.</p>
+            </div>
+            <YourVenue base={showcaseToday()} />
+          </div>
+        </section>
+
+        <section className="block vg-band" id="what-you-get">
+          <div className="wrap">
+            <div className="section-head">
+              <span className="eyebrow">What venues get</span>
+              <h2>Everything you need, ready on day one</h2>
+              <p>Branded coasters for every table, a dashboard that shows what&apos;s working, and a staff screen so no request gets missed.</p>
+            </div>
+            <VenueGets />
           </div>
         </section>
 
@@ -216,9 +244,13 @@ export default async function Landing() {
               <span className="eyebrow">Free pilot</span>
               <h2>Bring Play at Your Table to your venue</h2>
               <p>Tell us a little about your place. We&apos;ll build a sample page with your real menu before you commit to anything.</p>
-              <p>
-                Prefer to talk? Email <strong>{CONTACT_EMAIL}</strong>
-              </p>
+              <div className="pilot-wa">
+                <p>Prefer to talk? Message us and we&apos;ll set up a demo at your venue.</p>
+                <WhatsAppButton />
+                <p className="small">
+                  Or email <strong>{CONTACT_EMAIL}</strong>
+                </p>
+              </div>
             </div>
             <PilotForm />
           </div>

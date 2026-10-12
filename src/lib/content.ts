@@ -2,6 +2,8 @@
 // Venue-specific content (menus, offers, events) lives in Supabase.
 import type { Loc } from "./types";
 
+/** Sales WhatsApp, digits only with the country code. */
+export const WHATSAPP_NUMBER = "971556627796";
 export const CONTACT_EMAIL = "hello@playatyourtable.com";
 
 export const DIET: Record<string, Loc> = {

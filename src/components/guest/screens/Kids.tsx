@@ -1,4 +1,5 @@
 "use client";
+import { buzz, HAPTIC } from "@/lib/haptics";
 import { useEffect, useRef, useState } from "react";
 import { CHALLENGES } from "@/lib/content";
 import { shuffle, useGuest } from "../context";
@@ -187,7 +188,7 @@ export function Memory() {
     const open = [...m.open, i];
     if (open.length < 2) return setM({ ...m, open });
     const [x, y] = open;
-    if (m.cards[x] === m.cards[y]) return setM({ ...m, open: [], done: [...m.done, x, y], moves: m.moves + 1 });
+    if (m.cards[x] === m.cards[y]) return (buzz(), setM({ ...m, open: [], done: [...m.done, x, y], moves: m.moves + 1 }));
     setM({ ...m, open, moves: m.moves + 1, lock: true });
     setTimeout(() => setM((s) => ({ ...s, open: [], lock: false })), 850);
   };

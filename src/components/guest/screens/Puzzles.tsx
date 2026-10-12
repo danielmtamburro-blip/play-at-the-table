@@ -1,4 +1,5 @@
 "use client";
+import { buzz, HAPTIC } from "@/lib/haptics";
 // Solo-friendly puzzles. Each game is generated fresh on the phone.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CROSSWORD_BANK, WORDGUESS_ANSWERS, WORDSEARCH_THEMES } from "@/lib/gameContent";
@@ -510,7 +511,7 @@ export function WordGuess({ k }: { k: string }) {
       setRows(next);
       setDraft("");
       if (draft === answer || next.length >= 6) log("game_finish", { item: k, value: draft === answer ? next.length : 0 });
-      if (draft === answer) report(k, next.length);
+      if (draft === answer) (report(k, next.length), buzz(HAPTIC.win));
       return;
     }
     if (draft.length < 5) setDraft((d) => d + key);
