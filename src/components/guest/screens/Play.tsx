@@ -1,4 +1,5 @@
 "use client";
+import { Glyph, gameGlyph } from "../glyphs";
 // The Play tab: every switched-on game, filtered by who's playing, with today's leaderboard on top.
 import { useState } from "react";
 import { drinkAge, GAMES, gameOn, type GameGroup, type GameInfo } from "@/lib/games";
@@ -33,9 +34,15 @@ export function GameCard({ g, wide }: { g: GameInfo; wide?: boolean }) {
     g.group === "kids" ? `${x.kidsTag}${g.ages ? ` ${g.ages}` : ""}` : g.group === "group" ? x.adultsTag : g.group === "date" ? x.dateTag : `${x.drinkTag} ${drinkAge(venue.games)}+`;
   return (
     <button className={`g-gcard gc-${g.group}${wide ? " wide" : ""}`} data-card={g.key} onClick={() => go(g.key)}>
-      <span className="g-gcard-ico" aria-hidden="true">
-        {gameIcon(g)}
-      </span>
+      {g.group === "kids" ? (
+        <span className="g-gcard-ico" aria-hidden="true">
+          {gameIcon(g)}
+        </span>
+      ) : (
+        <span className={`glass-ico gl-${g.group}`} aria-hidden="true">
+          <Glyph k={gameGlyph(g)} />
+        </span>
+      )}
       <b>{L(g.title)}</b>
       <small>{tag}</small>
     </button>
@@ -47,8 +54,8 @@ export function ChallengeBanner() {
   const x = EXTRA[lang];
   return (
     <button className="g-challenge" data-tile="versus" onClick={() => go("versus")}>
-      <span className="g-challenge-ico" aria-hidden="true">
-        ⚔️
+      <span className="glass-ico g-challenge-ico" aria-hidden="true">
+        <Glyph k="trophy" />
       </span>
       <span className="g-challenge-txt">
         <b>{x.versus}</b>

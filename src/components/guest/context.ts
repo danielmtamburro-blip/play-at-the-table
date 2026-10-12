@@ -43,7 +43,7 @@ export type ExtraKey =
   | "tonight" | "playNow" | "seeAll" | "explore" | "qMenu" | "qDrinks" | "qServer" | "qBill" | "qOffers" | "qWifi"
   | "tabHome" | "tabMenu" | "tabPlay" | "tabOffers" | "food" | "all" | "popular" | "challengeGo" | "eventToday" | "offerTag"
   | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag"
-  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions";
+  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions" | "barGames" | "barGamesS" | "contact" | "call" | "email" | "hours" | "access" | "review" | "demoContact";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -96,6 +96,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     foodMenu: "Food menu", foodMenuS: "Prices, allergens and dietary filters", drinksMenu: "Drinks menu", drinksMenuS: "Cocktails, mocktails, coffee and more",
     celebrate: "Celebrations", celebrateS: "Birthdays, anniversaries and more", nearby: "Things to do nearby", nearbyS: "Our favourite local spots",
     nearbySub: "Places we love around the area, hand-picked by the team.", directions: "Directions",
+    barGames: "Darts & pool", barGamesS: "Scorers for the board and table",
+    contact: "Contact us", call: "Call", email: "Email", hours: "Opening hours", access: "Accessibility & parking",
+    review: "Enjoyed your visit? Leave us a review", demoContact: "This is a demo venue, so these buttons don't contact anyone.",
   },
   ar: {
     empty: "لا يوجد شيء هنا بعد. اسأل النادل.",
@@ -146,6 +149,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     foodMenu: "قائمة الطعام", foodMenuS: "الأسعار ومسببات الحساسية والفلاتر الغذائية", drinksMenu: "قائمة المشروبات", drinksMenuS: "كوكتيلات وموكتيلات وقهوة والمزيد",
     celebrate: "احتفالات", celebrateS: "أعياد الميلاد والذكريات والمزيد", nearby: "أماكن قريبة", nearbyS: "أماكننا المفضلة في المنطقة",
     nearbySub: "أماكن نحبها في المنطقة، اختارها فريقنا.", directions: "الاتجاهات",
+    barGames: "السهام والبلياردو", barGamesS: "حاسبات للوحة والطاولة",
+    contact: "تواصل معنا", call: "اتصال", email: "البريد", hours: "ساعات العمل", access: "إمكانية الوصول والمواقف",
+    review: "استمتعت بزيارتك؟ اترك لنا تقييماً", demoContact: "هذا مكان تجريبي، لذلك لا تتصل هذه الأزرار بأحد.",
   },
 };
 

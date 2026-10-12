@@ -35,8 +35,14 @@ const TEXT_FIELDS: [key: string, label: string, rtl?: boolean][] = [
   ["access_ar", "Accessibility & parking (Arabic)", true],
   ["wifi_ssid", "Wi-Fi network"],
   ["wifi_pass", "Wi-Fi password"],
+  ["address_en", "Address (English)"],
+  ["address_ar", "Address (Arabic)", true],
   ["phone", "Phone"],
+  ["whatsapp", "WhatsApp number (with country code, e.g. 971501234567)"],
+  ["email", "Email"],
+  ["instagram", "Instagram (without the @)"],
   ["maps_url", "Google Maps link"],
+  ["review_url", "Review link (Google, TripAdvisor…)"],
   ["allergy_note_en", "Allergy note (English, optional)"],
   ["allergy_note_ar", "Allergy note (Arabic, optional)", true],
 ];
@@ -55,6 +61,8 @@ export default function ProfileForm({ venue }: { venue: Row }) {
     e.preventDefault();
     setBusy(true);
     const patch: Row = Object.fromEntries(TEXT_FIELDS.map(([k]) => [k, String(v[k] ?? "").trim()]));
+    patch.whatsapp = String(patch.whatsapp).replace(/\D/g, "");
+    patch.instagram = String(patch.instagram).replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/.*$/, "");
     patch.brand_color = v.brand_color;
     patch.published = Boolean(v.published);
     patch.modules = modules;

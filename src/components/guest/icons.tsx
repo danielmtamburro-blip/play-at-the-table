@@ -75,6 +75,13 @@ export const ICON: Record<string, React.ReactNode> = {
       <path d="M11 11c1-4 4-6 8-5M18 16c3-2 7-2 9 1M21 6l1-3M26 10l3-1M24 21l3 2" />
     </svg>
   ),
+  bar: (
+    <svg {...base}>
+      <circle cx="14" cy="18" r="10" />
+      <circle cx="14" cy="18" r="5" />
+      <path d="M14 18L27 5M23 5h4v4" />
+    </svg>
+  ),
   nearby: (
     <svg {...base}>
       <path d="M16 29s-9-8.5-9-15a9 9 0 0 1 18 0c0 6.5-9 15-9 15z" />
