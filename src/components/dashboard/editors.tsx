@@ -1,6 +1,6 @@
 "use client";
 import { ALLERGEN, DAYS, DIET } from "@/lib/content";
-import { OFFER_COLORS } from "@/lib/types";
+import { NEARBY_CATS, OFFER_COLORS } from "@/lib/types";
 import CrudList, { type Field, type Row } from "./CrudList";
 
 const WEEKDAYS: [string, string][] = DAYS.en.map((d, i) => [String(i), d]);
@@ -161,6 +161,51 @@ export function OffersEditor({ venueId, offers }: { venueId: string; offers: Row
         warn={(r) => (!String(r.terms_en ?? "").trim() ? "Add terms so guests know the rules." : !r.ends_on ? "Consider adding an end date." : null)}
         addLabel="Add offer"
         emptyText="No offers yet."
+      />
+    </section>
+  );
+}
+
+/* ---------- Things to do nearby ---------- */
+
+const NEARBY_NAMES: Record<string, string> = {
+  sight: "🏛️ Sight or landmark", beach: "🏖️ Beach", park: "🌳 Park", family: "🎡 Family fun", shopping: "🛍️ Shopping",
+  culture: "🎭 Culture & museums", food: "🍦 Treats & cafés", nightlife: "🌃 Nightlife", sport: "⛳ Sport & activities",
+};
+const NEARBY_FIELDS: Field[] = [
+  { key: "name_en", label: "Place (English)", type: "text", required: true },
+  { key: "name_ar", label: "Place (Arabic)", type: "text", dir: "rtl" },
+  { key: "desc_en", label: "Why go? (English)", type: "textarea", hint: "One or two lines, e.g. \"Sunset walk along the water, 5 minutes away.\"" },
+  { key: "desc_ar", label: "Why go? (Arabic)", type: "textarea", dir: "rtl" },
+  { key: "category", label: "Type", type: "select", required: true, options: NEARBY_CATS.map((c) => [c, NEARBY_NAMES[c]]) },
+  { key: "distance", label: "How far", type: "text", hint: "e.g. 5 min walk, 2 km, 10 min by taxi" },
+  { key: "maps_url", label: "Google Maps link (optional)", type: "text", full: true, hint: "Paste a link from Google Maps. Leave empty and we'll search for the place." },
+  { key: "sort_order", label: "Order", type: "number" },
+  { key: "published", label: "Show to guests", type: "checkbox" },
+];
+
+export function NearbyEditor({ venueId, places, enabled }: { venueId: string; places: Row[]; enabled: boolean }) {
+  return (
+    <section className="panel">
+      <h2>Things to do nearby</h2>
+      <p className="muted small">
+        Recommend local spots: beaches, sights, family fun and places for an evening stroll. Great for tourists and hotel guests.
+      </p>
+      {!enabled && (
+        <p className="status bad">
+          This section is switched off, so guests can&apos;t see it yet. Turn on &ldquo;Things to do nearby&rdquo; under <a href="?tab=details">Details → Sections guests can see</a>.
+        </p>
+      )}
+      <CrudList
+        table="nearby"
+        rows={[...places].sort((a, b) => a.sort_order - b.sort_order)}
+        fields={NEARBY_FIELDS}
+        defaults={{ venue_id: venueId, category: "sight", published: true, sort_order: places.length }}
+        title={(r) => r.name_en}
+        badges={(r) => [{ text: NEARBY_NAMES[r.category] ?? r.category }, ...(r.distance ? [{ text: r.distance }] : []), ...(r.published ? [] : [{ text: "Hidden", tone: "off" as const }])]}
+        warn={(r) => (r.maps_url && !/^https:\/\//.test(r.maps_url) ? "The map link must start with https://" : null)}
+        addLabel="Add a place"
+        emptyText="No places yet. Add a few favourites guests can visit after their meal."
       />
     </section>
   );

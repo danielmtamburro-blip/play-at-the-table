@@ -46,6 +46,8 @@ export const SAMPLE_VENUE: Venue = {
     "kids": true,
     "group": true,
     "date": true,
+    "celebrate": true,
+    "nearby": false,
     "events": true,
     "offers": true,
     "drink": false,
@@ -665,5 +667,6 @@ export const SAMPLE_VENUE: Venue = {
       "endsOn": null,
       "featured": false
     }
-  ]
+  ],
+  "nearby": []
 };

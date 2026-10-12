@@ -7,7 +7,7 @@ import { EXTRA, useGuest } from "../context";
 import { LeaderboardTeaser } from "../Leaderboard";
 
 const KID_ICON: Record<string, string> = {
-  animals: "🐮", fruit: "🍓", calm: "🌙",
+  animals: "🐮", fruit: "🍓", calm: "🌙", spotkids: "🔍",
   colour: "🎨", bubbles: "🫧", oddone: "🔎", count: "🔢", penalty: "⚽", racer: "🏎️",
   memory: "🐪", tictactoe: "❌", keepy: "🦶", reaction: "⚡", maths: "➗", scramble: "🔤",
 };

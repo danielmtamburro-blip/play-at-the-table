@@ -18,6 +18,8 @@ const MODULES = [
   ["m-date", "Date night", "Conversation starters", "Question decks for first dates, couples and memory lane. Skip any card, and no answers are ever saved."],
   ["m-events", "What's on", "Events that sell themselves", "Brunch, quiz night, live music, match screenings. Past events disappear on their own, and guests can add them to their calendar."],
   ["m-info", "Venue info", "The questions staff hear most", "Wi-Fi password, opening hours, directions, parking and accessibility notes, all in one place."],
+  ["m-kids", "Celebrations", "Make birthdays unforgettable", "Guests turn their phone into a party card with confetti and a song, and can quietly let your team know so you can bring a candle."],
+  ["m-group", "Pub games & local guide", "Darts, pool and things to do", "Darts and pool scorers for your board and table, plus your favourite spots nearby for tourists and hotel guests."],
 ];
 
 const BENEFITS = [

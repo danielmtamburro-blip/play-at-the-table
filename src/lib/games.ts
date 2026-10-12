@@ -7,7 +7,7 @@ import type { Loc } from "./types";
 export type GameGroup = "kids" | "group" | "date" | "drink";
 export type AgeBand = "2" | "3" | "6" | "12";
 
-export type GameCat = "featured" | "puzzles" | "trivia" | "party" | "cards" | "talk";
+export type GameCat = "featured" | "puzzles" | "bar" | "trivia" | "party" | "cards" | "talk";
 export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string };
 
 const L = (en: string, ar: string): Loc => ({ en, ar });
@@ -26,6 +26,7 @@ export const GAMES: GameInfo[] = [
   { key: "penalty", group: "kids", band: "6", title: L("Penalty shootout", "ركلات الترجيح"), sub: L("Time your shot and beat the keeper", "اختر التوقيت المناسب وتغلب على الحارس"), ages: "6+" },
   { key: "racer", group: "kids", band: "6", title: L("Car racer", "سباق السيارات"), sub: L("Dodge the traffic and go faster", "تفادَ السيارات وزِد سرعتك"), ages: "6+" },
   { key: "memory", group: "kids", band: "6", title: L("Memory match", "لعبة الذاكرة"), sub: L("Find all 8 pairs in as few moves as you can", "اعثر على 8 أزواج بأقل عدد من المحاولات"), ages: "6+" },
+  { key: "spotkids", group: "kids", band: "6", title: L("Spot the difference", "اكتشف الفرق"), sub: L("Find 5 differences between the pictures", "اعثر على 5 فروق بين الصورتين"), ages: "6+" },
   { key: "tictactoe", group: "kids", band: "6", title: L("Noughts & crosses", "إكس-أو"), sub: L("Beat the phone or a friend", "تغلب على الهاتف أو على صديق"), ages: "6+" },
   { key: "keepy", group: "kids", band: "12", title: L("Keepy-uppy", "تنطيط الكرة"), sub: L("Tap the ball. Don't let it drop!", "اضغط على الكرة ولا تدعها تسقط!"), ages: "12+" },
   { key: "reaction", group: "kids", band: "12", title: L("Reaction test", "اختبار رد الفعل"), sub: L("How fast are your reflexes?", "ما مدى سرعة رد فعلك؟"), ages: "12+" },
@@ -38,6 +39,9 @@ export const GAMES: GameInfo[] = [
   { key: "crossword", group: "group", cat: "puzzles", icon: "✏️", title: L("Mini crossword", "كلمات متقاطعة"), sub: L("A fresh crossword every time", "كلمات متقاطعة جديدة في كل مرة") },
   { key: "wordsearch", group: "group", cat: "puzzles", icon: "🔍", title: L("Word search", "البحث عن الكلمات"), sub: L("Find all the hidden words", "اعثر على كل الكلمات المخفية") },
   { key: "wordguess", group: "group", cat: "puzzles", icon: "🟩", title: L("Word guess", "خمّن الكلمة"), sub: L("Guess the 5-letter word in 6 tries", "خمّن الكلمة من 5 أحرف في 6 محاولات") },
+  { key: "spot", group: "group", cat: "puzzles", icon: "🔎", title: L("Spot the difference", "اكتشف الفرق"), sub: L("7 sneaky differences. Can you find them all?", "7 فروق خفية. هل تجدها كلها؟") },
+  { key: "darts", group: "group", cat: "bar", icon: "🎯", title: L("Darts scorer", "حاسبة السهام"), sub: L("301 or 501, with checkout tips", "301 أو 501 مع اقتراحات الإنهاء") },
+  { key: "pool", group: "group", cat: "bar", icon: "🎱", title: L("Pool scorer", "حاسبة البلياردو"), sub: L("Race to frames or killer pool", "سباق الأشواط أو بلياردو القاتل") },
   { key: "trivia", group: "group", cat: "trivia", icon: "🧠", title: L("Table trivia", "مسابقة الطاولة"), sub: L("General knowledge for the table", "معلومات عامة للطاولة") },
   { key: "sports", group: "group", cat: "trivia", icon: "🏆", title: L("Sports trivia", "مسابقة رياضية"), sub: L("Football, tennis, F1 and more", "كرة القدم والتنس والفورمولا 1 وغيرها") },
   { key: "emoji", group: "group", cat: "trivia", icon: "🎬", title: L("Emoji films", "أفلام بالإيموجي"), sub: L("Guess the film from the emojis", "خمّن الفيلم من الإيموجي") },
@@ -67,6 +71,7 @@ export const GAMES: GameInfo[] = [
 export const CATS: Record<GameCat, Loc> = {
   featured: L("Featured", "مميز"),
   puzzles: L("🧩 Puzzles · great on your own", "🧩 ألغاز · رائعة بمفردك"),
+  bar: L("🎯 Darts & pool scorers", "🎯 حاسبات السهام والبلياردو"),
   trivia: L("🧠 Trivia", "🧠 مسابقات"),
   party: L("🎉 Party games · for the group", "🎉 ألعاب جماعية · للمجموعة"),
   cards: L("🃏 Cards, dice and wheels", "🃏 بطاقات ونرد وعجلات"),
@@ -85,7 +90,11 @@ export const GROUP_LABEL: Record<GameGroup, string> = { kids: "Kids' corner", gr
 /** Drinking-games age limit set by the venue (stored in venues.games._drinkAge). Defaults to 21 (UAE). */
 export const drinkAge = (games: Record<string, unknown> | undefined) => (games?._drinkAge === 18 ? 18 : 21);
 
-export const gameOn = (games: Record<string, boolean> | undefined, key: string) => games?.[key] !== false;
+/** Games that stay hidden until the venue switches them on (they need a dartboard or pool table). */
+export const OFF_UNTIL_ON: readonly string[] = ["darts", "pool"];
+
+export const gameOn = (games: Record<string, boolean> | undefined, key: string) =>
+  OFF_UNTIL_ON.includes(key) ? games?.[key] === true : games?.[key] !== false;
 
 export const anyGameOn = (games: Record<string, boolean> | undefined, group: GameGroup) =>
   GAMES.some((g) => g.group === group && gameOn(games, g.key));

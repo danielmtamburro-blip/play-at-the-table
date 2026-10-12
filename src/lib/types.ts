@@ -1,9 +1,9 @@
 export type Lang = "en" | "ar";
 export type Loc = { en: string; ar: string };
 
-export const MODULE_KEYS = ["menu", "drinks", "kids", "group", "date", "events", "offers", "drink", "versus", "feedback", "service"] as const;
+export const MODULE_KEYS = ["menu", "drinks", "kids", "group", "date", "celebrate", "events", "offers", "nearby", "drink", "versus", "feedback", "service"] as const;
 /** Sections that stay off until a venue switches them on. */
-export const OFF_BY_DEFAULT: readonly string[] = ["service", "drink"];
+export const OFF_BY_DEFAULT: readonly string[] = ["service", "drink", "nearby"];
 export const moduleOn = (raw: Record<string, unknown> | null | undefined, k: string) =>
   OFF_BY_DEFAULT.includes(k) ? raw?.[k] === true : raw?.[k] !== false;
 export type ModuleKey = (typeof MODULE_KEYS)[number];
@@ -52,6 +52,12 @@ export type Offer = {
   featured: boolean;
 };
 
+export const NEARBY_CATS = ["sight", "beach", "park", "family", "shopping", "culture", "food", "nightlife", "sport"] as const;
+export type NearbyCat = (typeof NEARBY_CATS)[number];
+
+/** A place to visit near the venue, suggested by the venue. */
+export type NearbyPlace = { id: string; name: Loc; desc: Loc; category: NearbyCat; distance: string; mapsUrl: string };
+
 /** Everything the guest page needs, already filtered to what is live today. */
 export type Venue = {
   id: string;
@@ -80,4 +86,5 @@ export type Venue = {
   menu: MenuCategory[];
   events: VenueEvent[];
   offers: Offer[];
+  nearby: NearbyPlace[];
 };

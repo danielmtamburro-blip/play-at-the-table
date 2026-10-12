@@ -79,5 +79,9 @@ export function rowToVenue(v: Row): Venue {
         endsOn: o.ends_on,
         featured: o.featured,
       })),
+    nearby: ((v.nearby ?? []) as Row[])
+      .filter((n) => n.published)
+      .sort(bySort)
+      .map((n) => ({ id: n.id, name: loc(n, "name"), desc: loc(n, "desc"), category: n.category, distance: n.distance ?? "", mapsUrl: n.maps_url ?? "" })),
   };
 }
