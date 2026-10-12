@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.netlify/
+.env*.local
+.env
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+__pycache__/
+*.pyc
+.claude/
