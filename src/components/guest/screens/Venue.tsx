@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
-import { ALLERGEN, DAYS, DIET, type TKey } from "@/lib/content";
+import { useState } from "react";
+import { ALLERGEN, DAYS, DIET } from "@/lib/content";
 import { anyGameOn, drinkAge } from "@/lib/games";
 import type { Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
-import { ServiceBar } from "./Service";
+import { useService } from "./Service";
+import { ChallengeBanner, GameCard, venueGames } from "./Play";
 import { ICON } from "../icons";
 
 /* ---------- Home ---------- */
@@ -55,48 +56,30 @@ function WifiStrip() {
   );
 }
 
-/** Today's offers, fading from one to the next every few seconds. */
-function OfferCarousel({ offers }: { offers: Offer[] }) {
-  const { tr, L, go, log } = useGuest();
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (offers.length < 2 || paused) return;
-    const t = setInterval(() => setI((n) => (n + 1) % offers.length), 4500);
-    return () => clearInterval(t);
-  }, [offers.length, paused]);
-  const o = offers[i % offers.length];
+/** Swipeable row of cards. */
+function Scroller({ title, more, children }: { title: string; more?: () => void; children: React.ReactNode }) {
+  const { lang } = useGuest();
   return (
-    <div className="g-carousel" onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
-      <button
-        key={o.id}
-        className="g-banner fade-in"
-        style={{ background: `var(--${o.color})` }}
-        onClick={() => {
-          log("offer_open", { item: o.title.en });
-          go("offers");
-        }}
-      >
-        <small>{tr("offerNow")}</small>
-        <b>{L(o.title)}</b>
-        {L(o.desc) && <span style={{ fontSize: ".85rem", opacity: 0.95 }}>{L(o.desc)}</span>}
-      </button>
-      {offers.length > 1 && (
-        <div className="g-dots" role="tablist" aria-label={tr("offers")}>
-          {offers.map((x, n) => (
-            <button key={x.id} role="tab" aria-selected={n === i % offers.length} aria-label={L(x.title)} onClick={() => setI(n)} />
-          ))}
-        </div>
-      )}
-    </div>
+    <section className="g-scroll-sec">
+      <div className="g-sec-head">
+        <h3 className="g-sec">{title}</h3>
+        {more && (
+          <button className="g-more" onClick={more}>
+            {EXTRA[lang].seeAll} ›
+          </button>
+        )}
+      </div>
+      <div className="g-scroller">{children}</div>
+    </section>
   );
 }
 
-/** Big venue logo (or a monogram) above the welcome line. */
-function VenueHero() {
-  const { venue, L, lang } = useGuest();
-  const x = EXTRA[lang];
+/** Cover photo (or brand colour) with the table and language on it, and the logo card overlapping. */
+function Cover() {
+  const { venue, table, tr, L, lang, toggleLang } = useGuest();
   const name = L(venue.name);
+  const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
+  const img = venue.theme?.bgImage;
   const initials = venue.name.en
     .split(/[\s&]+/)
     .filter(Boolean)
@@ -105,72 +88,168 @@ function VenueHero() {
     .join("")
     .toUpperCase();
   return (
-    <div className="g-hero">
-      {venue.logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="g-hero-logo" src={venue.logoUrl} alt={name} />
-      ) : (
-        <span className="g-hero-mono" style={{ background: venue.theme?.accent ?? venue.brandColor }} aria-hidden="true">
-          {initials}
-        </span>
-      )}
-      <h2>{x.welcomeTo.replace("{name}", name)}</h2>
-      <p>{x.whatToDo}</p>
+    <div className="g-cover-wrap">
+      <div
+        className="g-cover"
+        style={{
+          backgroundImage: img
+            ? `linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.05) 45%, rgba(0,0,0,.25)), url("${img}")`
+            : `radial-gradient(circle at 85% 15%, rgba(255,255,255,.28), transparent 40%), linear-gradient(135deg, ${accent}, color-mix(in srgb, ${accent} 55%, #000))`,
+        }}
+      >
+        <div className="g-cover-bar">
+          {table ? (
+            <span className="g-cover-chip">
+              🪑 {tr("table")} {table}
+            </span>
+          ) : (
+            <span />
+          )}
+          <button className="g-cover-chip g-cover-lang" lang={lang === "en" ? "ar" : "en"} onClick={toggleLang}>
+            {tr("lang")}
+          </button>
+        </div>
+        {!img && (
+          <span className="g-cover-art" aria-hidden="true">
+            🎲 🍽️ 🎉
+          </span>
+        )}
+      </div>
+      <div className="g-id">
+        {venue.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="g-id-logo" src={venue.logoUrl} alt={name} />
+        ) : (
+          <span className="g-id-logo mono" style={{ background: accent }} aria-hidden="true">
+            {initials}
+          </span>
+        )}
+        <div className="g-id-txt">
+          <h2>{name}</h2>
+          <p>{[L(venue.area), L(venue.hours)].filter(Boolean).join(" · ")}</p>
+        </div>
+      </div>
     </div>
   );
 }
 
+/** Four round shortcuts under the cover. */
+function QuickActions() {
+  const { venue, lang, go, demo } = useGuest();
+  const x = EXTRA[lang];
+  const m = venue.modules;
+  const svc = useService(demo);
+  const items: { k: string; label: string; icon: React.ReactNode; on: () => void; act?: string; off?: boolean }[] = [];
+  if (m.menu) items.push({ k: "menu", label: x.qMenu, icon: ICON.menu, on: () => go("menu") });
+  if (m.drinks) items.push({ k: "drinks", label: x.qDrinks, icon: ICON.drinks, on: () => go("drinks") });
+  if (svc.on) {
+    items.push({ k: "server", label: x.qServer, icon: <span className="g-q-emoji">🙋</span>, on: () => svc.call("server"), act: "call", off: svc.cool.server });
+    items.push({ k: "bill", label: x.qBill, icon: <span className="g-q-emoji">🧾</span>, on: () => svc.call("bill"), off: svc.cool.bill });
+  } else {
+    if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: ICON.offers, on: () => go(m.events ? "events" : "offers") });
+    if (m.feedback) items.push({ k: "feedback", label: x.feedback, icon: ICON.feedback, on: () => go("feedback") });
+  }
+  if (!items.length) return null;
+  return (
+    <>
+      <div className="g-quick">
+        {items.slice(0, 4).map((it) => (
+          <button key={it.k} className={`g-q q-${it.k}`} data-act={it.act} data-q={it.k} onClick={it.on} disabled={it.off}>
+            <span className="g-q-ring">{it.icon}</span>
+            <span>{it.label}</span>
+          </button>
+        ))}
+      </div>
+      {svc.msg && (
+        <p className={`g-service-msg${svc.msg.ok ? "" : " bad"}`} role="status">
+          {svc.msg.text}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** Offers and today's events as swipeable cards. */
+function Tonight() {
+  const { venue, lang, L, go, log } = useGuest();
+  const x = EXTRA[lang];
+  const m = venue.modules;
+  const offers = m.offers ? [...venue.offers].sort((a, b) => Number(b.featured) - Number(a.featured)) : [];
+  const events = m.events ? venue.events.filter((ev) => nextOccurrence(ev)?.add === 0) : [];
+  if (!offers.length && !events.length) return null;
+  return (
+    <Scroller title={x.tonight} more={() => go(m.events ? "events" : "offers")}>
+      {events.map((ev) => (
+        <button key={ev.id} className="g-tcard" style={{ background: "var(--violet)" }} onClick={() => go("events")}>
+          <small>
+            {x.eventToday} · {ev.start}–{ev.end}
+          </small>
+          <b>{L(ev.title)}</b>
+          {L(ev.desc) && <span>{L(ev.desc)}</span>}
+        </button>
+      ))}
+      {offers.map((o) => (
+        <button
+          key={o.id}
+          className="g-tcard"
+          style={{ background: `var(--${o.color})` }}
+          onClick={() => {
+            log("offer_open", { item: o.title.en });
+            go("offers");
+          }}
+        >
+          <small>{x.offerTag}</small>
+          <b>{L(o.title)}</b>
+          {L(o.desc) && <span>{L(o.desc)}</span>}
+        </button>
+      ))}
+    </Scroller>
+  );
+}
+
 export function Home() {
-  const { venue, tr, lang, go, demo } = useGuest();
+  const { venue, tr, lang, go } = useGuest();
   const x = EXTRA[lang];
   const m = venue.modules;
   const games = (k: "kids" | "group" | "date" | "drink") => anyGameOn(venue.games as Record<string, boolean>, k);
-  const offers = m.offers ? [...venue.offers].sort((a, b) => Number(b.featured) - Number(a.featured)) : [];
+  const top = venueGames(venue).filter((g) => g.group !== "drink").slice(0, 8);
 
-  // Feedback always sits last (bottom right when the grid is full).
-  const tiles: [string, string][] = [];
-  if (m.menu) tiles.push(["menu", "t-menu"]);
-  if (m.drinks) tiles.push(["drinks", "t-drinks"]);
-  if (m.kids && games("kids")) tiles.push(["kids", "t-kids"]);
-  if (m.group && games("group")) tiles.push(["group", "t-group"]);
-  if (m.date && games("date")) tiles.push(["date", "t-date"]);
-  if (m.events) tiles.push(["events", "t-events"]);
-  else if (m.offers) tiles.push(["offers", "t-events"]);
-  if (m.versus) tiles.push(["versus", "t-versus wide"]);
-  if (m.drink && games("drink")) tiles.push(["drink", "t-drink"]);
-  if (m.feedback) tiles.push(["feedback", "t-feedback"]);
-
-  const label = (k: string): [string, string] => {
-    if (k === "group") return [x.adults, x.adultsS];
-    if (k === "kids") return [x.kidsGames, tr("kidsS")];
-    if (k === "versus") return [x.versus, x.versusS];
-    if (k === "drink") return [x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))];
-    if (k === "feedback") return [x.feedback, x.feedbackS];
-    if (k === "offers") return [tr("offers"), x.offersS];
-    return [tr(k as TKey), tr(`${k}S` as TKey)];
-  };
+  const explore: [string, string, string][] = [];
+  if (m.kids && games("kids")) explore.push(["kids", x.kidsGames, tr("kidsS")]);
+  if (m.group && games("group")) explore.push(["group", x.adults, x.adultsS]);
+  if (m.date && games("date")) explore.push(["date", tr("dateTitle"), tr("dateS")]);
+  if (m.drink && games("drink")) explore.push(["drink", x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))]);
 
   return (
     <>
-      <VenueHero />
+      <Cover />
+      <QuickActions />
       <WifiStrip />
-      {offers.length > 0 && <OfferCarousel offers={offers} />}
-      <ServiceBar demo={demo} />
-      <div className="g-grid">
-        {tiles.map(([k, cls]) => {
-          const [t, sub] = label(k);
-          return (
-            <button key={k} className={`g-tile ${cls}`} data-tile={k} onClick={() => go(k)}>
-              {ICON[k]}
-              <div>
-                <b>{t}</b>
-                <br />
-                <span>{sub}</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      <Tonight />
+      {top.length > 0 && (
+        <Scroller title={x.playNow} more={() => go("play")}>
+          {top.map((g) => (
+            <GameCard key={g.key} g={g} />
+          ))}
+        </Scroller>
+      )}
+      {m.versus && <ChallengeBanner />}
+      {explore.length > 0 && (
+        <section className="g-scroll-sec">
+          <h3 className="g-sec">{x.explore}</h3>
+          <div className="g-explore">
+            {explore.map(([k, t, sub]) => (
+              <button key={k} className={`g-ex t-${k}`} data-tile={k} onClick={() => go(k)}>
+                {ICON[k]}
+                <span>
+                  <b>{t}</b>
+                  <small>{sub}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }
@@ -204,10 +283,35 @@ function PdfMenu({ kind, url }: { kind: "food" | "drinks"; url: string }) {
   );
 }
 
-export function Menu({ kind }: { kind: "food" | "drinks" }) {
-  const { venue } = useGuest();
+/** Menu tab: food and drinks with a toggle between them. */
+export function Menu({ kind: start }: { kind: "food" | "drinks" }) {
+  const { venue, lang, log } = useGuest();
+  const x = EXTRA[lang];
+  const both = venue.modules.menu && venue.modules.drinks;
+  const [kind, setKind] = useState<"food" | "drinks">(venue.modules.menu ? start : "drinks");
   const pdf = venue.menuMode === "pdf" ? (kind === "food" ? venue.menuPdf : venue.drinksPdf || venue.menuPdf) : "";
-  return pdf ? <PdfMenu kind={kind} url={pdf} /> : <ItemMenu kind={kind} />;
+  return (
+    <>
+      {both && (
+        <div className="g-seg" role="group">
+          {(["food", "drinks"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={kind === k}
+              onClick={() => {
+                setKind(k);
+                log("view", { module: k === "food" ? "menu" : "drinks" });
+              }}
+            >
+              {k === "food" ? x.food : x.qDrinks}
+            </button>
+          ))}
+        </div>
+      )}
+      {pdf ? <PdfMenu key={kind} kind={kind} url={pdf} /> : <ItemMenu key={kind} kind={kind} />}
+    </>
+  );
 }
 
 function ItemMenu({ kind }: { kind: "food" | "drinks" }) {

@@ -5,6 +5,7 @@ import { SCRAMBLE_WORDS } from "@/lib/gameContent";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { useScores } from "../Leaderboard";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -28,9 +29,10 @@ const UI: Record<Lang, Record<string, string>> = {
 };
 const useUi = () => UI[useGuest().lang];
 
-/** Personal best kept on this phone only (never sent anywhere). */
-function useBest(key: string, higherIsBetter = true) {
+/** Personal best kept on this phone; scores that make the venue's top 10 offer a leaderboard spot. */
+export function useBest(key: string, higherIsBetter = true) {
   const [best, setBest] = useState<number | null>(null);
+  const { report } = useScores();
   useEffect(() => {
     try {
       const v = localStorage.getItem(`patt-best-${key}`);
@@ -39,6 +41,7 @@ function useBest(key: string, higherIsBetter = true) {
   }, [key]);
   const submit = useCallback(
     (v: number) => {
+      report(key, v);
       setBest((b) => {
         const better = b == null || (higherIsBetter ? v > b : v < b);
         if (!better) return b;
@@ -48,7 +51,7 @@ function useBest(key: string, higherIsBetter = true) {
         return v;
       });
     },
-    [key, higherIsBetter],
+    [key, higherIsBetter, report],
   );
   return [best, submit] as const;
 }

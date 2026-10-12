@@ -5,6 +5,7 @@ import { CARD_RULES, DICE_RULES } from "@/lib/gameContent";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { useScores } from "../Leaderboard";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -204,6 +205,7 @@ export function HigherLower({ k }: { k: string }) {
   const [pos, setPos] = useState(1);
   const [streak, setStreak] = useState(0);
   const [msg, setMsg] = useState<{ t: string; tone: "ok" | "bad" | "" } | null>(null);
+  const { report } = useScores();
 
   function guess(higher: boolean) {
     let d = deck, p = pos;
@@ -220,6 +222,7 @@ export function HigherLower({ k }: { k: string }) {
       setMsg({ t: ui.right, tone: "ok" });
     } else {
       if (streak >= 3) log("game_finish", { item: k, value: streak });
+      if (streak >= 1) report(k, streak);
       setStreak(0);
       setMsg({ t: ui.wrong, tone: "bad" });
       navigator.vibrate?.(60);

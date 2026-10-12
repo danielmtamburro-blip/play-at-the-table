@@ -8,7 +8,7 @@ import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
-import { BackIcon } from "./icons";
+import { BackIcon, ICON } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
 import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, SPORTS_TRIVIA, TABLE_RULES } from "@/lib/gameContent";
 import { drinkAge } from "@/lib/games";
@@ -19,8 +19,11 @@ import { Charades, CountIt, GameHub, NameFive, OddOneOut, Pairs, PromptCards, Qu
 import { Deck, Picker } from "./screens/Games";
 import { Colour, Memory } from "./screens/Kids";
 import { AgeGate, Feedback } from "./screens/Service";
+import { Pour } from "./screens/Pour";
 import { VersusProvider, VersusScreen } from "./screens/Versus";
 import { Events, Home, Menu, Offers } from "./screens/Venue";
+import { PlayTab } from "./screens/Play";
+import { LeaderboardProvider, LeaderboardScreen } from "./Leaderboard";
 
 type Props = {
   venue: Venue;
@@ -127,6 +130,14 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       demo: embedded,
       home: () => setStack(["home"]),
       screen: cur,
+      toggleLang: () => {
+        const n = lang === "en" ? "ar" : "en";
+        setLang(n);
+        log("lang", { item: n });
+        try {
+          localStorage.setItem("patt-lang", n);
+        } catch {}
+      },
     };
   }, [lang, venue, table, go, log, embedded, cur]);
 
@@ -134,15 +145,31 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   const { tr, L } = ctx;
   const x = EXTRA[lang];
   const age = drinkAge(venue.games);
+  const m = venue.modules;
+  const offersTab = m.events ? "events" : "offers";
+  const tabs: [string, string, React.ReactNode][] = [["home", x.tabHome, ICON.home]];
+  if (m.menu || m.drinks) tabs.push([m.menu ? "menu" : "drinks", x.tabMenu, ICON.menu]);
+  if (m.kids || m.group || m.date || m.drink || m.versus) tabs.push(["play", x.tabPlay, ICON.play]);
+  if (m.offers || m.events) tabs.push([offersTab, x.tabOffers, ICON.offers]);
+  if (m.feedback) tabs.push(["feedback", x.feedback, ICON.feedback]);
+  /** Which tab a screen belongs to (the root of the current stack). */
+  const tabOf = (st: string[]) => (st[0] === "drinks" && m.menu ? "menu" : st[0]);
+  const openTab = (k: string) => {
+    if (stack.length === 1 && stack[0] === k) return bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setStack([k]);
+    log("view", { module: k });
+  };
 
   const screen = (() => {
     if (cur.startsWith("deck:")) return <Deck key={cur} id={cur.slice(5)} onExit={back} />;
+    if (cur === "leaderboard" || cur.startsWith("leaderboard:")) return <LeaderboardScreen key={cur} initial={cur.split(":")[1]} />;
     switch (cur) {
       case "menu": return <Menu kind="food" />;
       case "drinks": return <Menu kind="drinks" />;
       case "events": return <Events />;
       case "offers": return <Offers />;
-      case "feedback": return <Feedback demo={embedded} onDone={back} />;
+      case "feedback": return <Feedback demo={embedded} onDone={() => (stack.length > 1 ? back() : setStack(["home"]))} />;
+      case "play": return <PlayTab />;
       case "versus": return <VersusScreen />;
       // Section hubs
       case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={x.kidsSub} note={tr("playTogether")} />;
@@ -177,6 +204,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       case "hilo": return <AgeGate age={age} onNo={back}><HigherLower k="hilo" /></AgeGate>;
       case "kings": return <AgeGate age={age} onNo={back}><CardRules k="kings" /></AgeGate>;
       case "dice": return <AgeGate age={age} onNo={back}><DrinkDice k="dice" /></AgeGate>;
+      case "pour": return <AgeGate age={age} onNo={back}><Pour k="pour" /></AgeGate>;
       case "sipwheel": return <AgeGate age={age} onNo={back}><SpinWheel k="sipwheel" mode="sip" /></AgeGate>;
       // Groups (10)
       case "quick": return <PromptCards k="quick" items={GROUP_Q} tone="group" />;
@@ -202,6 +230,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   return (
     <GuestContext.Provider value={ctx}>
       <VersusProvider>
+      <LeaderboardProvider>
       <div
         ref={rootRef}
         className={`g${venue.theme ? " themed" : ""}${venue.theme?.tiles === "brand" ? " tiles-brand" : ""}`}
@@ -209,44 +238,50 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
         dir={lang === "ar" ? "rtl" : "ltr"}
         lang={lang}
       >
-        <div className="g-top">
-          {stack.length > 1 ? (
-            <button className="g-back" onClick={back} aria-label={tr("back")}>
-              <BackIcon />
+        {cur !== "home" && (
+          <div className="g-top">
+            {stack.length > 1 ? (
+              <button className="g-back" onClick={back} aria-label={tr("back")}>
+                <BackIcon />
+              </button>
+            ) : (
+              <span className="g-top-mark" aria-hidden="true">
+                {venue.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={venue.logoUrl} alt="" />
+                ) : (
+                  <LogoMark size={36} />
+                )}
+              </span>
+            )}
+            <div className="g-venue">
+              <strong>{L(venue.name)}</strong>
+              <span>
+                {table ? `${tr("table")} ${table} · ` : ""}
+                {L(venue.area)}
+              </span>
+            </div>
+            <button className="g-lang" lang={lang === "en" ? "ar" : "en"} onClick={ctx.toggleLang}>
+              {tr("lang")}
             </button>
-          ) : (
-            <span className="g-top-mark" aria-hidden="true">
-              <LogoMark size={36} />
-            </span>
-          )}
-          <div className="g-venue">
-            <strong>{L(venue.name)}</strong>
-            <span>
-              {table ? `${tr("table")} ${table} · ` : ""}
-              {L(venue.area)}
-            </span>
           </div>
-          <button
-            className="g-lang"
-            lang={lang === "en" ? "ar" : "en"}
-            onClick={() => {
-              const n = lang === "en" ? "ar" : "en";
-              setLang(n);
-              log("lang", { item: n });
-              try {
-                localStorage.setItem("patt-lang", n);
-              } catch {}
-            }}
-          >
-            {tr("lang")}
-          </button>
-        </div>
-        <div className="g-body" ref={bodyRef} key={cur + stack.length}>
+        )}
+        <div className={`g-body${cur === "home" ? " is-home" : ""}`} ref={bodyRef} key={cur + stack.length}>
           {screen}
+          <p className="g-foot">
+            {tr("powered")} · <button onClick={() => setPrivacy(true)}>{tr("privacy")}</button>
+          </p>
         </div>
-        <div className="g-foot">
-          {tr("powered")} · <button onClick={() => setPrivacy(true)}>{tr("privacy")}</button>
-        </div>
+        {tabs.length > 1 && (
+          <nav className="g-tabbar" aria-label={x.explore}>
+            {tabs.map(([k, label, icon]) => (
+              <button key={k} aria-current={tabOf(stack) === k ? "page" : undefined} data-tab={k} onClick={() => openTab(k)}>
+                {icon}
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+        )}
 
         {privacy && (
           <div className="sheet" role="dialog" aria-label={tr("privacyTitle")}>
@@ -260,6 +295,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
         {redeemOffer && <Redeem offer={redeemOffer} onClose={() => setRedeemOffer(null)} />}
         {autoplay && <DemoTour root={rootRef} body={bodyRef} onCaption={onCaption} />}
       </div>
+      </LeaderboardProvider>
       </VersusProvider>
     </GuestContext.Provider>
   );

@@ -4,6 +4,7 @@ import DashHeader from "@/components/dashboard/DashHeader";
 import CoasterDesigner from "@/components/dashboard/CoasterDesigner";
 import { EventsEditor, MenuEditor, OffersEditor } from "@/components/dashboard/editors";
 import FeedbackTab from "@/components/dashboard/FeedbackTab";
+import ScoresTab from "@/components/dashboard/ScoresTab";
 import GamesEditor from "@/components/dashboard/GamesEditor";
 import MenuSource from "@/components/dashboard/MenuSource";
 import SetupChecklist from "@/components/dashboard/SetupChecklist";
@@ -29,6 +30,7 @@ const TABS = [
   ["coaster", "Coaster studio", "🎨"],
   ["requests", "Live requests", "🙋"],
   ["feedback", "Feedback", "💬"],
+  ["scores", "Leaderboards", "🏆"],
   ["stats", "Stats", "📊"],
   ["qr", "Plain QR codes", "🔳"],
 ] as const;
@@ -106,6 +108,7 @@ export default async function VenueDashboard({
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}
         {tab === "requests" && <StaffRequests venueId={venue.id} enabled={moduleOn(venue.modules, "service")} />}
         {tab === "feedback" && <FeedbackTab venueId={venue.id} enabled={moduleOn(venue.modules, "feedback")} />}
+        {tab === "scores" && <ScoresTab venueId={venue.id} />}
         {tab === "stats" && <Stats venueId={venue.id} />}
       </main>
     </div>
