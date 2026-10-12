@@ -110,7 +110,7 @@ function VenueHero() {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="g-hero-logo" src={venue.logoUrl} alt={name} />
       ) : (
-        <span className="g-hero-mono" style={{ background: venue.brandColor }} aria-hidden="true">
+        <span className="g-hero-mono" style={{ background: venue.theme?.accent ?? venue.brandColor }} aria-hidden="true">
           {initials}
         </span>
       )}

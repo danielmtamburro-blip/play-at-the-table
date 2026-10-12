@@ -28,7 +28,7 @@ export default async function GuestPage({ params }: { params: Params }) {
   const venue = await getVenue(slug);
   if (!venue) notFound();
   return (
-    <div className="guest-shell">
+    <div className="guest-shell" style={venue.theme ? { background: venue.theme.bg } : undefined}>
       <GuestApp venue={venue} table={table} />
     </div>
   );

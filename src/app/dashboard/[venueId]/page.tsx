@@ -11,8 +11,10 @@ import ProfileForm from "@/components/dashboard/ProfileForm";
 import QrCodes from "@/components/dashboard/QrCodes";
 import StaffRequests from "@/components/dashboard/StaffRequests";
 import Stats from "@/components/dashboard/Stats";
+import ThemeEditor from "@/components/dashboard/ThemeEditor";
 import { requireUser } from "@/lib/auth";
 import { moduleOn } from "@/lib/types";
+import { rowToVenue } from "@/lib/venueMap";
 
 export const metadata: Metadata = { title: "Edit venue · Play at Your Table", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -23,6 +25,7 @@ const TABS = [
   ["games", "Games", "🎲"],
   ["events", "What's on", "🎵"],
   ["offers", "Offers", "🏷️"],
+  ["look", "Guest page look", "🖌️"],
   ["coaster", "Coaster studio", "🎨"],
   ["requests", "Live requests", "🙋"],
   ["feedback", "Feedback", "💬"],
@@ -97,6 +100,7 @@ export default async function VenueDashboard({
         )}
         {tab === "games" && <GamesEditor venue={venue} />}
         {tab === "coaster" && <CoasterDesigner venue={venue} />}
+        {tab === "look" && <ThemeEditor venueId={venue.id} saved={venue.theme} preview={rowToVenue(venue)} />}
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}

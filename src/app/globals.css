@@ -756,3 +756,22 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .hero .phone{box-shadow:0 30px 70px rgba(0,0,0,.45),inset 0 0 0 2px #3D3770}
 .live-badge{display:inline-flex;align-items:center;gap:8px;background:#FF5A4E;color:#fff;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:999px;box-shadow:0 6px 16px rgba(255,90,78,.4)}
 .live-badge span{width:8px;height:8px;border-radius:50%;background:#fff;animation:vsPulse 1.2s ease-in-out infinite}
+
+/* ---------- venue themes on the guest page ---------- */
+.g .g-btn{background:var(--g-accent,var(--ink));color:var(--g-on-accent,var(--bg))}
+.g .g-btn.alt{background:var(--surface-2);color:var(--ink)}
+.g.themed .g-tabs button[aria-pressed="true"]{background:var(--g-accent);color:var(--g-on-accent);border-color:var(--g-accent)}
+.g.themed .g-top,.g.themed .g-foot{background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px)}
+.g.themed .g-dots button[aria-selected="true"]{background:var(--g-accent)}
+.g.tiles-brand .g-tile,.g.tiles-brand .g-pick{background:linear-gradient(135deg,var(--g-accent),var(--g-tile-b));color:var(--g-on-accent)}
+.g.tiles-brand .g-pick .age{background:rgba(255,255,255,.3);color:inherit}
+.g.tiles-brand .t-versus{background:linear-gradient(120deg,var(--g-tile-b),var(--g-accent));color:var(--g-on-accent)}
+
+/* ---------- guest page look editor ---------- */
+.theme-phone{height:640px;margin-inline:auto}
+.theme-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.theme-preset{border:2px solid transparent;background:var(--bg);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;font-size:.8rem;font-weight:600;text-align:center}
+.theme-preset[aria-pressed="true"]{border-color:var(--violet);background:var(--violet-soft)}
+.tp-swatch{display:flex;flex-direction:column;gap:6px;border-radius:12px;padding:10px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.tp-swatch span{border-radius:8px;padding:6px;font-family:var(--display);font-weight:800;font-size:1.1rem}
+.tp-swatch i{display:block;height:12px;border-radius:999px}
