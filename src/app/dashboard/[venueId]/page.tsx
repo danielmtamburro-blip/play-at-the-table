@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DashHeader from "@/components/dashboard/DashHeader";
+import CoasterDesigner from "@/components/dashboard/CoasterDesigner";
 import { EventsEditor, MenuEditor, OffersEditor } from "@/components/dashboard/editors";
+import GamesEditor from "@/components/dashboard/GamesEditor";
+import MenuSource from "@/components/dashboard/MenuSource";
+import SetupChecklist from "@/components/dashboard/SetupChecklist";
 import ProfileForm from "@/components/dashboard/ProfileForm";
 import QrCodes from "@/components/dashboard/QrCodes";
 import Stats from "@/components/dashboard/Stats";
@@ -13,9 +17,11 @@ export const dynamic = "force-dynamic";
 const TABS = [
   ["details", "Details"],
   ["menu", "Menu"],
+  ["games", "Games"],
   ["events", "What's on"],
   ["offers", "Offers"],
-  ["qr", "QR codes"],
+  ["coaster", "Coaster design"],
+  ["qr", "Plain QR codes"],
   ["stats", "Stats"],
 ] as const;
 
@@ -59,6 +65,7 @@ export default async function VenueDashboard({
             Open guest page ↗
           </a>
         </div>
+        <SetupChecklist venue={venue} />
         <nav className="tabs" aria-label="Venue sections">
           {TABS.map(([k, label]) => (
             <a key={k} href={`?tab=${k}`} aria-current={tab === k ? "page" : undefined}>
@@ -68,7 +75,14 @@ export default async function VenueDashboard({
         </nav>
 
         {tab === "details" && <ProfileForm venue={venue} />}
-        {tab === "menu" && <MenuEditor venueId={venue.id} categories={venue.menu_categories ?? []} />}
+        {tab === "menu" && (
+          <>
+            <MenuSource venue={venue} />
+            {venue.menu_mode !== "pdf" && <MenuEditor venueId={venue.id} categories={venue.menu_categories ?? []} />}
+          </>
+        )}
+        {tab === "games" && <GamesEditor venue={venue} />}
+        {tab === "coaster" && <CoasterDesigner venue={venue} />}
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}

@@ -52,6 +52,11 @@ export async function getVenue(slug: string): Promise<Venue | null> {
     wifi: { ssid: v.wifi_ssid, pass: v.wifi_pass },
     allergyNote: loc(v, "allergy_note"),
     brandColor: v.brand_color,
+    logoUrl: v.logo_url ?? "",
+    games: v.games && typeof v.games === "object" ? v.games : {},
+    menuMode: v.menu_mode === "pdf" ? "pdf" : "items",
+    menuPdf: v.menu_pdf_url ?? "",
+    drinksPdf: v.drinks_pdf_url ?? "",
     modules: normaliseModules(v.modules),
     menu: (v.menu_categories as Row[]).sort(bySort).map((c) => ({
       id: c.id,

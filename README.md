@@ -13,7 +13,7 @@ Built with **Next.js 15** (App Router, TypeScript), **Supabase** (database + ven
 | `/v/<venue>/<table>` | Guest page for one table, e.g. `/v/ember-date-kitchen/12`. Any number 1–999. |
 | `/demo` | Shortcut to the demo venue. Old `/#demo` and `/#t12` links also redirect. |
 | `/login` | Venue owner sign in / sign up. |
-| `/dashboard` | Venue dashboard: edit details, menu, events and offers; download table QR codes; see totals. |
+| `/dashboard` | Venue dashboard: setup checklist, details, menu (item-by-item or PDF upload), games picker, events, offers, coaster designer (print PDF per table), plain QR codes, detailed stats. |
 
 The demo venue "Ember & Date Kitchen" is fictional. It lives in the database (seeded by `supabase/seed.sql`), and `src/lib/sample.ts` holds a copy used if Supabase can't be reached.
 
@@ -24,6 +24,8 @@ The demo venue "Ember & Date Kitchen" is fictional. It lives in the database (se
 | `src/app/` | Pages and routes |
 | `src/components/guest/` | The guest experience (home, menu, events, offers, kids' games, group games, date decks) |
 | `src/components/dashboard/` | Venue dashboard editors |
+| `src/lib/coaster.ts` | Coaster design → SVG (preview, PNG and print PDF use the same drawing) |
+| `src/lib/games.ts` | The list of games venues can switch on/off |
 | `src/lib/content.ts` | Platform-owned content: all UI strings (EN/AR) and game decks. Edit questions here. |
 | `src/lib/venue.ts` | Loads a published venue from Supabase and hides expired offers/events |
 | `supabase/migrations/` | Database schema with row-level security |
@@ -41,7 +43,8 @@ The demo venue "Ember & Date Kitchen" is fictional. It lives in the database (se
 | `events` | Weekly or one-off "What's on" events | Same |
 | `offers` | Offers with terms, dates and colour | Same |
 | `pilot_requests` | Sales-page sign-ups | Anyone can insert; nobody can read through the API (view them in the Supabase dashboard) |
-| `analytics_events` | Anonymous totals: scans, section opens, offers shown | Guests insert; venue members read via `venue_stats()` |
+| `analytics_events` | Anonymous events: scans, section opens, games started/finished, menu category taps, offer clicks, Wi-Fi copies, time on page | Guests insert; venue members read via `venue_report()` |
+| Storage `venue-assets` | Venue logos and PDF menus, one folder per venue | Public read; only that venue's members can upload |
 
 No guest names, contacts, game answers or drawings are ever stored.
 

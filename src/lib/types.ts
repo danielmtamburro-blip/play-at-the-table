@@ -61,7 +61,14 @@ export type Venue = {
   wifi: { ssid: string; pass: string };
   allergyNote: Loc;
   brandColor: string;
+  logoUrl: string;
   modules: Modules;
+  /** Hidden games are stored as { key: false }. */
+  games: Record<string, boolean>;
+  /** "items" = built-in menu, "pdf" = the venue's own PDF menus. */
+  menuMode: "items" | "pdf";
+  menuPdf: string;
+  drinksPdf: string;
   menu: MenuCategory[];
   events: VenueEvent[];
   offers: Offer[];

@@ -34,6 +34,11 @@ export const SAMPLE_VENUE: Venue = {
     "ar": ""
   },
   "brandColor": "#FF5A4E",
+  "logoUrl": "",
+  "games": {},
+  "menuMode": "items",
+  "menuPdf": "",
+  "drinksPdf": "",
   "modules": {
     "menu": true,
     "drinks": true,

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LogoMark } from "@/components/Logo";
 import { T, type TKey } from "@/lib/content";
-import { track } from "@/lib/track";
+import { GAMES } from "@/lib/games";
+import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { GuestContext, useGuest, type GuestCtx } from "./context";
 import { BackIcon } from "./icons";
@@ -58,16 +59,33 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
     } catch {}
   }, []);
 
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  const log = useCallback(
+    (event: TrackEvent, opts: TrackOpts = {}) => {
+      if (!embedded) track(venue.id, event, { table, lang: langRef.current, ...opts });
+    },
+    [embedded, venue.id, table],
+  );
+
   useEffect(() => {
-    if (!embedded) track(venue.id, "scan", { table: table ?? undefined });
-  }, [embedded, venue.id, table]);
+    if (embedded) return;
+    // Wait a tick so the saved language is applied before the first event.
+    const t = setTimeout(() => log("scan"), 300);
+    const stop = trackTimeOnPage(venue.id, () => ({ table, lang: langRef.current }));
+    return () => {
+      clearTimeout(t);
+      stop();
+    };
+  }, [embedded, venue.id, table, log]);
 
   const go = useCallback(
     (k: string) => {
       setStack((s) => [...s, k]);
-      if (!embedded) track(venue.id, "view", { module: k.split(":")[0], table: table ?? undefined });
+      log("view", { module: k.split(":")[0], item: k.startsWith("deck:") ? k.slice(5) : undefined });
+      if (GAMES.some((g) => g.key === k)) log("game_start", { item: k });
     },
-    [embedded, venue.id, table],
+    [log],
   );
 
   const cur = stack[stack.length - 1];
@@ -89,10 +107,11 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       go,
       redeem: (o: Offer) => {
         setRedeemOffer(o);
-        if (!embedded) track(venue.id, "redeem", { module: "offers", table: table ?? undefined });
+        log("redeem", { module: "offers", item: o.title.en });
       },
+      log,
     };
-  }, [lang, venue, table, go, embedded]);
+  }, [lang, venue, table, go, log]);
 
   const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   const { tr, L } = ctx;
@@ -126,6 +145,9 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
             <button className="g-back" onClick={back} aria-label={tr("back")}>
               <BackIcon />
             </button>
+          ) : venue.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={venue.logoUrl} alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: "contain", flex: "none", borderRadius: 10 }} />
           ) : (
             <LogoMark size={40} />
           )}
@@ -142,6 +164,7 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
             onClick={() => {
               const n = lang === "en" ? "ar" : "en";
               setLang(n);
+              log("lang", { item: n });
               try {
                 localStorage.setItem("patt-lang", n);
               } catch {}
