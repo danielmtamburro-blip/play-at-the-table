@@ -1,14 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { DATE_DECKS, GROUP_Q, PICKER_TASKS, THIS_THAT, type TKey } from "@/lib/content";
+import { gameOn } from "@/lib/games";
 import type { Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 
 /* ---------- Play together ---------- */
 
 export function GroupHub() {
-  const { tr, go } = useGuest();
-  const pick = (k: TKey) => (
+  const { tr, go, venue } = useGuest();
+  const pick = (k: TKey) => gameOn(venue.games, k) && (
     <button className="g-pick bg-group" onClick={() => go(k)}>
       <b>{tr(k)}</b>
       <span>{tr(`${k}S` as TKey)}</span>
@@ -163,7 +164,7 @@ export function Picker() {
 /* ---------- Date night ---------- */
 
 export function DateHub() {
-  const { tr, L, go } = useGuest();
+  const { tr, L, go, venue } = useGuest();
   return (
     <>
       <div>
@@ -171,7 +172,7 @@ export function DateHub() {
         <p className="g-sub">{tr("dateSub")}</p>
       </div>
       <div className="g-list">
-        {DATE_DECKS.map((d) => (
+        {DATE_DECKS.filter((d) => gameOn(venue.games, `deck:${d.id}`)).map((d) => (
           <button key={d.id} className="g-pick bg-date" onClick={() => go(`deck:${d.id}`)}>
             <b>{L(d.t)}</b>
             <span>
@@ -186,10 +187,14 @@ export function DateHub() {
 
 /** One deck. Answers are spoken aloud; nothing is stored. */
 export function Deck({ id, onExit }: { id: string; onExit: () => void }) {
-  const { tr, L } = useGuest();
+  const { tr, L, log } = useGuest();
   const deck = DATE_DECKS.find((d) => d.id === id) ?? DATE_DECKS[0];
   const [order] = useState(() => shuffle(deck.cards));
   const [i, setI] = useState(0);
+  const done = i >= order.length;
+  useEffect(() => {
+    if (done) log("game_finish", { item: `deck:${deck.id}` });
+  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (i >= order.length)
     return (

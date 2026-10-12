@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { CHALLENGES, KIDS_QUIZ, type TKey } from "@/lib/content";
+import { gameOn } from "@/lib/games";
 import { shuffle, useGuest } from "../context";
 
 export function KidsHub() {
-  const { tr, go } = useGuest();
-  const pick = (k: TKey, age: string) => (
+  const { tr, go, venue } = useGuest();
+  const pick = (k: TKey, age: string) => gameOn(venue.games, k) && (
     <button className="g-pick bg-kids" onClick={() => go(k)}>
       <b>{tr(k)}</b>
       <span>{tr(`${k}S` as TKey)}</span>
@@ -201,9 +202,12 @@ const FACES = ["🐪", "🌴", "🐠", "⭐", "🍉", "🦩"];
 const newDeck = () => ({ cards: shuffle([...FACES, ...FACES]), open: [] as number[], done: [] as number[], moves: 0, lock: false });
 
 export function Memory() {
-  const { tr } = useGuest();
+  const { tr, log } = useGuest();
   const [m, setM] = useState(newDeck);
   const won = m.done.length === m.cards.length;
+  useEffect(() => {
+    if (won) log("game_finish", { item: "memory", value: m.moves });
+  }, [won]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const flip = (i: number) => {
     if (m.lock || m.open.includes(i) || m.done.includes(i)) return;
@@ -243,7 +247,13 @@ export function Memory() {
         <div className="prompt kids">
           <p>{tr("wellDone")}</p>
           <div>
-            <button className="g-btn" onClick={() => setM(newDeck())}>
+            <button
+              className="g-btn"
+              onClick={() => {
+                setM(newDeck());
+                log("game_start", { item: "memory" });
+              }}
+            >
               {tr("playAgain")}
             </button>
           </div>
@@ -258,8 +268,12 @@ export function Memory() {
 const newQuiz = () => ({ order: shuffle(KIDS_QUIZ).slice(0, 5), i: 0, score: 0, ans: null as number | null });
 
 export function Quiz() {
-  const { tr, L } = useGuest();
+  const { tr, L, log } = useGuest();
   const [z, setZ] = useState(newQuiz);
+  const over = z.i >= z.order.length;
+  useEffect(() => {
+    if (over) log("game_finish", { item: "quiz", value: z.score });
+  }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (z.i >= z.order.length)
     return (
@@ -273,7 +287,13 @@ export function Quiz() {
             {tr("score")} {z.score} {tr("of")} {z.order.length}!
           </p>
         </div>
-        <button className="g-btn" onClick={() => setZ(newQuiz())}>
+        <button
+          className="g-btn"
+          onClick={() => {
+            setZ(newQuiz());
+            log("game_start", { item: "quiz" });
+          }}
+        >
           {tr("playAgain")}
         </button>
       </>

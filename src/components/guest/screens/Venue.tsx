@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ALLERGEN, DAYS, DIET, type TKey } from "@/lib/content";
+import { anyGameOn } from "@/lib/games";
 import type { Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { ICON } from "../icons";
@@ -8,12 +9,13 @@ import { ICON } from "../icons";
 /* ---------- Home ---------- */
 
 function CopyButton({ text }: { text: string }) {
-  const { tr } = useGuest();
+  const { tr, log } = useGuest();
   const [copied, setCopied] = useState(false);
   return (
     <button
       className="g-copy"
       onClick={() => {
+        log("wifi_copy");
         navigator.clipboard?.writeText(text).then(
           () => {
             setCopied(true);
@@ -29,8 +31,10 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export function Home() {
-  const { venue, tr, L, lang, go } = useGuest();
+  const { venue, tr, L, lang, go, log } = useGuest();
   const m = venue.modules;
+  const shown = (k: keyof typeof m) =>
+    m[k] && (k === "kids" || k === "group" || k === "date" ? anyGameOn(venue.games, k) : true);
   const featured = m.offers ? venue.offers.find((o) => o.featured) ?? venue.offers[0] : undefined;
   const tiles: [string, string][] = (
     [
@@ -41,7 +45,7 @@ export function Home() {
       ["date", "t-date"],
       ["events", "t-events"],
     ] as [keyof typeof m, string][]
-  ).filter(([k]) => m[k]);
+  ).filter(([k]) => shown(k));
   if (m.offers && !m.events) tiles.push(["offers", "t-events"]);
 
   return (
@@ -51,7 +55,12 @@ export function Home() {
         <p>{tr("helloSub")}</p>
       </div>
       {featured && (
-        <button className="g-banner" onClick={() => go("offers")} style={{ background: `var(--${featured.color})` }}>
+        <button
+          className="g-banner"
+          onClick={() => {
+            log("offer_open", { item: featured.title.en });
+            go("offers");
+          }} style={{ background: `var(--${featured.color})` }}>
           <small>{tr("offerNow")}</small>
           <b>{L(featured.title)}</b>
           <span style={{ fontSize: ".85rem", opacity: 0.95 }}>{L(featured.desc)}</span>
@@ -94,7 +103,7 @@ export function Home() {
         {venue.mapsUrl && (
           <div className="g-info-row">
             <span>{tr("directions")}</span>
-            <a className="g-link" href={venue.mapsUrl} target="_blank" rel="noopener noreferrer">
+            <a className="g-link" href={venue.mapsUrl} target="_blank" rel="noopener noreferrer" onClick={() => log("directions")}>
               {tr("openMaps")}
             </a>
           </div>
@@ -114,8 +123,39 @@ export function Home() {
 
 const fmtPrice = (p: number) => (Number.isInteger(p) ? String(p) : p.toFixed(2));
 
+function PdfMenu({ kind, url }: { kind: "food" | "drinks"; url: string }) {
+  const { tr, lang, log } = useGuest();
+  return (
+    <>
+      <div>
+        <h2 className="g-h">{tr(kind === "food" ? "menu" : "drinks")}</h2>
+      </div>
+      <a
+        className="g-btn"
+        style={{ textAlign: "center", textDecoration: "none" }}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => log("pdf_open", { item: kind })}
+      >
+        {EXTRA[lang].openPdf}
+      </a>
+      <p className="g-sub" style={{ textAlign: "center" }}>
+        {EXTRA[lang].pdfHint}
+      </p>
+      <iframe className="pdf-frame" src={`${url}#view=FitH`} title={EXTRA[lang].pdfMenu} loading="lazy" />
+    </>
+  );
+}
+
 export function Menu({ kind }: { kind: "food" | "drinks" }) {
-  const { venue, tr, L, lang } = useGuest();
+  const { venue } = useGuest();
+  const pdf = venue.menuMode === "pdf" ? (kind === "food" ? venue.menuPdf : venue.drinksPdf || venue.menuPdf) : "";
+  return pdf ? <PdfMenu kind={kind} url={pdf} /> : <ItemMenu kind={kind} />;
+}
+
+function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
+  const { venue, tr, L, lang, log } = useGuest();
   const cats = venue.menu.filter((c) => c.kind === kind && c.items.length > 0);
   const [i, setI] = useState(0);
   const c = cats[Math.min(i, cats.length - 1)];
@@ -132,7 +172,14 @@ export function Menu({ kind }: { kind: "food" | "drinks" }) {
         <>
           <div className="g-tabs" role="group">
             {cats.map((x, n) => (
-              <button key={x.id} aria-pressed={x.id === c.id} onClick={() => setI(n)}>
+              <button
+                key={x.id}
+                aria-pressed={x.id === c.id}
+                onClick={() => {
+                  setI(n);
+                  log("menu_cat", { module: kind, item: x.name.en });
+                }}
+              >
                 {L(x.name)}
               </button>
             ))}
@@ -228,7 +275,7 @@ export function OfferCards() {
 }
 
 export function Events() {
-  const { venue, tr, L, lang, locale } = useGuest();
+  const { venue, tr, L, lang, locale, log } = useGuest();
   const list = venue.events
     .map((ev) => ({ ev, occ: nextOccurrence(ev) }))
     .filter((x): x is { ev: VenueEvent; occ: { date: Date; add: number } } => x.occ !== null)
@@ -267,7 +314,13 @@ export function Events() {
                 {tr("every")} {DAYS[lang][ev.weekday]}
               </span>
             )}
-            <a className="g-link" href={calLink(ev, date)} target="_blank" rel="noopener noreferrer">
+            <a
+              className="g-link"
+              href={calLink(ev, date)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => log("calendar", { item: ev.title.en })}
+            >
               + {tr("addCal")}
             </a>
           </article>
