@@ -14,7 +14,7 @@ export async function getVenue(slug: string): Promise<Venue | null> {
 
   const { data: v, error } = await sb
     .from("venues")
-    .select("*, menu_categories(*, menu_items(*)), events(*), offers(*)")
+    .select("*, menu_categories(*, menu_items(*)), events(*), offers(*), nearby(*)")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();

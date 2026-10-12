@@ -19,7 +19,7 @@ export type Field = {
 };
 
 type Props = {
-  table: "menu_categories" | "menu_items" | "events" | "offers";
+  table: "menu_categories" | "menu_items" | "events" | "offers" | "nearby";
   rows: Row[];
   fields: Field[];
   /** Values every new row starts with (venue_id, category_id, …). */

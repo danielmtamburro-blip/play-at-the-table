@@ -45,7 +45,7 @@ export function GameHead({ k }: { k: string }) {
 export function GameHub({ group, title, sub, note }: { group: GameGroup; title: string; sub: string; note?: string }) {
   const { venue, go, L, tr } = useGuest();
   const cls = group === "kids" ? "bg-kids" : group === "group" ? "bg-group" : "bg-date";
-  const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && venue.games?.[g.key] !== false);
+  const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && gameOn(venue.games as Record<string, boolean>, g.key));
   const card = (g: GameInfo) => (
     <button key={g.key} className={`g-pick ${cls}`} data-game={g.key} onClick={() => go(g.key)}>
       {g.icon && (

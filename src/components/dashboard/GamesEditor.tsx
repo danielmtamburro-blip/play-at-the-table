@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CATS, drinkAge, GAMES, GROUP_LABEL, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
+import { CATS, drinkAge, GAMES, GROUP_LABEL, gameOn, KIDS_BANDS, OFF_UNTIL_ON, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { moduleOn } from "@/lib/types";
 import type { Row } from "./CrudList";
@@ -24,9 +24,11 @@ export default function GamesEditor({ venue }: { venue: Row }) {
     // Store only the hidden ones, so new games we add later appear switched on.
     // _saved marks the setup step as done even when every game is left on.
     const hidden = Object.fromEntries(Object.entries(games).filter(([, on]) => !on).map(([k]) => [k, false]));
+    // Darts and pool are off unless switched on (not every venue has a board or table).
+    const extras = Object.fromEntries(OFF_UNTIL_ON.filter((k) => games[k]).map((k) => [k, true]));
     const { error } = await getBrowserClient()!
       .from("venues")
-      .update({ games: { ...hidden, _saved: true, _drinkAge: age }, modules: { ...(venue.modules ?? {}), drink: drinkOn } })
+      .update({ games: { ...hidden, ...extras, _saved: true, _drinkAge: age }, modules: { ...(venue.modules ?? {}), drink: drinkOn } })
       .eq("id", venue.id);
     setBusy(false);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved. Guests will see your choice within a minute." });

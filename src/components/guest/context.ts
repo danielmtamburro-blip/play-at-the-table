@@ -42,7 +42,8 @@ export type ExtraKey =
   | "wifi" | "pass" | "kidsSub" | "wifiName" | "kidsGames" | "versus" | "versusS"
   | "tonight" | "playNow" | "seeAll" | "explore" | "qMenu" | "qDrinks" | "qServer" | "qBill" | "qOffers" | "qWifi"
   | "tabHome" | "tabMenu" | "tabPlay" | "tabOffers" | "food" | "all" | "popular" | "challengeGo" | "eventToday" | "offerTag"
-  | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag";
+  | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag"
+  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -92,6 +93,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     tabHome: "Home", tabMenu: "Menu", tabPlay: "Play", tabOffers: "Offers", food: "Food", all: "All",
     popular: "Popular right now", challengeGo: "Challenge", eventToday: "Today", offerTag: "Offer",
     playSub: "Games for everyone at the table", kidsTag: "Kids", adultsTag: "Adults", dateTag: "Date night", drinkTag: "Drinking",
+    foodMenu: "Food menu", foodMenuS: "Prices, allergens and dietary filters", drinksMenu: "Drinks menu", drinksMenuS: "Cocktails, mocktails, coffee and more",
+    celebrate: "Celebrations", celebrateS: "Birthdays, anniversaries and more", nearby: "Things to do nearby", nearbyS: "Our favourite local spots",
+    nearbySub: "Places we love around the area, hand-picked by the team.", directions: "Directions",
   },
   ar: {
     empty: "لا يوجد شيء هنا بعد. اسأل النادل.",
@@ -139,6 +143,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     tabHome: "الرئيسية", tabMenu: "القائمة", tabPlay: "العب", tabOffers: "العروض", food: "الطعام", all: "الكل",
     popular: "الأكثر لعباً الآن", challengeGo: "تحدَّ", eventToday: "اليوم", offerTag: "عرض",
     playSub: "ألعاب لكل من على الطاولة", kidsTag: "أطفال", adultsTag: "كبار", dateTag: "سهرة لشخصين", drinkTag: "مشروبات",
+    foodMenu: "قائمة الطعام", foodMenuS: "الأسعار ومسببات الحساسية والفلاتر الغذائية", drinksMenu: "قائمة المشروبات", drinksMenuS: "كوكتيلات وموكتيلات وقهوة والمزيد",
+    celebrate: "احتفالات", celebrateS: "أعياد الميلاد والذكريات والمزيد", nearby: "أماكن قريبة", nearbyS: "أماكننا المفضلة في المنطقة",
+    nearbySub: "أماكن نحبها في المنطقة، اختارها فريقنا.", directions: "الاتجاهات",
   },
 };
 

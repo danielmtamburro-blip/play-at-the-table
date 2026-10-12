@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DashHeader from "@/components/dashboard/DashHeader";
 import CoasterDesigner from "@/components/dashboard/CoasterDesigner";
-import { EventsEditor, MenuEditor, OffersEditor } from "@/components/dashboard/editors";
+import { EventsEditor, MenuEditor, NearbyEditor, OffersEditor } from "@/components/dashboard/editors";
 import FeedbackTab from "@/components/dashboard/FeedbackTab";
 import ScoresTab from "@/components/dashboard/ScoresTab";
 import GamesEditor from "@/components/dashboard/GamesEditor";
@@ -26,6 +26,7 @@ const TABS = [
   ["games", "Games", "🎲"],
   ["events", "What's on", "🎵"],
   ["offers", "Offers", "🏷️"],
+  ["nearby", "Nearby", "📍"],
   ["look", "Guest page look", "🖌️"],
   ["coaster", "Coaster studio", "🎨"],
   ["requests", "Live requests", "🙋"],
@@ -52,7 +53,7 @@ export default async function VenueDashboard({
 
   const { data: venue } = await sb
     .from("venues")
-    .select("*, menu_categories(*, menu_items(*)), events(*), offers(*)")
+    .select("*, menu_categories(*, menu_items(*)), events(*), offers(*), nearby(*)")
     .eq("id", venueId)
     .maybeSingle();
   if (!venue) notFound();
@@ -105,6 +106,7 @@ export default async function VenueDashboard({
         {tab === "look" && <ThemeEditor venueId={venue.id} saved={venue.theme} preview={rowToVenue(venue)} logoUrl={venue.logo_url ?? ""} />}
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
+        {tab === "nearby" && <NearbyEditor venueId={venue.id} places={venue.nearby ?? []} enabled={moduleOn(venue.modules, "nearby")} />}
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}
         {tab === "requests" && <StaffRequests venueId={venue.id} enabled={moduleOn(venue.modules, "service")} />}
         {tab === "feedback" && <FeedbackTab venueId={venue.id} enabled={moduleOn(venue.modules, "feedback")} />}

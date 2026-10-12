@@ -69,6 +69,18 @@ export const ICON: Record<string, React.ReactNode> = {
       <circle cx="20" cy="13" r="1.4" fill="currentColor" />
     </svg>
   ),
+  celebrate: (
+    <svg {...base}>
+      <path d="M5 28l6-17 10 10z" />
+      <path d="M11 11c1-4 4-6 8-5M18 16c3-2 7-2 9 1M21 6l1-3M26 10l3-1M24 21l3 2" />
+    </svg>
+  ),
+  nearby: (
+    <svg {...base}>
+      <path d="M16 29s-9-8.5-9-15a9 9 0 0 1 18 0c0 6.5-9 15-9 15z" />
+      <circle cx="16" cy="14" r="3.5" />
+    </svg>
+  ),
   home: (
     <svg {...base}>
       <path d="M4 15L16 5l12 10" />

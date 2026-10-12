@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { ALLERGEN, DAYS, DIET } from "@/lib/content";
 import { anyGameOn, drinkAge } from "@/lib/games";
-import type { Offer, VenueEvent } from "@/lib/types";
+import type { MenuItem, Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { useService } from "./Service";
 import { GameCard, venueGames } from "./Play";
@@ -139,27 +139,49 @@ function QuickActions() {
   const x = EXTRA[lang];
   const m = venue.modules;
   const svc = useService(demo);
+  // The menus are why most guests scan, so they get big cards of their own.
+  const menus: { k: string; e: string; t: string; s: string }[] = [];
+  if (m.menu) menus.push({ k: "menu", e: "🍽️", t: x.foodMenu, s: x.foodMenuS });
+  if (m.drinks) menus.push({ k: "drinks", e: "🍹", t: x.drinksMenu, s: x.drinksMenuS });
   const items: { k: string; label: string; icon: React.ReactNode; on: () => void; act?: string; off?: boolean }[] = [];
-  if (m.menu) items.push({ k: "menu", label: x.qMenu, icon: ICON.menu, on: () => go("menu") });
-  if (m.drinks) items.push({ k: "drinks", label: x.qDrinks, icon: ICON.drinks, on: () => go("drinks") });
   if (svc.on) {
-    items.push({ k: "server", label: x.qServer, icon: <span className="g-q-emoji">🙋</span>, on: () => svc.call("server"), act: "call", off: svc.cool.server });
-    items.push({ k: "bill", label: x.qBill, icon: <span className="g-q-emoji">🧾</span>, on: () => svc.call("bill"), off: svc.cool.bill });
-  } else {
-    if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: ICON.offers, on: () => go(m.events ? "events" : "offers") });
-    if (m.feedback) items.push({ k: "feedback", label: x.feedback, icon: ICON.feedback, on: () => go("feedback") });
+    items.push({ k: "server", label: x.callServer, icon: "🙋", on: () => svc.call("server"), act: "call", off: svc.cool.server });
+    items.push({ k: "bill", label: x.billPlease, icon: "🧾", on: () => svc.call("bill"), off: svc.cool.bill });
   }
-  if (!items.length) return null;
+  if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: "🏷️", on: () => go(m.events ? "events" : "offers") });
+  if (m.feedback && items.length < 4) items.push({ k: "feedback", label: x.feedback, icon: "💬", on: () => go("feedback") });
   return (
     <>
-      <div className="g-quick">
-        {items.slice(0, 4).map((it) => (
-          <button key={it.k} className={`g-q q-${it.k}`} data-act={it.act} data-q={it.k} onClick={it.on} disabled={it.off}>
-            <span className="g-q-ring">{it.icon}</span>
-            <span>{it.label}</span>
-          </button>
-        ))}
-      </div>
+      {menus.length > 0 && (
+        <div className={`g-menus${menus.length === 1 ? " one" : ""}`}>
+          {menus.map((mn) => (
+            <button key={mn.k} className={`g-menu-card mc-${mn.k}`} data-q={mn.k} onClick={() => go(mn.k)}>
+              <span className="glass-ico lg" aria-hidden="true">
+                {mn.e}
+              </span>
+              <span className="g-menu-txt">
+                <b>{mn.t}</b>
+                <small>{mn.s}</small>
+              </span>
+              <span className="g-menu-go" aria-hidden="true">
+                ›
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+      {items.length > 0 && (
+        <div className="g-quick">
+          {items.slice(0, 4).map((it) => (
+            <button key={it.k} className={`g-q q-${it.k}`} data-act={it.act} data-q={it.k} onClick={it.on} disabled={it.off}>
+              <span className="glass-ico" aria-hidden="true">
+                {it.icon}
+              </span>
+              <span>{it.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
       {svc.msg && (
         <p className={`g-service-msg${svc.msg.ok ? "" : " bad"}`} role="status">
           {svc.msg.text}
@@ -219,10 +241,12 @@ export function Home() {
   if (m.kids && games("kids")) explore.push(["kids", x.kidsGames, tr("kidsS")]);
   if (m.group && games("group")) explore.push(["group", x.adults, x.adultsS]);
   if (m.date && games("date")) explore.push(["date", tr("dateTitle"), tr("dateS")]);
+  if (m.celebrate) explore.push(["celebrate", x.celebrate, x.celebrateS]);
   if (m.drink && games("drink")) explore.push(["drink", x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))]);
   if (m.versus) explore.push(["versus", x.versus, x.versusS]);
   if (m.events) explore.push(["events", tr("events"), tr("eventsS")]);
   if (m.offers) explore.push(["offers", tr("offers"), x.offersS]);
+  if (m.nearby && venue.nearby.length) explore.push(["nearby", x.nearby, x.nearbyS]);
   if (m.feedback) explore.push(["feedback", x.feedback, x.feedbackS]);
 
   return (
@@ -238,12 +262,14 @@ export function Home() {
             {explore.map(([k, t, sub], n) => (
               <button
                 key={k}
-                // Challenge spans the row; the last tile does too if it would sit alone.
-                className={`g-ex t-${k}${n === explore.length - 1 && explore.filter(([e]) => e !== "versus").length % 2 ? " span" : ""}`}
+                // The last tile spans the row if it would sit alone.
+                className={`g-ex t-${k}${n === explore.length - 1 && explore.length % 2 ? " span" : ""}`}
                 data-tile={k}
                 onClick={() => go(k)}
               >
-                {ICON[k]}
+                <span className="glass-ico" aria-hidden="true">
+                  {ICON[k]}
+                </span>
                 <span>
                   <b>{t}</b>
                   <small>{sub}</small>
@@ -325,20 +351,121 @@ export function Menu({ kind: start }: { kind: "food" | "drinks" }) {
   );
 }
 
+/** Dietary filters. Free-from filters use the venue's allergen labels, so guests should still check with staff. */
+const DIET_FILTERS: { k: string; e: string; en: string; ar: string; ok: (it: MenuItem) => boolean }[] = [
+  { k: "v", e: "🥦", en: "Vegetarian", ar: "نباتي", ok: (it) => it.diet.includes("V") || it.diet.includes("VG") },
+  { k: "vg", e: "🌱", en: "Vegan", ar: "نباتي صرف", ok: (it) => it.diet.includes("VG") },
+  { k: "gf", e: "🌾", en: "Gluten-free", ar: "بدون غلوتين", ok: (it) => it.diet.includes("GF") || !it.allergens.includes("gluten") },
+  { k: "df", e: "🥛", en: "Dairy-free", ar: "بدون ألبان", ok: (it) => !it.allergens.includes("dairy") },
+  { k: "nf", e: "🥜", en: "Nut-free", ar: "بدون مكسرات", ok: (it) => !it.allergens.includes("nuts") },
+  { k: "ef", e: "🥚", en: "Egg-free", ar: "بدون بيض", ok: (it) => !it.allergens.includes("egg") },
+  { k: "sf", e: "🦐", en: "No seafood", ar: "بدون مأكولات بحرية", ok: (it) => !it.allergens.includes("fish") && !it.allergens.includes("shellfish") },
+  { k: "ses", e: "⚪", en: "Sesame-free", ar: "بدون سمسم", ok: (it) => !it.allergens.includes("sesame") },
+];
+const DF_UI = {
+  en: { btn: "Dietary needs", clear: "Clear", match: "{n} dishes match", one: "1 dish matches", none: "Nothing matches all of these. Ask your server: the kitchen may be able to help.", note: "Based on the venue's allergen information. Always tell your server about allergies." },
+  ar: { btn: "احتياجات غذائية", clear: "مسح", match: "{n} أطباق مطابقة", one: "طبق واحد مطابق", none: "لا شيء يطابق كل هذه الخيارات. اسأل النادل: قد يستطيع المطبخ المساعدة.", note: "بناءً على معلومات مسببات الحساسية من المطعم. أخبر النادل دائماً عن الحساسية." },
+};
+
+function ItemCard({ it }: { it: MenuItem }) {
+  const { tr, L } = useGuest();
+  return (
+    <article className={`g-item${it.soldOut ? " off" : ""}`}>
+      <div className="g-item-top">
+        <b>{L(it.name)}</b>
+        <span className="g-price">
+          {tr("aed")} {fmtPrice(it.price)}
+        </span>
+      </div>
+      {L(it.desc) && <p>{L(it.desc)}</p>}
+      <div className="g-chips">
+        {it.soldOut && <span className="chip out">{tr("sold")}</span>}
+        {it.diet.map((x) => (
+          <span key={x} className="chip diet">
+            {L(DIET[x]) || x}
+          </span>
+        ))}
+        {it.allergens.map((x) => (
+          <span key={x} className="chip">
+            {L(ALLERGEN[x]) || x}
+          </span>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
   const { venue, tr, L, lang, log } = useGuest();
   const cats = venue.menu.filter((c) => c.kind === kind && c.items.length > 0);
   const [i, setI] = useState(0);
   const c = cats[Math.min(i, cats.length - 1)];
   const note = L(venue.allergyNote) || tr("allergyNote");
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const du = DF_UI[lang];
+  const filters = DIET_FILTERS.filter((f) => picked.includes(f.k));
+  const matches = filters.length
+    ? cats.map((cat) => ({ cat, items: cat.items.filter((it) => filters.every((f) => f.ok(it))) })).filter((g) => g.items.length)
+    : [];
+  const count = matches.reduce((a, g) => a + g.items.length, 0);
 
   return (
     <>
       <div>
         <h2 className="g-h">{tr(kind === "food" ? "menu" : "drinks")}</h2>
       </div>
+      {c && (
+        <div className="df">
+          <button className={`df-toggle${open || picked.length ? " on" : ""}`} onClick={() => setOpen(!open)} aria-expanded={open} data-act="diet">
+            <span className="glass-ico sm" aria-hidden="true">
+              🥗
+            </span>
+            {du.btn}
+            {picked.length > 0 && <em>{picked.length}</em>}
+            <span aria-hidden="true">{open ? "▴" : "▾"}</span>
+          </button>
+          {open && (
+            <div className="df-chips" role="group" aria-label={du.btn}>
+              {DIET_FILTERS.map((f) => (
+                <button
+                  key={f.k}
+                  aria-pressed={picked.includes(f.k)}
+                  data-diet={f.k}
+                  onClick={() => {
+                    setPicked((p) => (p.includes(f.k) ? p.filter((x) => x !== f.k) : [...p, f.k]));
+                    log("menu_cat", { module: "diet", item: f.en });
+                  }}
+                >
+                  {f.e} {lang === "ar" ? f.ar : f.en}
+                </button>
+              ))}
+              {picked.length > 0 && (
+                <button className="df-clear" onClick={() => setPicked([])}>
+                  {du.clear}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {!c ? (
         <p className="g-note">{EXTRA[lang].empty}</p>
+      ) : filters.length ? (
+        <>
+          <p className="df-count">{count === 1 ? du.one : count ? du.match.replace("{n}", String(count)) : du.none}</p>
+          {matches.map(({ cat, items }) => (
+            <section key={cat.id} className="g-band">
+              <h3 className="g-band-h">{L(cat.name)}</h3>
+              <div className="g-items">
+                {items.map((it) => (
+                  <ItemCard key={it.id} it={it} />
+                ))}
+              </div>
+            </section>
+          ))}
+          <p className="g-note">⚠️ {du.note}</p>
+        </>
       ) : (
         <>
           <div className="g-tabs" role="group">
@@ -357,28 +484,7 @@ function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
           </div>
           <div className="g-items">
             {c.items.map((it) => (
-              <article key={it.id} className={`g-item${it.soldOut ? " off" : ""}`}>
-                <div className="g-item-top">
-                  <b>{L(it.name)}</b>
-                  <span className="g-price">
-                    {tr("aed")} {fmtPrice(it.price)}
-                  </span>
-                </div>
-                {L(it.desc) && <p>{L(it.desc)}</p>}
-                <div className="g-chips">
-                  {it.soldOut && <span className="chip out">{tr("sold")}</span>}
-                  {it.diet.map((x) => (
-                    <span key={x} className="chip diet">
-                      {L(DIET[x]) || x}
-                    </span>
-                  ))}
-                  {it.allergens.map((x) => (
-                    <span key={x} className="chip">
-                      {L(ALLERGEN[x]) || x}
-                    </span>
-                  ))}
-                </div>
-              </article>
+              <ItemCard key={it.id} it={it} />
             ))}
           </div>
         </>
@@ -512,6 +618,67 @@ export function Offers() {
       </div>
       <div className="g-list">
         {venue.offers.length === 0 ? <p className="g-note">{EXTRA[lang].empty}</p> : <OfferCards />}
+      </div>
+    </>
+  );
+}
+
+/* ---------- Things to do nearby ---------- */
+
+const NEARBY_EMOJI: Record<string, string> = {
+  sight: "🏛️", beach: "🏖️", park: "🌳", family: "🎡", shopping: "🛍️", culture: "🎭", food: "🍦", nightlife: "🌃", sport: "⛳",
+};
+const NEARBY_LABEL: Record<string, Record<"en" | "ar", string>> = {
+  sight: { en: "Sights", ar: "معالم" }, beach: { en: "Beaches", ar: "شواطئ" }, park: { en: "Parks", ar: "حدائق" }, family: { en: "Family", ar: "للعائلة" },
+  shopping: { en: "Shopping", ar: "تسوّق" }, culture: { en: "Culture", ar: "ثقافة" }, food: { en: "Treats", ar: "حلويات ومقاهٍ" },
+  nightlife: { en: "Nightlife", ar: "سهر" }, sport: { en: "Sport", ar: "رياضة" },
+};
+
+export function Nearby() {
+  const { venue, lang, L, log } = useGuest();
+  const x = EXTRA[lang];
+  const [cat, setCat] = useState<string>("all");
+  const cats = [...new Set(venue.nearby.map((n) => n.category))];
+  const list = venue.nearby.filter((n) => cat === "all" || n.category === cat);
+  const maps = (n: (typeof venue.nearby)[number]) =>
+    n.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${n.name.en} ${venue.area.en}`)}`;
+  return (
+    <>
+      <div>
+        <h2 className="g-h">📍 {x.nearby}</h2>
+        <p className="g-sub">{x.nearbySub}</p>
+      </div>
+      {cats.length > 1 && (
+        <div className="g-tabs g-chipbar" role="group">
+          <button aria-pressed={cat === "all"} onClick={() => setCat("all")}>
+            {x.all}
+          </button>
+          {cats.map((c) => (
+            <button key={c} aria-pressed={cat === c} onClick={() => setCat(c)}>
+              {NEARBY_EMOJI[c]} {NEARBY_LABEL[c]?.[lang] ?? c}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="g-list">
+        {list.length === 0 && <p className="g-note">{x.empty}</p>}
+        {list.map((n) => (
+          <article key={n.id} className="nb-card">
+            <span className={`glass-ico lg nb-${n.category}`} aria-hidden="true">
+              {NEARBY_EMOJI[n.category] ?? "📍"}
+            </span>
+            <div className="nb-body">
+              <div className="nb-top">
+                <h3>{L(n.name)}</h3>
+                {n.distance && <span className="nb-dist">{n.distance}</span>}
+              </div>
+              {L(n.desc) && <p>{L(n.desc)}</p>}
+              <a className="g-link" href={maps(n)} target="_blank" rel="noopener noreferrer" onClick={() => log("view", { module: "nearby", item: n.name.en })}>
+                🧭 {x.directions}
+              </a>
+            </div>
+          </article>
+        ))}
       </div>
     </>
   );

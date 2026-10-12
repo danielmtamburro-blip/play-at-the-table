@@ -23,6 +23,7 @@ function say(text: string, lang: Lang) {
 
 const NOTE: Record<string, number> = {
   C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.0, A4: 440.0, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
+  F5: 698.46, G5: 783.99, A5: 880.0, C6: 1046.5,
 };
 // Public-domain tunes: [note, beats]
 const TWINKLE: [string, number][] = [
@@ -39,7 +40,7 @@ const LULLABY: [string, number][] = [
 ];
 
 /** Loops a soft music-box tune until stopped. */
-function useMusicBox(tune: [string, number][], bpm: number) {
+export function useMusicBox(tune: [string, number][], bpm: number, loop = true) {
   const ctx = useRef<AudioContext | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [on, setOn] = useState(false);
@@ -73,7 +74,8 @@ function useMusicBox(tune: [string, number][], bpm: number) {
         o.stop(t + b * beat + 0.5);
         t += b * beat;
       }
-      timer.current = setTimeout(play, total * 1000 + 400);
+      if (loop) timer.current = setTimeout(play, total * 1000 + 400);
+      else timer.current = setTimeout(() => setOn(false), total * 1000 + 400);
     };
     play();
     setOn(true);

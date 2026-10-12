@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/client";
 
-type Req = { id: string; table_label: string; kind: "server" | "bill"; status: "open" | "done"; created_at: string; done_at: string | null };
+type Req = { id: string; table_label: string; kind: "server" | "bill" | "celebrate"; note?: string; status: "open" | "done"; created_at: string; done_at: string | null };
 
 const ago = (iso: string, now: number) => {
   const s = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
@@ -113,8 +113,9 @@ export default function StaffRequests({ venueId, enabled }: { venueId: string; e
         <div className="staff-grid">
           {open.map((r) => (
             <div key={r.id} className={`staff-card ${r.kind}`}>
-              <span className="staff-kind">{r.kind === "bill" ? "🧾 Bill please" : "🙋 Call server"}</span>
+              <span className="staff-kind">{r.kind === "bill" ? "🧾 Bill please" : r.kind === "celebrate" ? "🎉 Celebrating!" : "🙋 Call server"}</span>
               <b className="staff-table">Table {r.table_label}</b>
+              {r.kind === "celebrate" && r.note && <span className="staff-note">{r.note}</span>}
               <span className="small">{ago(r.created_at, now)}</span>
               <button className="btn btn-primary" onClick={() => done(r.id)}>
                 Done
@@ -132,7 +133,7 @@ export default function StaffRequests({ venueId, enabled }: { venueId: string; e
               {finished.map((r) => (
                 <tr key={r.id}>
                   <td>Table {r.table_label}</td>
-                  <td>{r.kind === "bill" ? "Bill" : "Server"}</td>
+                  <td>{r.kind === "bill" ? "Bill" : r.kind === "celebrate" ? `Celebration${r.note ? ` · ${r.note}` : ""}` : "Server"}</td>
                   <td className="num muted">{ago(r.created_at, now)}</td>
                   <td className="num muted">
                     {r.done_at ? `answered in ${Math.max(1, Math.round((new Date(r.done_at).getTime() - new Date(r.created_at).getTime()) / 60000))} min` : ""}

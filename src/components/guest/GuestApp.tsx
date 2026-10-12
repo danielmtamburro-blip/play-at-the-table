@@ -25,7 +25,10 @@ import { SplitBill } from "./screens/SplitBill";
 import { AnimalSounds, DancingFruit, SleepyLights } from "./screens/Toddler";
 import { KidsLockProvider, KidsPill } from "./KidsLock";
 import { VersusProvider, VersusScreen } from "./screens/Versus";
-import { Events, Home, Menu, Offers } from "./screens/Venue";
+import { Events, Home, Menu, Nearby, Offers } from "./screens/Venue";
+import { Celebrate } from "./screens/Celebrate";
+import { SpotDiff } from "./screens/SpotDiff";
+import { Darts, Pool } from "./screens/BarGames";
 import { PlayTab } from "./screens/Play";
 import { LeaderboardProvider, LeaderboardScreen } from "./Leaderboard";
 
@@ -146,6 +149,12 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       case "offers": return <Offers />;
       case "feedback": return <Feedback demo={embedded} onDone={() => (stack.length > 1 ? back() : setStack(["home"]))} />;
       case "play": return <PlayTab />;
+      case "celebrate": return <Celebrate />;
+      case "nearby": return <Nearby />;
+      case "spotkids": return <SpotDiff k="spotkids" level="kids" />;
+      case "spot": return <SpotDiff k="spot" level="adults" />;
+      case "darts": return <Darts k="darts" />;
+      case "pool": return <Pool k="pool" />;
       case "versus": return <VersusScreen />;
       // Section hubs
       case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={x.kidsSub} note={tr("playTogether")} />;
