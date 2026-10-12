@@ -1,12 +1,12 @@
 "use client";
 // Celebrations: pick the occasion and a name, then turn the phone into a party card the table can hold up.
 // Optionally tell the staff (they might bring a candle). Names are only sent to the venue if the guest asks.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buzz, HAPTIC } from "@/lib/haptics";
 import { getBrowserClient } from "@/lib/supabase/client";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
-import { useMusicBox } from "./Toddler";
+import { birthdaySong, playBirthday, playFanfare } from "@/lib/partyMusic";
 
 type Occ = { k: string; e: string; en: string; ar: string; head: Record<Lang, string>; num?: Record<Lang, string>; c: [string, string] };
 const OCCASIONS: Occ[] = [
@@ -22,14 +22,14 @@ const OCCASIONS: Occ[] = [
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
-    title: "Celebrations", sub: "Birthday? Anniversary? Turn your phone into a party for the table.", what: "What are we celebrating?",
+    fanfare: "Play a fanfare", title: "Celebrations", sub: "Birthday? Anniversary? Turn your phone into a party for the table.", what: "What are we celebrating?",
     who: "Who's it for?", whoPh: "e.g. Sarah, or Sam & Alex", age: "How old? (optional)", years: "How many years? (optional)", go: "Let's celebrate! 🎉",
     from: "From everyone at table {t}", fromNoTable: "From everyone at the table", song: "Play the song", more: "More confetti", tell: "Tell the staff",
     told: "The team knows! They might just pop over. 🎂", toasts: "Toast time", back: "Change", tellNote: "Lets the staff know what you're celebrating.",
     toastSub: "Take turns. Read one out and answer it for {n}.", next: "Next", done: "Back to the party",
   },
   ar: {
-    title: "احتفالات", sub: "عيد ميلاد؟ ذكرى؟ حوّل هاتفك إلى حفلة للطاولة.", what: "بماذا نحتفل؟",
+    fanfare: "شغّل لحن الاحتفال", title: "احتفالات", sub: "عيد ميلاد؟ ذكرى؟ حوّل هاتفك إلى حفلة للطاولة.", what: "بماذا نحتفل؟",
     who: "لمن الاحتفال؟", whoPh: "مثلاً سارة، أو سامي وعلياء", age: "كم العمر؟ (اختياري)", years: "كم سنة؟ (اختياري)", go: "هيا نحتفل! 🎉",
     from: "من الجميع على الطاولة {t}", fromNoTable: "من الجميع على الطاولة", song: "شغّل الأغنية", more: "مزيد من القصاصات", tell: "أخبر الموظفين",
     told: "الفريق يعرف الآن! قد يمرّون عليكم. 🎂", toasts: "وقت التهاني", back: "تغيير", tellNote: "يُعلم الموظفين بمناسبتكم.",
@@ -49,15 +49,6 @@ const TOASTS: Record<Lang, string[]> = {
     "من يعرف {n} منذ أطول وقت؟ أخبرنا كيف تعارفتم.", "ما الأغنية التي تلخّص {n}؟", "ارفع كأسك وأكمل: \"إلى {n}، لأن…\"",
   ],
 };
-
-// Happy Birthday (public domain) and a short fanfare for everything else.
-const BIRTHDAY: [string, number][] = [
-  ["G4", 0.75], ["G4", 0.25], ["A4", 1], ["G4", 1], ["C5", 1], ["B4", 2],
-  ["G4", 0.75], ["G4", 0.25], ["A4", 1], ["G4", 1], ["D5", 1], ["C5", 2],
-  ["G4", 0.75], ["G4", 0.25], ["G5", 1], ["E5", 1], ["C5", 1], ["B4", 1], ["A4", 2],
-  ["F5", 0.75], ["F5", 0.25], ["E5", 1], ["C5", 1], ["D5", 1], ["C5", 3],
-];
-const FANFARE: [string, number][] = [["C5", 0.5], ["E5", 0.5], ["G5", 0.5], ["C6", 1.5], ["G5", 0.5], ["C6", 2.5]];
 
 function Confetti({ burst }: { burst: number }) {
   const cols = ["#FF5A4E", "#FFB51F", "#12A594", "#6E4BFF", "#F0457F", "#4CC9F0", "#FFFFFF"];
@@ -81,6 +72,26 @@ function Confetti({ burst }: { burst: number }) {
   );
 }
 
+/** Sing-along words, karaoke style. */
+function Lyrics({ name, at }: { name: string; at: number }) {
+  const song = birthdaySong(name);
+  const lines = [0, 1, 2, 3].map((l) => song.map((s, i) => ({ ...s, i })).filter((s) => s.line === l && s.w));
+  const cur = song[at]?.line ?? 0;
+  return (
+    <div className="cel-lyrics" aria-live="off">
+      {lines.map((ln, l) => (
+        <p key={l} className={l === cur ? "on" : l < cur ? "past" : ""}>
+          {ln.map((s) => (
+            <span key={s.i} className={s.i <= at && l === cur ? "sung" : ""}>
+              {s.w.endsWith("-") ? s.w.slice(0, -1) : `${s.w} `}
+            </span>
+          ))}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export function Celebrate() {
   const { venue, table, lang, L, demo, log } = useGuest();
   const ui = UI[lang];
@@ -92,7 +103,19 @@ export function Celebrate() {
   const [told, setTold] = useState(false);
   const [toasts, setToasts] = useState<string[]>([]);
   const [ti, setTi] = useState(0);
-  const music = useMusicBox(occ?.k === "birthday" ? BIRTHDAY : FANFARE, occ?.k === "birthday" ? 120 : 140, false);
+  // Song: index of the word being sung, or -1 when stopped.
+  const [word, setWord] = useState(-1);
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
+  const toggleSong = () => {
+    if (word >= 0) return stopRef.current(), setWord(-1);
+    setWord(0);
+    stopRef.current =
+      occ?.k === "birthday"
+        ? playBirthday(name, setWord, () => setWord(-1))
+        : playFanfare(() => setWord(-1));
+    setBurst((b) => b + 1);
+  };
 
   const who = name.trim() || (lang === "ar" ? "الجميع" : "you");
   const head = occ ? occ.head[lang].replace("{n}", who) : "";
@@ -120,8 +143,8 @@ export function Celebrate() {
           {table ? ui.from.replace("{t}", table) : ui.fromNoTable} · {L(venue.name)}
         </p>
         <div className="cel-actions">
-          <button className="cel-btn" onClick={music.toggle}>
-            {music.on ? "⏸" : "🎵"} {ui.song}
+          <button className="cel-btn" onClick={toggleSong} data-act="cel-song">
+            {word >= 0 ? "⏸" : "🎵"} {occ.k === "birthday" ? ui.song : ui.fanfare}
           </button>
           <button className="cel-btn" onClick={() => (setBurst((b) => b + 1), buzz(HAPTIC.win))}>
             🎉 {ui.more}
@@ -142,6 +165,7 @@ export function Celebrate() {
             </button>
           )}
         </div>
+        {occ.k === "birthday" && word >= 0 && <Lyrics name={name} at={word} />}
         {told && <p className="cel-told">{ui.told}</p>}
         <button className="cel-change" onClick={() => setStage("pick")}>
           {ui.back}
@@ -178,7 +202,7 @@ export function Celebrate() {
   return (
     <>
       <div>
-        <h2 className="g-h">🎉 {ui.title}</h2>
+        <h2 className="g-h">{ui.title}</h2>
         <p className="g-sub">{ui.sub}</p>
       </div>
       <span className="split-label">{ui.what}</span>

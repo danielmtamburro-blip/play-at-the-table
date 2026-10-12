@@ -1,7 +1,9 @@
 "use client";
+import { Glyph } from "../glyphs";
+import BrandCover from "../BrandCover";
 import { useState } from "react";
 import { ALLERGEN, DAYS, DIET } from "@/lib/content";
-import { anyGameOn, drinkAge } from "@/lib/games";
+import { anyGameOn, drinkAge, gameOn } from "@/lib/games";
 import type { MenuItem, Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { useService } from "./Service";
@@ -74,12 +76,13 @@ function Scroller({ title, more, children }: { title: string; more?: () => void;
   );
 }
 
-/** Cover photo (or brand colour) with the table and language on it, and the logo card overlapping. */
+/** Cover with the table and language on it, and the logo card overlapping. Our ring artwork in the venue's colours. */
 function Cover() {
   const { venue, table, tr, L, lang, toggleLang } = useGuest();
   const name = L(venue.name);
   const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
-  const img = venue.coverUrl || venue.theme?.bgImage;
+  // Only the showroom venue has a custom cover picture; every venue gets the Play at Your Table cover.
+  const img = venue.coverUrl;
   const initials = venue.name.en
     .split(/[\s&]+/)
     .filter(Boolean)
@@ -91,12 +94,9 @@ function Cover() {
     <div className="g-cover-wrap">
       <div
         className="g-cover"
-        style={{
-          backgroundImage: img
-            ? `linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,0) 40%, rgba(0,0,0,.15)), url("${img}")`
-            : `radial-gradient(circle at 85% 15%, rgba(255,255,255,.28), transparent 40%), linear-gradient(135deg, ${accent}, color-mix(in srgb, ${accent} 55%, #000))`,
-        }}
+        style={img ? { backgroundImage: `linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,0) 40%, rgba(0,0,0,.15)), url("${img}")` } : undefined}
       >
+        {!img && <BrandCover accent={venue.theme ? accent : undefined} mode={venue.theme ? venue.theme.cover : "brand"} />}
         <div className="g-cover-bar">
           {table ? (
             <span className="g-cover-chip">
@@ -109,11 +109,6 @@ function Cover() {
             {tr("lang")}
           </button>
         </div>
-        {!img && (
-          <span className="g-cover-art" aria-hidden="true">
-            🎲 🍽️ 🎉
-          </span>
-        )}
       </div>
       <div className="g-id">
         {venue.logoUrl ? (
@@ -141,15 +136,15 @@ function QuickActions() {
   const svc = useService(demo);
   // The menus are why most guests scan, so they get big cards of their own.
   const menus: { k: string; e: string; t: string; s: string }[] = [];
-  if (m.menu) menus.push({ k: "menu", e: "🍽️", t: x.foodMenu, s: x.foodMenuS });
-  if (m.drinks) menus.push({ k: "drinks", e: "🍹", t: x.drinksMenu, s: x.drinksMenuS });
+  if (m.menu) menus.push({ k: "menu", e: "cutlery", t: x.foodMenu, s: x.foodMenuS });
+  if (m.drinks) menus.push({ k: "drinks", e: "glass", t: x.drinksMenu, s: x.drinksMenuS });
   const items: { k: string; label: string; icon: React.ReactNode; on: () => void; act?: string; off?: boolean }[] = [];
   if (svc.on) {
-    items.push({ k: "server", label: x.callServer, icon: "🙋", on: () => svc.call("server"), act: "call", off: svc.cool.server });
-    items.push({ k: "bill", label: x.billPlease, icon: "🧾", on: () => svc.call("bill"), off: svc.cool.bill });
+    items.push({ k: "server", label: x.callServer, icon: <Glyph k="bell" />, on: () => svc.call("server"), act: "call", off: svc.cool.server });
+    items.push({ k: "bill", label: x.billPlease, icon: <Glyph k="receipt" />, on: () => svc.call("bill"), off: svc.cool.bill });
   }
-  if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: "🏷️", on: () => go(m.events ? "events" : "offers") });
-  if (m.feedback && items.length < 4) items.push({ k: "feedback", label: x.feedback, icon: "💬", on: () => go("feedback") });
+  if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: <Glyph k="tag" />, on: () => go(m.events ? "events" : "offers") });
+  if (m.feedback && items.length < 4) items.push({ k: "feedback", label: x.feedback, icon: <Glyph k="chat" />, on: () => go("feedback") });
   return (
     <>
       {menus.length > 0 && (
@@ -157,7 +152,7 @@ function QuickActions() {
           {menus.map((mn) => (
             <button key={mn.k} className={`g-menu-card mc-${mn.k}`} data-q={mn.k} onClick={() => go(mn.k)}>
               <span className="glass-ico lg" aria-hidden="true">
-                {mn.e}
+                <Glyph k={mn.e} />
               </span>
               <span className="g-menu-txt">
                 <b>{mn.t}</b>
@@ -242,6 +237,8 @@ export function Home() {
   if (m.group && games("group")) explore.push(["group", x.adults, x.adultsS]);
   if (m.date && games("date")) explore.push(["date", tr("dateTitle"), tr("dateS")]);
   if (m.celebrate) explore.push(["celebrate", x.celebrate, x.celebrateS]);
+  if (gameOn(venue.games as Record<string, boolean>, "darts") || gameOn(venue.games as Record<string, boolean>, "pool"))
+    explore.push(["bar", x.barGames, x.barGamesS]);
   if (m.drink && games("drink")) explore.push(["drink", x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))]);
   if (m.versus) explore.push(["versus", x.versus, x.versusS]);
   if (m.events) explore.push(["events", tr("events"), tr("eventsS")]);
@@ -286,7 +283,95 @@ export function Home() {
           ))}
         </Scroller>
       )}
+      <ContactCard />
     </>
+  );
+}
+
+/** Contact us: address, hours, call, WhatsApp, email, Instagram and a review link. */
+function ContactCard() {
+  const { venue, lang, L, log } = useGuest();
+  const x = EXTRA[lang];
+  const demo = venue.id === "sample";
+  const [note, setNote] = useState("");
+  const address = L(venue.address) || L(venue.area);
+  const maps = venue.mapsUrl || (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name.en} ${address}`)}` : "");
+  const actions: { k: string; label: string; href: string; glyph: string }[] = [];
+  if (venue.phone) actions.push({ k: "call", label: x.call, href: `tel:${venue.phone.replace(/[^\d+]/g, "")}`, glyph: "phone" });
+  if (venue.whatsapp) actions.push({ k: "wa", label: "WhatsApp", href: `https://wa.me/${venue.whatsapp}`, glyph: "chat" });
+  if (venue.email) actions.push({ k: "email", label: x.email, href: `mailto:${venue.email}`, glyph: "receipt" });
+  if (maps) actions.push({ k: "map", label: x.directions, href: maps, glyph: "pin" });
+  if (!address && !actions.length && !venue.reviewUrl) return null;
+  // The showroom venue isn't real: its buttons explain instead of dialling.
+  const open = (k: string) => (e: React.MouseEvent) => {
+    log("view", { module: "contact", item: k });
+    if (demo) (e.preventDefault(), setNote(x.demoContact));
+  };
+  return (
+    <section className="ct" aria-labelledby="ct-h">
+      <h3 className="g-sec" id="ct-h">
+        {x.contact}
+      </h3>
+      <div className="ct-card">
+        <div className="ct-row">
+          <span className="glass-ico sm ct-ico" aria-hidden="true">
+            <Glyph k="pin" />
+          </span>
+          <div>
+            <b>{L(venue.name)}</b>
+            {address && <span>{address}</span>}
+          </div>
+        </div>
+        {L(venue.hours) && (
+          <div className="ct-row">
+            <span className="glass-ico sm ct-ico" aria-hidden="true">
+              <Glyph k="clock" />
+            </span>
+            <div>
+              <b>{x.hours}</b>
+              <span>{L(venue.hours)}</span>
+            </div>
+          </div>
+        )}
+        {L(venue.access) && (
+          <div className="ct-row">
+            <span className="glass-ico sm ct-ico" aria-hidden="true">
+              <Glyph k="access" />
+            </span>
+            <div>
+              <b>{x.access}</b>
+              <span>{L(venue.access)}</span>
+            </div>
+          </div>
+        )}
+        {actions.length > 0 && (
+          <div className="ct-actions">
+            {actions.map((a) => (
+              <a key={a.k} className={`ct-btn ct-${a.k}`} href={a.href} target={a.k === "map" || a.k === "wa" ? "_blank" : undefined} rel="noopener noreferrer" onClick={open(a.k)}>
+                <Glyph k={a.glyph} />
+                {a.label}
+              </a>
+            ))}
+          </div>
+        )}
+        {venue.instagram && (
+          <a className="ct-insta" href={`https://instagram.com/${venue.instagram}`} target="_blank" rel="noopener noreferrer" onClick={open("instagram")}>
+            @{venue.instagram}
+          </a>
+        )}
+        {venue.reviewUrl && (
+          <a className="ct-review" href={venue.reviewUrl} target="_blank" rel="noopener noreferrer" onClick={open("review")}>
+            <span aria-hidden="true">★★★★★</span>
+            {x.review}
+          </a>
+        )}
+        {note && (
+          <p className="g-service-msg" role="status">
+            {note}
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -419,7 +504,7 @@ function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
         <div className="df">
           <button className={`df-toggle${open || picked.length ? " on" : ""}`} onClick={() => setOpen(!open)} aria-expanded={open} data-act="diet">
             <span className="glass-ico sm" aria-hidden="true">
-              🥗
+              <Glyph k="diet" />
             </span>
             {du.btn}
             {picked.length > 0 && <em>{picked.length}</em>}
@@ -437,7 +522,7 @@ function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
                     log("menu_cat", { module: "diet", item: f.en });
                   }}
                 >
-                  {f.e} {lang === "ar" ? f.ar : f.en}
+                  {lang === "ar" ? f.ar : f.en}
                 </button>
               ))}
               {picked.length > 0 && (
@@ -464,7 +549,7 @@ function ItemMenu({ kind }: { kind: "food" | "drinks" }) {
               </div>
             </section>
           ))}
-          <p className="g-note">⚠️ {du.note}</p>
+          <p className="g-note">{du.note}</p>
         </>
       ) : (
         <>
@@ -625,8 +710,8 @@ export function Offers() {
 
 /* ---------- Things to do nearby ---------- */
 
-const NEARBY_EMOJI: Record<string, string> = {
-  sight: "🏛️", beach: "🏖️", park: "🌳", family: "🎡", shopping: "🛍️", culture: "🎭", food: "🍦", nightlife: "🌃", sport: "⛳",
+const NEARBY_GLYPH: Record<string, string> = {
+  sight: "landmark", beach: "wave", park: "tree", family: "ferris", shopping: "bag", culture: "mask", food: "cup", nightlife: "moon", sport: "flag",
 };
 const NEARBY_LABEL: Record<string, Record<"en" | "ar", string>> = {
   sight: { en: "Sights", ar: "معالم" }, beach: { en: "Beaches", ar: "شواطئ" }, park: { en: "Parks", ar: "حدائق" }, family: { en: "Family", ar: "للعائلة" },
@@ -645,7 +730,7 @@ export function Nearby() {
   return (
     <>
       <div>
-        <h2 className="g-h">📍 {x.nearby}</h2>
+        <h2 className="g-h">{x.nearby}</h2>
         <p className="g-sub">{x.nearbySub}</p>
       </div>
       {cats.length > 1 && (
@@ -655,7 +740,7 @@ export function Nearby() {
           </button>
           {cats.map((c) => (
             <button key={c} aria-pressed={cat === c} onClick={() => setCat(c)}>
-              {NEARBY_EMOJI[c]} {NEARBY_LABEL[c]?.[lang] ?? c}
+              {NEARBY_LABEL[c]?.[lang] ?? c}
             </button>
           ))}
         </div>
@@ -665,7 +750,7 @@ export function Nearby() {
         {list.map((n) => (
           <article key={n.id} className="nb-card">
             <span className={`glass-ico lg nb-${n.category}`} aria-hidden="true">
-              {NEARBY_EMOJI[n.category] ?? "📍"}
+              <Glyph k={NEARBY_GLYPH[n.category] ?? "pin"} />
             </span>
             <div className="nb-body">
               <div className="nb-top">
@@ -674,7 +759,7 @@ export function Nearby() {
               </div>
               {L(n.desc) && <p>{L(n.desc)}</p>}
               <a className="g-link" href={maps(n)} target="_blank" rel="noopener noreferrer" onClick={() => log("view", { module: "nearby", item: n.name.en })}>
-                🧭 {x.directions}
+                {x.directions} ›
               </a>
             </div>
           </article>

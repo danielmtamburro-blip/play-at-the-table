@@ -10,6 +10,7 @@ export type GuestTheme = {
   bgImage: string; // optional background picture (public URL)
   dim: number; // 0–90: how strongly the background colour sits over the picture
   tiles: "colourful" | "brand"; // home tiles: our colourful pastels, or tints of the accent colour
+  cover: "venue" | "brand"; // cover artwork: our ring logo in the venue's colour, or in our five colours
 };
 
 export const THEME_PRESETS: { name: string; theme: Partial<GuestTheme> | null }[] = [
@@ -23,7 +24,7 @@ export const THEME_PRESETS: { name: string; theme: Partial<GuestTheme> | null }[
   { name: "Black & gold", theme: { bg: "#0E0E0E", card: "#1A1A1A", text: "#F7F1E3", accent: "#D9B262" } },
 ];
 
-export const BASE_THEME: GuestTheme = { bg: "#F6F4FF", card: "#FFFFFF", text: "#1B1740", accent: "#1B1740", bgImage: "", dim: 55, tiles: "colourful" };
+export const BASE_THEME: GuestTheme = { bg: "#F6F4FF", card: "#FFFFFF", text: "#1B1740", accent: "#1B1740", bgImage: "", dim: 55, tiles: "colourful", cover: "venue" };
 
 const hex = (v: unknown, f: string) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : f);
 
@@ -39,6 +40,7 @@ export function normaliseTheme(raw: unknown): GuestTheme | null {
     bgImage: typeof r.bgImage === "string" && /^https:\/\//.test(r.bgImage) ? r.bgImage : "",
     dim: typeof r.dim === "number" ? Math.min(90, Math.max(0, Math.round(r.dim))) : BASE_THEME.dim,
     tiles: r.tiles === "brand" ? "brand" : "colourful",
+    cover: r.cover === "brand" ? "brand" : "venue",
   };
 }
 

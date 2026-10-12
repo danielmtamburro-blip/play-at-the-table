@@ -1,4 +1,5 @@
 "use client";
+import { Glyph, gameGlyph } from "../glyphs";
 import { buzz, HAPTIC } from "@/lib/haptics";
 // Reusable game engines + the newer one-off games. Nothing a guest does here is saved.
 import { useEffect, useRef, useState } from "react";
@@ -48,9 +49,9 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
   const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && gameOn(venue.games as Record<string, boolean>, g.key));
   const card = (g: GameInfo) => (
     <button key={g.key} className={`g-pick ${cls}`} data-game={g.key} onClick={() => go(g.key)}>
-      {g.icon && (
-        <span className="g-pick-ico" aria-hidden="true">
-          {g.icon}
+      {g.group !== "kids" && (
+        <span className={`glass-ico gl-${g.group}`} aria-hidden="true">
+          <Glyph k={gameGlyph(g)} />
         </span>
       )}
       <b>{L(g.title)}</b>
@@ -85,7 +86,8 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
           {group === "group" && gameOn(venue.games as Record<string, boolean>, "split") && <FeatureBanner k="split" />}
           {gameOn(venue.games as Record<string, boolean>, "bill") && <FeatureBanner k="bill" />}
           {(Object.keys(CATS) as GameCat[])
-            .filter((c) => c !== "featured")
+            // Darts and pool live in their own section.
+            .filter((c) => c !== "featured" && c !== "bar")
             .map((c) => {
               const inCat = list.filter((g) => g.cat === c);
               if (!inCat.length) return null;
@@ -111,8 +113,8 @@ function FeatureBanner({ k }: { k: string }) {
   const g = GAMES.find((x) => x.key === k)!;
   return (
     <button className="g-feature" data-game={k} onClick={() => go(k)}>
-      <span className="g-feature-ico" aria-hidden="true">
-        {g.icon}
+      <span className="glass-ico g-feature-ico" aria-hidden="true">
+        <Glyph k={gameGlyph(g)} />
       </span>
       <span>
         <b>{L(g.title)}</b>

@@ -1,4 +1,5 @@
 "use client";
+import { Glyph } from "./glyphs";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { GAMES } from "@/lib/games";
 import { fetchBoard, fetchHot, qualifies, SCORED, submitScore, type Board } from "@/lib/leaderboard";
@@ -185,7 +186,7 @@ export function LeaderboardScreen({ initial }: { initial?: string }) {
   return (
     <>
       <div>
-        <h2 className="g-h">🏆 {u.title}</h2>
+        <h2 className="g-h">{u.title}</h2>
         <p className="g-sub">{u.resets}</p>
       </div>
       <div className="g-tabs" role="group" ref={chips}>
@@ -237,7 +238,7 @@ export function LeaderboardTeaser() {
   return (
     <button className="lb-teaser" onClick={() => go(game ? `leaderboard:${game}` : "leaderboard")}>
       <span className="lb-teaser-head">
-        <span>🏆 {u.teaser}</span>
+        <span className="lb-teaser-title"><Glyph k="trophy" /> {u.teaser}</span>
         <span>{info ? L(info.title) : ""}</span>
       </span>
       {rows.length ? (

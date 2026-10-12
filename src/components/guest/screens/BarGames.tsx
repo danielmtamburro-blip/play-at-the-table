@@ -5,6 +5,8 @@ import { buzz, HAPTIC } from "@/lib/haptics";
 import type { Lang } from "@/lib/types";
 import { useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { GAMES, gameOn } from "@/lib/games";
+import { Glyph } from "../glyphs";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -450,6 +452,45 @@ export function Pool({ k }: { k: string }) {
       <button className="g-btn" onClick={start}>
         🎱 {ui.start}
       </button>
+    </>
+  );
+}
+
+/* ---------- Darts & pool section ---------- */
+
+const BAR_UI: Record<Lang, { title: string; sub: string; dartsS: string; poolS: string }> = {
+  en: { title: "Darts & pool", sub: "Scorers for the board and the table. Pass the phone, we'll do the maths.", dartsS: "301 or 501 · checkout tips · averages", poolS: "Race to frames · break and suits · killer pool" },
+  ar: { title: "السهام والبلياردو", sub: "حاسبات للوحة السهام وطاولة البلياردو. مرّر الهاتف ونحن نحسب.", dartsS: "301 أو 501 · اقتراحات الإنهاء · المعدلات", poolS: "سباق الأشواط · الكسر والألوان · بلياردو القاتل" },
+};
+
+export function BarHub() {
+  const { venue, lang, L, go } = useGuest();
+  const u = BAR_UI[lang];
+  const on = (k: string) => gameOn(venue.games as Record<string, boolean>, k);
+  const cards = [
+    ["darts", "target", u.dartsS, "bar-darts"],
+    ["pool", "ball", u.poolS, "bar-pool"],
+  ].filter(([k]) => on(k));
+  return (
+    <>
+      <div>
+        <h2 className="g-h">{u.title}</h2>
+        <p className="g-sub">{u.sub}</p>
+      </div>
+      <div className="bar-hub">
+        {cards.map(([k, ic, sub, cls]) => {
+          const g = GAMES.find((x) => x.key === k)!;
+          return (
+            <button key={k} className={`bar-tile ${cls}`} data-game={k} onClick={() => go(k)}>
+              <span className="glass-ico lg" aria-hidden="true">
+                <Glyph k={ic} />
+              </span>
+              <b>{L(g.title)}</b>
+              <small>{sub}</small>
+            </button>
+          );
+        })}
+      </div>
     </>
   );
 }

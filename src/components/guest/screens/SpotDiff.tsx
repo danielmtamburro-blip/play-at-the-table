@@ -5,6 +5,7 @@ import { buzz, HAPTIC } from "@/lib/haptics";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { ArtBackdrop, ArtObject, makeArtPuzzle, type ArtItem } from "./spotArt";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: { found: "Found", tap: "Tap the differences on either picture", hint: "Hint", all: "You found them all! 🎉", again: "New picture", time: "Time", misses: "Misses" },
@@ -22,6 +23,7 @@ const SCENES: Record<Level, { bg: [string, string]; ground: string; items: strin
     { bg: ["#FFE7B8", "#FFF6E2"], ground: "#F5C77E", items: ["🏖️", "🐚", "🦀", "🐠", "⛱️", "🍦", "🪣", "🐬", "🌴", "🦩", "⭐", "🐢", "🏐", "🛟", "🍉", "🐙"] },
     { bg: ["#2B2470", "#5A4FCF"], ground: "#3B2F8F", items: ["🚀", "🪐", "⭐", "🌙", "👽", "🛸", "☄️", "🌍", "🛰️", "🔭", "🌟", "👩‍🚀", "🌕", "✨", "🌎", "🪨"] },
   ],
+  // Adults use the illustrated scenes in spotArt.tsx; these emoji sets are a fallback.
   adults: [
     { bg: ["#F7EBDD", "#FFF8F0"], ground: "#E3CFB4", items: ["☕", "🥐", "🍰", "🍓", "🍋", "🌿", "📖", "🕯️", "🍷", "🧁", "🍪", "🥂", "🌹", "🧂", "🍯", "🫖", "🥖", "🍇", "🧀", "🍴", "🥄", "🍒", "🫒", "🥨", "🍩", "🌷"] },
     { bg: ["#D9F2EC", "#F2FBF8"], ground: "#B8E3D6", items: ["🌵", "🪴", "🌿", "🍃", "🌻", "🌷", "🌼", "🍀", "🐝", "🐌", "🦋", "🐞", "🪨", "🍄", "🌱", "🪺", "🐛", "🌾", "🍂", "🐜", "🌺", "💐", "🥀", "🌳", "🐿️", "🦔"] },
@@ -70,30 +72,23 @@ function makePuzzle(level: Level) {
   return { scene, items, changed, diffs, radius: Math.max(cw, ch) * 0.55 };
 }
 
-function Panel({ items, scene, found, misses, onTap, label, flash }: {
-  items: Item[]; scene: ReturnType<typeof makePuzzle>["scene"]; found: Diff[]; misses: { x: number; y: number; id: number }[];
-  onTap: (x: number, y: number) => void; label: string; flash: Diff | null;
-}) {
-  return (
-    <svg
-      className="spot-panel"
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-label={label}
-      onPointerDown={(e) => {
-        const r = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
-        onTap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
-      }}
-    >
+type Spot = { i: number; x: number; y: number };
+type Puzzle = { diffs: Spot[]; radius: number; draw: (which: "A" | "B") => React.ReactNode };
+
+/** Emoji picture for kids. */
+function emojiPuzzle(level: Level): Puzzle {
+  const p = makePuzzle(level);
+  const draw = (which: "A" | "B") => (
+    <>
       <defs>
-        <linearGradient id={`sky-${label}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={scene.bg[0]} />
-          <stop offset="1" stopColor={scene.bg[1]} />
+        <linearGradient id={`sky-${which}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={p.scene.bg[0]} />
+          <stop offset="1" stopColor={p.scene.bg[1]} />
         </linearGradient>
       </defs>
-      <rect width={W} height={H} fill={`url(#sky-${label})`} />
-      <path d={`M0 ${H - 26} Q ${W / 2} ${H - 44} ${W} ${H - 26} V${H} H0z`} fill={scene.ground} />
-      {items.map((it, i) =>
+      <rect width={W} height={H} fill={`url(#sky-${which})`} />
+      <path d={`M0 ${H - 26} Q ${W / 2} ${H - 44} ${W} ${H - 26} V${H} H0z`} fill={p.scene.ground} />
+      {(which === "A" ? p.items : p.changed).map((it, i) =>
         it.e ? (
           <text
             key={i}
@@ -108,6 +103,40 @@ function Panel({ items, scene, found, misses, onTap, label, flash }: {
           </text>
         ) : null,
       )}
+    </>
+  );
+  return { diffs: p.diffs, radius: p.radius, draw };
+}
+
+/** Illustrated café scene for adults. */
+function artPuzzle(): Puzzle {
+  const p = makeArtPuzzle(W, H);
+  const draw = (which: "A" | "B") => (
+    <>
+      <ArtBackdrop W={W} H={H} />
+      {(which === "A" ? p.items : p.changed).map((it: ArtItem, i) => (
+        <ArtObject key={i} it={it} />
+      ))}
+    </>
+  );
+  return { diffs: p.diffs, radius: p.radius, draw };
+}
+
+function Panel({ p, which, found, misses, onTap, flash }: {
+  p: Puzzle; which: "A" | "B"; found: Spot[]; misses: { x: number; y: number; id: number }[]; onTap: (x: number, y: number) => void; flash: Spot | null;
+}) {
+  return (
+    <svg
+      className="spot-panel"
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label={which}
+      onPointerDown={(e) => {
+        const r = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+        onTap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
+      }}
+    >
+      {p.draw(which)}
       {found.map((d) => (
         <circle key={`f${d.i}`} className="spot-ring" cx={d.x} cy={d.y} r="17" />
       ))}
@@ -125,11 +154,11 @@ export function SpotDiff({ k, level }: { k: string; level: Level }) {
   const { lang, log } = useGuest();
   const ui = UI[lang];
   const [seed, setSeed] = useState(0);
-  const p = useMemo(() => makePuzzle(level), [level, seed]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [found, setFound] = useState<Diff[]>([]);
+  const p = useMemo(() => (level === "adults" ? artPuzzle() : emojiPuzzle(level)), [level, seed]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [found, setFound] = useState<Spot[]>([]);
   const [misses, setMisses] = useState<{ x: number; y: number; id: number }[]>([]);
   const [missCount, setMissCount] = useState(0);
-  const [flash, setFlash] = useState<Diff | null>(null);
+  const [flash, setFlash] = useState<Spot | null>(null);
   const [secs, setSecs] = useState(0);
   const done = found.length === p.diffs.length;
 
@@ -179,8 +208,8 @@ export function SpotDiff({ k, level }: { k: string; level: Level }) {
         </span>
       </div>
       <div className="spot-wrap">
-        <Panel items={p.items} scene={p.scene} found={found} misses={misses} onTap={tap} label="A" flash={flash} />
-        <Panel items={p.changed} scene={p.scene} found={found} misses={misses} onTap={tap} label="B" flash={flash} />
+        <Panel p={p} which="A" found={found} misses={misses} onTap={tap} flash={flash} />
+        <Panel p={p} which="B" found={found} misses={misses} onTap={tap} flash={flash} />
       </div>
       {done ? (
         <div className="prompt kids">

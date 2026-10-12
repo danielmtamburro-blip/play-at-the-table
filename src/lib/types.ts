@@ -68,6 +68,12 @@ export type Venue = {
   access: Loc;
   phone: string;
   mapsUrl: string;
+  address: Loc;
+  email: string;
+  /** Digits only, with country code. */
+  whatsapp: string;
+  reviewUrl: string;
+  instagram: string;
   wifi: { ssid: string; pass: string };
   allergyNote: Loc;
   brandColor: string;

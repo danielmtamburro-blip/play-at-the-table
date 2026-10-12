@@ -17,8 +17,8 @@ export default function YourVenue({ base }: { base: Venue }) {
 
   const venue: Venue = useMemo(() => {
     const theme: GuestTheme = dark
-      ? { bg: "#14110F", card: "#221C18", text: "#F7F1EA", accent: colour, bgImage: "", dim: 55, tiles: "colourful" }
-      : { bg: "#F7F5F2", card: "#FFFFFF", text: "#1E1A16", accent: colour, bgImage: "", dim: 55, tiles: "colourful" };
+      ? { bg: "#14110F", card: "#221C18", text: "#F7F1EA", accent: colour, bgImage: "", dim: 55, tiles: "colourful", cover: "venue" }
+      : { bg: "#F7F5F2", card: "#FFFFFF", text: "#1E1A16", accent: colour, bgImage: "", dim: 55, tiles: "colourful", cover: "venue" };
     const n = name.trim() || "Your Venue";
     return {
       ...base,

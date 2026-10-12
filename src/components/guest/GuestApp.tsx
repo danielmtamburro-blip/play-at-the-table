@@ -28,7 +28,7 @@ import { VersusProvider, VersusScreen } from "./screens/Versus";
 import { Events, Home, Menu, Nearby, Offers } from "./screens/Venue";
 import { Celebrate } from "./screens/Celebrate";
 import { SpotDiff } from "./screens/SpotDiff";
-import { Darts, Pool } from "./screens/BarGames";
+import { BarHub, Darts, Pool } from "./screens/BarGames";
 import { PlayTab } from "./screens/Play";
 import { LeaderboardProvider, LeaderboardScreen } from "./Leaderboard";
 
@@ -153,6 +153,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       case "nearby": return <Nearby />;
       case "spotkids": return <SpotDiff k="spotkids" level="kids" />;
       case "spot": return <SpotDiff k="spot" level="adults" />;
+      case "bar": return <BarHub />;
       case "darts": return <Darts k="darts" />;
       case "pool": return <Pool k="pool" />;
       case "versus": return <VersusScreen />;

@@ -7,6 +7,7 @@ import { BASE_THEME, normaliseTheme, THEME_PRESETS, themeWarnings, type GuestThe
 import type { Venue } from "@/lib/types";
 import { removeVenueFile, uploadVenueFile } from "@/lib/upload";
 import LogoUploader from "./LogoUploader";
+import BrandCover from "@/components/guest/BrandCover";
 
 const COLOURS: [keyof GuestTheme, string, string][] = [
   ["accent", "Brand colour", "Buttons and highlights"],
@@ -168,8 +169,34 @@ export default function ThemeEditor({ venueId, saved, preview, logoUrl }: { venu
             <header>
               <span className="cd-num">3</span>
               <div>
+                <h3>Cover</h3>
+                <p className="small muted">The top of your page uses the Play at Your Table artwork. Show it in your brand colour or in our five colours.</p>
+              </div>
+            </header>
+            <div className="cover-picks">
+              {(
+                [
+                  ["venue", "My brand colour"],
+                  ["brand", "Play at Your Table colours"],
+                ] as const
+              ).map(([mode, label]) => (
+                <button key={mode} type="button" className="cover-pick" aria-pressed={t.cover === mode} onClick={() => setTheme({ ...t, cover: mode })}>
+                  <span className="cover-pick-art">
+                    <BrandCover accent={t.accent} mode={mode} />
+                  </span>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="small muted">Your brand colour is the one you picked in step 2.</p>
+          </section>
+
+          <section className="cd-step">
+            <header>
+              <span className="cd-num">4</span>
+              <div>
                 <h3>Background picture (optional)</h3>
-                <p className="small muted">A photo of your venue, food or pattern. PNG, JPG or WEBP up to 10 MB.</p>
+                <p className="small muted">A photo or pattern behind your page (not the cover). PNG, JPG or WEBP up to 10 MB.</p>
               </div>
             </header>
             <div className="cd-drop has">
@@ -215,7 +242,7 @@ export default function ThemeEditor({ venueId, saved, preview, logoUrl }: { venu
 
           <section className="cd-step">
             <header>
-              <span className="cd-num">4</span>
+              <span className="cd-num">5</span>
               <div>
                 <h3>Your logo</h3>
                 <p className="small muted">Sits big at the top of the guest page, above &ldquo;Welcome to…&rdquo;.</p>

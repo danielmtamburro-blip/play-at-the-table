@@ -24,6 +24,11 @@ export const SAMPLE_VENUE: Venue = {
     "ar": "مدخل بدون درج ودورة مياه مجهزة لذوي الهمم. كراسي أطفال متوفرة."
   },
   "phone": "+971 4 000 0000",
+  "address": { "en": "The Walk, Jumeirah Beach Residence, Dubai", "ar": "ذا ووك، جميرا بيتش ريزيدنس، دبي" },
+  "email": "",
+  "whatsapp": "",
+  "reviewUrl": "",
+  "instagram": "",
   "mapsUrl": "https://www.google.com/maps/search/?api=1&query=The+Walk+JBR+Dubai",
   "wifi": {
     "ssid": "EmberDate_Guest",

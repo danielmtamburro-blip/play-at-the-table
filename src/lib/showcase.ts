@@ -11,6 +11,13 @@ export const SHOWCASE_VENUE: Venue = {
   area: L("Rooftop · Dubai Marina", "على السطح · دبي مارينا"),
   hours: L("Daily 12:00 – 01:00", "يومياً 12:00 – 01:00"),
   wifi: { ssid: "Saffron_Guest", pass: "sunset2026" },
+  address: L("Rooftop, Marina Gate 2, Dubai Marina, Dubai", "السطح، مارينا جيت 2، دبي مارينا، دبي"),
+  phone: "+971 4 555 0123",
+  email: "hello@saffronterrace.example",
+  whatsapp: "971500000000",
+  reviewUrl: "https://www.google.com/maps",
+  instagram: "saffronterrace",
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dubai+Marina",
   // The sample menu plus a few dishes for every diet, so the dietary filter has plenty to show.
   menu: [
     {
@@ -29,7 +36,7 @@ export const SHOWCASE_VENUE: Venue = {
   brandColor: "#E3A94B",
   logoUrl: "/showcase/saffron-logo.svg",
   coverUrl: "/showcase/saffron-cover.webp",
-  theme: { bg: "#15100C", card: "#211912", text: "#F7EEE2", accent: "#E3A94B", bgImage: "", dim: 55, tiles: "colourful" },
+  theme: { bg: "#15100C", card: "#211912", text: "#F7EEE2", accent: "#E3A94B", bgImage: "", dim: 55, tiles: "colourful", cover: "venue" },
   games: { _drinkAge: 21, darts: true, pool: true },
   modules: { ...SAMPLE_VENUE.modules, drink: true, service: true, celebrate: true, nearby: true },
   nearby: [
