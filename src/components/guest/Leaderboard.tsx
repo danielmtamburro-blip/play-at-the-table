@@ -3,7 +3,15 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { GAMES } from "@/lib/games";
 import { fetchBoard, fetchHot, qualifies, SCORED, submitScore, type Board } from "@/lib/leaderboard";
 import type { Lang } from "@/lib/types";
+import { SHOWCASE_SCORES } from "@/lib/showcase";
 import { useGuest } from "./context";
+
+/** Sales-page demo: example scores instead of a real board. */
+const demoBoard = (game: string): Board => {
+  const rows = SHOWCASE_SCORES[game] ?? [];
+  return { lower_better: SCORED[game]?.lowerBetter ?? false, today: rows, all_time: rows };
+};
+const loadBoard = (venueId: string, game: string) => (venueId === "sample" ? Promise.resolve(demoBoard(game)) : fetchBoard(venueId, game));
 
 const LUI: Record<Lang, Record<string, string>> = {
   en: {
@@ -164,7 +172,7 @@ export function LeaderboardScreen({ initial }: { initial?: string }) {
   const [board, setBoard] = useState<Board | null>(null);
   useEffect(() => {
     setBoard(null);
-    fetchBoard(venue.id, game).then(setBoard);
+    loadBoard(venue.id, game).then(setBoard);
   }, [venue.id, game]);
   const info = GAMES.find((g) => g.key === game);
   // Keep the chosen game's chip in view (sideways only, so the page doesn't jump).
@@ -214,11 +222,11 @@ export function LeaderboardTeaser() {
   const [board, setBoard] = useState<Board | null>(null);
   useEffect(() => {
     let live = true;
-    fetchHot(venue.id).then(async (g) => {
+    (venue.id === "sample" ? Promise.resolve("penalty") : fetchHot(venue.id)).then(async (g) => {
       const key = g && GAMES.find((x) => x.key === g)?.group !== "drink" ? g : "penalty";
       if (!live) return;
       setGame(key);
-      setBoard(await fetchBoard(venue.id, key));
+      setBoard(await loadBoard(venue.id, key));
     });
     return () => {
       live = false;

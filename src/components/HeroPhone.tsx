@@ -1,10 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GuestApp from "@/components/guest/GuestApp";
 import type { Venue } from "@/lib/types";
 
 /** The phone on the sales page: plays a guided tour of the real guest app until someone touches it. */
-export default function HeroPhone({ venue }: { venue: Venue }) {
+export default function HeroPhone({ venue: base }: { venue: Venue }) {
+  // The showcase venue's events always happen "tonight", whatever day it is.
+  const [venue, setVenue] = useState(base);
+  useEffect(() => {
+    const today = new Date().getDay();
+    setVenue({ ...base, events: base.events.map((e) => (e.date ? e : { ...e, weekday: today })) });
+  }, [base]);
   const [caption, setCaption] = useState("This is the live guest experience. Tap anything to try it.");
   return (
     <div className="phone-stage">

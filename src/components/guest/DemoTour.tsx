@@ -12,21 +12,25 @@ type Props = {
 
 const CAPTIONS = {
   en: {
-    home: "Menu, offers and Wi-Fi in one scan",
+    home: "Your venue, your branding, one scan",
     call: "Call a server with one tap",
+    board: "🏆 Live leaderboards for every table",
+    sudoku: "🔢 Sudoku, crosswords and puzzles",
+    words: "🔍 Word search while you wait",
     keepy: "⚽ Keepy-uppy for the kids",
-    racer: "🏎️ Car racing while they wait",
-    cards: "🃏 Card games for the grown-ups",
-    versus: "⚔️ Challenge another table, live!",
+    quiz: "🧠 Table trivia for the group",
+    pour: "🍺 Drinking games: pour it right!",
     yourTurn: "Your turn! Tap anything to explore.",
   },
   ar: {
-    home: "القائمة والعروض والواي فاي بمسحة واحدة",
+    home: "مكانك وهويتك بمسحة واحدة",
     call: "نادِ النادل بضغطة واحدة",
+    board: "🏆 لوحات متصدرين مباشرة لكل طاولة",
+    sudoku: "🔢 سودوكو وكلمات متقاطعة وألغاز",
+    words: "🔍 البحث عن الكلمات أثناء الانتظار",
     keepy: "⚽ تنطيط الكرة للأطفال",
-    racer: "🏎️ سباق سيارات أثناء الانتظار",
-    cards: "🃏 ألعاب ورق للكبار",
-    versus: "⚔️ تحدَّ طاولة أخرى مباشرة!",
+    quiz: "🧠 مسابقات للمجموعة",
+    pour: "🍺 ألعاب المشروبات: صبّها صح!",
     yourTurn: "دورك! اضغط على أي شيء للاستكشاف.",
   },
 };
@@ -117,14 +121,9 @@ export default function DemoTour({ root, body, onCaption }: Props) {
     /** pointerdown at a spot inside an element (game arenas listen for this, not click). */
     const pressAt = (el: Element, clientX: number, clientY: number) =>
       el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX, clientY }));
-    const back = () => tap(".g-back", 200);
     const scrollBody = async (to: number, ms = 650) => {
       body.current?.scrollTo({ top: to, behavior: "smooth" });
       await wait(ms);
-    };
-    const setInput = (el: HTMLInputElement, v: string) => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(el, v);
-      el.dispatchEvent(new Event("input", { bubbles: true }));
     };
     /** Run one part of the tour; if that part isn't available (e.g. switched off), skip it. */
     const part = async (fn: () => Promise<void>) => {
@@ -157,16 +156,46 @@ export default function DemoTour({ root, body, onCaption }: Props) {
 
         await part(async () => {
           caption("home");
-          await scrollBody(200);
-          await scrollBody(0, 450);
+          await scrollBody(240, 900);
+          await scrollBody(520, 900);
+          await scrollBody(0, 600);
           caption("call");
           await tap('[data-act="call"]', 900);
         });
 
+        /** Open the Play tab, then a game card on it. */
+        const openGame = async (key: string) => {
+          await tap('[data-tab="play"]', 250);
+          await tap(`[data-card="${key}"]`, 350);
+        };
+
+        await part(async () => {
+          caption("board");
+          await tap('[data-tab="play"]', 1300);
+          caption("sudoku");
+          await tap('[data-card="sudoku"]', 350);
+          for (let n = 0; n < 4; n++) {
+            // An empty cell in the top rows, so it's visible without scrolling.
+            const cells = Array.from(root.current?.querySelectorAll<HTMLElement>("[data-sol]") ?? []).filter((c) => !c.textContent);
+            const cell = cells[Math.min(cells.length - 1, n * 3)];
+            if (!cell) break;
+            await tap(`[aria-label="${cell.getAttribute("aria-label")}"]`, 120);
+            await tap(`[data-n="${cell.dataset.sol}"]`, 200);
+          }
+        });
+
+        await part(async () => {
+          caption("words");
+          await openGame("wordsearch");
+          for (let n = 0; n < 2; n++) {
+            await tap(`[data-ws~="s${n}"]`, 150);
+            await tap(`[data-ws~="e${n}"]`, 450);
+          }
+        });
+
         await part(async () => {
           caption("keepy");
-          await tap('[data-tile="kids"]');
-          await tap('[data-game="keepy"]');
+          await openGame("keepy");
           await tap('[data-act="start"]', 150);
           for (let k = 0; k < 4; k++) {
             const arena = await find(".arena.keepy");
@@ -180,37 +209,40 @@ export default function DemoTour({ root, body, onCaption }: Props) {
             pressAt(arena, r.left + r.width / 2, r.top + r.height / 2);
             await wait(380);
           }
-          await wait(300);
+          await wait(200);
         });
 
         await part(async () => {
-          caption("racer");
-          await tap('[data-tile="kids"]');
-          await tap('[data-game="racer"]');
-          await tap('[data-act="start"]', 300);
-          for (const side of ["left", "right", "right", "left"]) await tap(`[data-act="${side}"]`, 300);
-          await wait(250);
+          caption("quiz");
+          await openGame("trivia");
+          await tap("[data-right]", 700);
+          await tap('[data-act="next"]', 250);
+          await tap("[data-right]", 700);
         });
 
         await part(async () => {
-          caption("cards");
-          await tap('[data-tile="drink"]');
-          if (root.current?.querySelector('[data-act="age-yes"]')) await tap('[data-act="age-yes"]');
-          await tap('[data-game="hilo"]', 400);
-          await tap('[data-act="higher"]', 650);
-          await tap('[data-act="lower"]', 650);
-          await tap('[data-act="higher"]', 700);
-        });
-
-        await part(async () => {
-          caption("versus");
-          await tap('[data-tile="versus"]', 300);
-          const input = (await find("#vs-to")) as HTMLInputElement;
-          await moveTo(...pointOf(input));
+          caption("pour");
+          await tap('[data-tab="play"]', 250);
+          await tap('[data-chip="drink"]', 300);
+          await tap('[data-card="pour"]', 350);
+          if (root.current?.querySelector('[data-act="age-yes"]')) await tap('[data-act="age-yes"]', 300);
+          const stage = await find(".pour-stage");
+          await reveal(stage);
+          const [x, y] = pointOf(stage, 0.5, 0.75);
+          await moveTo(x, y);
           ripple();
-          for (const d of ["", "7"]) (setInput(input, d), await wait(220));
-          await tap(".vs-send", 1500);
-          await tap('[data-act="vs-cancel"]', 200);
+          stage.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+          // Let go once the beer (plus settling foam) reaches the middle of the band.
+          const band = await find(".pour-band");
+          const lo = parseFloat(band.style.bottom), hi = lo + parseFloat(band.style.height);
+          for (let t = 0; t < 6000; t += 30) {
+            await wait(30);
+            const beer = parseFloat((root.current?.querySelector(".pour-beer") as HTMLElement)?.style.height || "0");
+            const foam = parseFloat((root.current?.querySelector(".pour-foam") as HTMLElement)?.style.height || "0");
+            if (beer + foam * 0.35 >= lo + (hi - lo) * 0.45) break;
+          }
+          stage.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+          await wait(1500);
         });
 
         setFinger((f) => ({ ...f, show: false }));

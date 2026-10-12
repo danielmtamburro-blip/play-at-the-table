@@ -5,7 +5,7 @@ import { anyGameOn, drinkAge } from "@/lib/games";
 import type { Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { useService } from "./Service";
-import { ChallengeBanner, GameCard, venueGames } from "./Play";
+import { GameCard, venueGames } from "./Play";
 import { ICON } from "../icons";
 
 /* ---------- Home ---------- */
@@ -79,7 +79,7 @@ function Cover() {
   const { venue, table, tr, L, lang, toggleLang } = useGuest();
   const name = L(venue.name);
   const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
-  const img = venue.theme?.bgImage;
+  const img = venue.coverUrl || venue.theme?.bgImage;
   const initials = venue.name.en
     .split(/[\s&]+/)
     .filter(Boolean)
@@ -93,7 +93,7 @@ function Cover() {
         className="g-cover"
         style={{
           backgroundImage: img
-            ? `linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.05) 45%, rgba(0,0,0,.25)), url("${img}")`
+            ? `linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,0) 40%, rgba(0,0,0,.15)), url("${img}")`
             : `radial-gradient(circle at 85% 15%, rgba(255,255,255,.28), transparent 40%), linear-gradient(135deg, ${accent}, color-mix(in srgb, ${accent} 55%, #000))`,
         }}
       >
@@ -180,7 +180,7 @@ function Tonight() {
   return (
     <Scroller title={x.tonight} more={() => go(m.events ? "events" : "offers")}>
       {events.map((ev) => (
-        <button key={ev.id} className="g-tcard" style={{ background: "var(--violet)" }} onClick={() => go("events")}>
+        <button key={ev.id} className="g-tcard" style={{ background: "linear-gradient(135deg, #7A3D8C, #3B2360)" }} onClick={() => go("events")}>
           <small>
             {x.eventToday} · {ev.start}–{ev.end}
           </small>
@@ -219,6 +219,10 @@ export function Home() {
   if (m.group && games("group")) explore.push(["group", x.adults, x.adultsS]);
   if (m.date && games("date")) explore.push(["date", tr("dateTitle"), tr("dateS")]);
   if (m.drink && games("drink")) explore.push(["drink", x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))]);
+  if (m.versus) explore.push(["versus", x.versus, x.versusS]);
+  if (m.events) explore.push(["events", tr("events"), tr("eventsS")]);
+  if (m.offers) explore.push(["offers", tr("offers"), x.offersS]);
+  if (m.feedback) explore.push(["feedback", x.feedback, x.feedbackS]);
 
   return (
     <>
@@ -226,20 +230,18 @@ export function Home() {
       <QuickActions />
       <WifiStrip />
       <Tonight />
-      {top.length > 0 && (
-        <Scroller title={x.playNow} more={() => go("play")}>
-          {top.map((g) => (
-            <GameCard key={g.key} g={g} />
-          ))}
-        </Scroller>
-      )}
-      {m.versus && <ChallengeBanner />}
       {explore.length > 0 && (
         <section className="g-scroll-sec">
           <h3 className="g-sec">{x.explore}</h3>
           <div className="g-explore">
-            {explore.map(([k, t, sub]) => (
-              <button key={k} className={`g-ex t-${k}`} data-tile={k} onClick={() => go(k)}>
+            {explore.map(([k, t, sub], n) => (
+              <button
+                key={k}
+                // Challenge spans the row; the last tile does too if it would sit alone.
+                className={`g-ex t-${k}${n === explore.length - 1 && explore.filter(([e]) => e !== "versus").length % 2 ? " span" : ""}`}
+                data-tile={k}
+                onClick={() => go(k)}
+              >
                 {ICON[k]}
                 <span>
                   <b>{t}</b>
@@ -249,6 +251,13 @@ export function Home() {
             ))}
           </div>
         </section>
+      )}
+      {top.length > 0 && (
+        <Scroller title={x.playNow} more={() => go("play")}>
+          {top.map((g) => (
+            <GameCard key={g.key} g={g} />
+          ))}
+        </Scroller>
       )}
     </>
   );

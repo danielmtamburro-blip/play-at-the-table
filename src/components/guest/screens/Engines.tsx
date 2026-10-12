@@ -184,7 +184,7 @@ export function Pairs({ k, pairs }: { k: string; pairs: [Loc, Loc][] }) {
 type Q = { q: Loc; o: Loc[]; a: number };
 
 export function QuizGame({ k, questions, tone, rounds = 5 }: { k: string; questions: Q[]; tone: Tone; rounds?: number }) {
-  const { tr, L, log } = useGuest();
+  const { tr, L, log, demo } = useGuest();
   const fresh = () => ({ order: shuffle(questions).slice(0, rounds), i: 0, score: 0, ans: null as number | null });
   const [z, setZ] = useState(fresh);
   const over = z.i >= z.order.length;
@@ -227,7 +227,13 @@ export function QuizGame({ k, questions, tone, rounds = 5 }: { k: string; questi
         {q.o.map((o, i) => {
           const cls = z.ans == null ? "" : i === q.a ? "right" : i === z.ans ? "wrong" : "";
           return (
-            <button key={i} className={cls} disabled={z.ans != null} onClick={() => setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) })}>
+            <button
+              key={i}
+              className={cls}
+              disabled={z.ans != null}
+              data-right={demo && i === q.a ? "" : undefined}
+              onClick={() => setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) })}
+            >
               {L(o)}
             </button>
           );
@@ -237,7 +243,7 @@ export function QuizGame({ k, questions, tone, rounds = 5 }: { k: string; questi
         {z.ans == null ? "" : z.ans === q.a ? tr("correct") : `${tr("notQuite")} ${L(q.o[q.a])}.`}
       </p>
       {z.ans != null && (
-        <button className="g-btn" onClick={() => setZ({ ...z, i: z.i + 1, ans: null })}>
+        <button className="g-btn" data-act="next" onClick={() => setZ({ ...z, i: z.i + 1, ans: null })}>
           {tr("next")}
         </button>
       )}

@@ -66,6 +66,8 @@ export type Venue = {
   allergyNote: Loc;
   brandColor: string;
   logoUrl: string;
+  /** Optional cover picture for the top of the guest home page. */
+  coverUrl?: string;
   /** Venue branding for the guest page (null = default look). */
   theme: import("./theme").GuestTheme | null;
   modules: Modules;

@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import GuestApp from "@/components/guest/GuestApp";
-import { getVenue } from "@/lib/venue";
+import { showcaseToday } from "@/lib/showcase";
+import { getVenue as getDbVenue } from "@/lib/venue";
+
+/** The sales-page showcase venue lives in code, not the database. */
+const getVenue = async (slug: string) => (slug === "saffron-terrace" ? showcaseToday() : getDbVenue(slug));
 
 // Venue edits show up within a minute without reprinting any QR codes.
 export const revalidate = 60;

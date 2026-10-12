@@ -85,7 +85,7 @@ function conflicts(g: number[]): Set<number> {
 }
 
 export function Sudoku({ k }: { k: string }) {
-  const { log } = useGuest();
+  const { log, demo } = useGuest();
   const ui = useUi();
   const [level, setLevel] = useState<Level>("easy");
   const [game, setGame] = useState(() => makeSudoku("easy"));
@@ -142,7 +142,13 @@ export function Sudoku({ k }: { k: string }) {
           const same = sel != null && v && cells[sel] === v;
           const cls = [game.given[i] ? "given" : "", i === sel ? "sel" : peer ? "peer" : "", same ? "same" : "", bad.has(i) && !game.given[i] ? "bad" : "", c % 3 === 2 && c < 8 ? "br" : "", r % 3 === 2 && r < 8 ? "bb" : ""].join(" ");
           return (
-            <button key={i} className={cls} onClick={() => setSel(i)} aria-label={`Row ${r + 1} column ${c + 1}: ${v || "empty"}`}>
+            <button
+              key={i}
+              className={cls}
+              onClick={() => setSel(i)}
+              aria-label={`Row ${r + 1} column ${c + 1}: ${v || "empty"}`}
+              data-sol={demo && !game.given[i] ? game.sol[i] : undefined}
+            >
               {v || ""}
             </button>
           );
@@ -162,7 +168,7 @@ export function Sudoku({ k }: { k: string }) {
       ) : (
         <div className="numpad">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
-            <button key={n} onClick={() => put(n)}>
+            <button key={n} data-n={n} onClick={() => put(n)}>
               {n}
             </button>
           ))}
@@ -403,7 +409,7 @@ function buildSearch(words: string[], lang: Lang, size = 10) {
 const FOUND_COLOURS = ["#FFB51F", "#12A594", "#6E4BFF", "#F0457F", "#4CC9F0", "#FF5A4E", "#7ED957", "#FF9F1C"];
 
 export function WordSearch({ k }: { k: string }) {
-  const { lang, log } = useGuest();
+  const { lang, log, demo } = useGuest();
   const ui = useUi();
   const themes = WORDSEARCH_THEMES[lang];
   const [ti, setTi] = useState(() => Math.floor(Math.random() * themes.length));
@@ -439,7 +445,13 @@ export function WordSearch({ k }: { k: string }) {
       </div>
       <div className={`ws${miss ? " shake" : ""}`} dir="ltr" style={{ gridTemplateColumns: `repeat(${puz.size}, 1fr)` }}>
         {puz.grid.map((ch, i) => (
-          <button key={i} className={i === start ? "start" : ""} style={colourOf.has(i) ? { background: colourOf.get(i), color: "#fff" } : undefined} onClick={() => tap(i)}>
+          <button
+            key={i}
+            className={i === start ? "start" : ""}
+            style={colourOf.has(i) ? { background: colourOf.get(i), color: "#fff" } : undefined}
+            onClick={() => tap(i)}
+            data-ws={demo ? puz.placed.flatMap((p, n) => (p.cells[0] === i ? [`s${n}`] : p.cells.at(-1) === i ? [`e${n}`] : [])).join(" ") || undefined : undefined}
+          >
             {ch}
           </button>
         ))}
