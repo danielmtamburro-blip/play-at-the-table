@@ -9,7 +9,7 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   menu: "Food menu",
   drinks: "Drinks",
   kids: "Kids' corner",
-  group: "For the adults",
+  group: "Adult games",
   date: "Date night",
   events: "What's on",
   offers: "Offers",

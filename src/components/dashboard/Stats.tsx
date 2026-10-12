@@ -18,7 +18,7 @@ type Report = {
 
 const SECTION_NAMES: Record<string, string> = {
   menu: "Food menu", drinks: "Drinks", events: "What's on", offers: "Offers", kids: "Kids' corner",
-  group: "For the adults", drink: "Drinking games", date: "Date night", deck: "Date-night deck",
+  group: "Adult games", drink: "Drinking games", date: "Date night", deck: "Date-night deck",
   feedback: "Feedback", service_call: "Call server taps", service_bill: "Bill please taps",
   ...Object.fromEntries(GAMES.map((g) => [g.key, g.title.en])),
 };

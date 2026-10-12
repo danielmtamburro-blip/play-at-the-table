@@ -38,11 +38,12 @@ function WifiStrip() {
   if (!venue.wifi.ssid && !venue.wifi.pass) return null;
   return (
     <div className="g-wifi" aria-label={x.wifi}>
-      <span className="g-wifi-ico" aria-hidden="true">
-        📶
-      </span>
       <span className="g-wifi-txt">
-        <b>{venue.wifi.ssid}</b>
+        {venue.wifi.ssid && (
+          <span>
+            {x.wifiName}: <b dir="ltr">{venue.wifi.ssid}</b>
+          </span>
+        )}
         {venue.wifi.pass && (
           <span>
             {x.pass}: <b dir="ltr">{venue.wifi.pass}</b>
