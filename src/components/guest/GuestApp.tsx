@@ -56,7 +56,7 @@ function Redeem({ offer, onClose }: { offer: Offer; onClose: () => void }) {
       <p style={{ maxWidth: "32ch" }}>{tr("showThis")}</p>
       <div className="clock">{now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</div>
       {L(offer.terms) && <p style={{ fontSize: ".8rem", opacity: 0.9, maxWidth: "34ch" }}>{L(offer.terms)}</p>}
-      <button className="g-btn" onClick={onClose} autoFocus>
+      <button className="g-btn" data-act="redeem-done" onClick={onClose} autoFocus>
         {tr("done")}
       </button>
     </div>

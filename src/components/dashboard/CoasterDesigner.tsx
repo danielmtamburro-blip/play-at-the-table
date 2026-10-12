@@ -2,19 +2,17 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  applyPreset,
+  BACKGROUNDS,
   coasterSvg,
   contrast,
   DEFAULT_DESIGN,
   ICONS,
+  inkOn,
+  insideCentre,
   logoHeight,
   MAX_ICONS,
   nextIconSpot,
   normaliseDesign,
-  PRESETS,
-  QR_MAX,
-  QR_MIN,
-  svgDataUrl,
   svgToPng,
   tableHeight,
   toDataUrl,
@@ -25,15 +23,6 @@ import { getBrowserClient } from "@/lib/supabase/client";
 import { pdfToPng, removeVenueFile, uploadVenueFile } from "@/lib/upload";
 import type { Row } from "./CrudList";
 
-type ColourKey = "base" | "rim" | "titleColor" | "taglineColor" | "plate" | "qr";
-const COLOURS: [ColourKey, string][] = [
-  ["base", "Background"],
-  ["rim", "Outer ring"],
-  ["titleColor", "“Play at Your Table”"],
-  ["taglineColor", "Bottom line & name"],
-  ["plate", "QR panel"],
-  ["qr", "QR code"],
-];
 
 const blobToDataUrl = (b: Blob) =>
   new Promise<string>((ok, fail) => {
@@ -76,7 +65,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 /** Box (in coaster units) around a movable element, for the selection outline. */
 function boxOf(d: CoasterDesign, id: string): { x: number; y: number; w: number; h: number } | null {
-  if (id === "qr") return { x: d.qrBox.x, y: d.qrBox.y, w: d.qrBox.s, h: d.qrBox.s };
+  if (id === "text") return { x: d.textBox.x, y: d.textBox.y - d.taglineSize * 0.3, w: d.textBox.s, h: d.taglineSize * 1.3 };
   if (id === "logo") return { x: d.logoBox.x, y: d.logoBox.y, w: d.logoBox.s, h: logoHeight(d.logoBox.s) };
   if (id === "table") return { x: d.tableBox.x, y: d.tableBox.y, w: d.tableBox.s, h: tableHeight(d.tableBox.s) };
   const ic = d.icons[Number(id.split("-")[1])];
@@ -116,29 +105,29 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
       venueName: venue.name_en,
     });
   const mainSvg = useMemo(() => svgFor(d, preview), [d, logoData, origin, preview]); // eslint-disable-line react-hooks/exhaustive-deps
-  const presetThumbs = useMemo(
-    () => PRESETS.map((p) => svgDataUrl(svgFor(applyPreset({ ...d, showTable: false }, p), null))),
-    [logoData, origin, d.icons.length, d.tagline, d.qrBox, d.logoBox], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-  const scanOk = contrast(d.qr, d.plate) >= 4.5;
-  const activePreset = PRESETS.findIndex((p) => Object.entries(p.design).every(([k, v]) => d[k as keyof CoasterDesign] === v));
+  const wordsOk = contrast(d.taglineColor, d.base) >= 3;
+  /** New background: keep words readable on it. */
+  const setBase = (base: string) => setD((x) => ({ ...x, base, taglineColor: contrast(x.taglineColor, base) >= 3 ? x.taglineColor : inkOn(base) }));
 
   /* ----- moving things on the canvas ----- */
 
   const posOf = (id: string): Placed | null =>
-    id === "qr" ? d.qrBox : id === "logo" ? d.logoBox : id === "table" ? d.tableBox : d.icons[Number(id.split("-")[1])] ?? null;
+    id === "text" ? d.textBox : id === "logo" ? d.logoBox : id === "table" ? d.tableBox : d.icons[Number(id.split("-")[1])] ?? null;
 
   const update = (id: string, patch: Partial<Placed> & { c?: string }) =>
     setD((x) => {
-      const fix = (p: Placed, lo: number, hi: number): Placed => {
+      // Everything stays inside the centre: the colourful rim is never covered.
+      const fix = (p: Placed, lo: number, hi: number, share = 0.5): Placed => {
         const n = { ...p, ...patch };
-        return { x: clamp(n.x, 40, 960), y: clamp(n.y, 40, 960), s: clamp(n.s, lo, hi) };
+        const s2 = clamp(n.s, lo, hi);
+        const [cx, cy] = insideCentre(n.x, n.y, s2 * share);
+        return { x: cx, y: cy, s: s2 };
       };
-      if (id === "qr") return { ...x, qrBox: fix(x.qrBox, QR_MIN, QR_MAX) };
-      if (id === "logo") return { ...x, logoBox: fix(x.logoBox, 120, 600) };
-      if (id === "table") return { ...x, tableBox: fix(x.tableBox, 120, 320) };
+      if (id === "text") return { ...x, textBox: fix(x.textBox, 200, 640, 0.08) };
+      if (id === "logo") return { ...x, logoBox: fix(x.logoBox, 120, 460) };
+      if (id === "table") return { ...x, tableBox: fix(x.tableBox, 120, 260) };
       const i = Number(id.split("-")[1]);
-      return { ...x, icons: x.icons.map((ic, j) => (j === i ? { ...ic, ...fix(ic, 30, 220), c: patch.c ?? ic.c } : ic)) };
+      return { ...x, icons: x.icons.map((ic, j) => (j === i ? { ...ic, ...fix(ic, 30, 200), c: patch.c ?? ic.c } : ic)) };
     });
 
   const units = () => 1000 / (canvasRef.current?.getBoundingClientRect().width || 1000);
@@ -181,7 +170,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
   function addIcon(k: string) {
     if (d.icons.length >= MAX_ICONS) return;
     const [x, y] = nextIconSpot(d.icons);
-    const c = d.icons[d.icons.length - 1]?.c ?? DEFAULT_DESIGN.icons[0].c;
+    const c = d.icons[d.icons.length - 1]?.c ?? "#FFB51F";
     setD((v) => ({ ...v, icons: [...v.icons, { k, x, y, s: 84, c }] }));
     setSel(`icon-${d.icons.length}`);
   }
@@ -263,8 +252,8 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
   const selPos = sel ? posOf(sel) : null;
   const selIcon = sel?.startsWith("icon-") ? d.icons[Number(sel.split("-")[1])] : null;
   const selName =
-    sel === "qr" ? "QR code" : sel === "logo" ? (logoData ? "Your logo" : "Venue name") : sel === "table" ? "Table number" : selIcon ? ICONS[selIcon.k]?.label : "";
-  const sizeRange: [number, number] = sel === "qr" ? [QR_MIN, QR_MAX] : sel === "logo" ? [120, 600] : sel === "table" ? [120, 320] : [30, 220];
+    sel === "text" ? "Your words" : sel === "logo" ? (logoData ? "Your logo" : "Venue name") : sel === "table" ? "Table number" : selIcon ? ICONS[selIcon.k]?.label : "";
+  const sizeRange: [number, number] = sel === "text" ? [200, 640] : sel === "logo" ? [120, 460] : sel === "table" ? [120, 260] : [30, 200];
 
   return (
     <div className="cd">
@@ -272,7 +261,10 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
         <div>
           <span className="eyebrow">Coaster studio</span>
           <h2>Design your QR coaster</h2>
-          <p className="muted small">Tap anything on the coaster to select it, then drag it where you want. Everything is yours to change.</p>
+          <p className="muted small">
+            Every coaster has the colourful Play at Your Table rim and QR code. You choose the background colour and add your logo, icons and words. Tap
+            anything you&apos;ve added to move it.
+          </p>
         </div>
         <div className="cd-actions">
           {dirty && <span className="badge off">Unsaved changes</span>}
@@ -337,10 +329,10 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
                   </button>
                 )}
               </div>
-              {sel === "qr" && <p className="small muted">The QR can&apos;t be made smaller than this, so it always scans.</p>}
+
             </div>
           ) : (
-            <p className="cd-hint">👆 Tap the logo, an icon, the QR or the table number to move it.</p>
+            <p className="cd-hint">👆 Tap your logo, an icon, your words or the table number to move it. The rim and QR stay put so every coaster scans.</p>
           )}
 
           <div className="cd-switch" role="group" aria-label="Preview table">
@@ -352,51 +344,31 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
               ›
             </button>
           </div>
-          <div className={`cd-check${scanOk ? " ok" : ""}`}>{scanOk ? "✓ Easy to scan" : "⚠ Hard to scan: make the QR darker or its panel lighter"}</div>
+          <div className={`cd-check${wordsOk ? " ok" : ""}`}>{wordsOk ? "✓ Easy to scan and read" : "⚠ Your words are hard to read on this background: pick another text colour"}</div>
         </aside>
 
         <div className="cd-steps">
-          <Step n={1} title="Pick a style" hint="A quick starting point. You can change every colour after.">
-            <div className="cd-presets">
-              {PRESETS.map((p, i) => (
-                <button key={p.name} type="button" className="cd-preset" aria-pressed={activePreset === i} onClick={() => setD((x) => applyPreset(x, p))}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={presetThumbs[i]} alt="" />
-                  <span>{p.name}</span>
+          <Step n={1} title="Background colour" hint="The middle of the coaster. The colourful rim stays the same on every coaster.">
+            <div className="cd-bgs">
+              {BACKGROUNDS.map((b) => (
+                <button key={b.base} type="button" className="cd-bg" aria-pressed={d.base === b.base} onClick={() => setBase(b.base)}>
+                  <span style={{ background: b.base }} />
+                  {b.name}
                 </button>
               ))}
             </div>
-          </Step>
-
-          <Step n={2} title="Colours" hint="Tap a swatch to pick any colour.">
             <div className="cd-colours">
-              {COLOURS.map(([k, label]) => (
-                <Swatch key={k} value={d[k]} onChange={(v) => set(k, v)} label={label} />
-              ))}
+              <Swatch value={d.base} onChange={setBase} label="Your own colour" sub="Tap to pick any colour" />
               <Swatch
-                value={d.icons[0]?.c ?? DEFAULT_DESIGN.icons[0].c}
+                value={d.icons[0]?.c ?? "#FFB51F"}
                 onChange={(c) => setD((x) => ({ ...x, icons: x.icons.map((i) => ({ ...i, c })) }))}
                 label="All icons"
                 sub="Or select one icon to colour it alone"
               />
-              <label className="cd-colour">
-                <span className="cd-swatch cd-mark" data-mono={d.mark === "mono"} />
-                <span>
-                  <b>Centre badge</b>
-                  <span className="cd-seg">
-                    <button type="button" aria-pressed={d.mark === "colour"} onClick={() => set("mark", "colour")}>
-                      Colourful
-                    </button>
-                    <button type="button" aria-pressed={d.mark === "mono"} onClick={() => set("mark", "mono")}>
-                      Match QR
-                    </button>
-                  </span>
-                </span>
-              </label>
             </div>
           </Step>
 
-          <Step n={3} title="Your logo" hint="PDF, PNG, JPG or WEBP up to 10 MB. Then drag it anywhere on the coaster.">
+          <Step n={2} title="Your logo" hint="PDF, PNG, JPG or WEBP up to 10 MB. Then drag it anywhere on the coaster.">
             <div
               className={`cd-drop${drag ? " over" : ""}${logoData ? " has" : ""}`}
               onDragOver={(e) => (e.preventDefault(), setDrag(true))}
@@ -418,7 +390,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
               )}
               <div>
                 <b>{busy === "logo" ? "Uploading…" : logoData ? "Looking good!" : "Drop your logo here"}</b>
-                <p className="small muted">{logoData ? "Tap it on the coaster to move or resize it." : "Without a logo, your venue name is printed instead."}</p>
+                <p className="small muted">{logoData ? "Tap it on the coaster to move or resize it." : "No logo? Your venue name is printed instead."}</p>
                 <div className="g-row" style={{ marginTop: 8 }}>
                   <button type="button" className="btn btn-ghost btn-sm" disabled={busy !== null} onClick={() => pickFile("application/pdf,image/png,image/jpeg,image/webp", onLogo)}>
                     {logoData ? "Replace" : "Choose file"}
@@ -433,7 +405,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             </div>
           </Step>
 
-          <Step n={4} title={`Icons (${d.icons.length}/${MAX_ICONS})`} hint="Tap to add. Then drag them where you like, or select one to resize, recolour or delete it.">
+          <Step n={3} title={`Icons (${d.icons.length}/${MAX_ICONS})`} hint="Tap to add. Then drag them where you like, or select one to resize, recolour or delete it.">
             <div className="icon-grid">
               {Object.entries(ICONS).map(([k, ic]) => {
                 const count = d.icons.filter((i) => i.k === k).length;
@@ -465,13 +437,18 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             )}
           </Step>
 
-          <Step n={5} title="Words">
+          <Step n={4} title="Words" hint="Add your own line, like a welcome or your Instagram. Tap it on the coaster to move it.">
             <div className="grid2">
               <div className="field">
-                <label htmlFor="cd-tag">Bottom line</label>
-                <input id="cd-tag" maxLength={40} value={d.tagline} onChange={(e) => set("tagline", e.target.value)} />
+                <label htmlFor="cd-tag">Your words</label>
+                <input id="cd-tag" maxLength={40} value={d.tagline} placeholder="e.g. Welcome to Saffron!" onChange={(e) => set("tagline", e.target.value)} />
                 <span className="small muted">{40 - d.tagline.length} characters left</span>
               </div>
+              <Swatch value={d.taglineColor} onChange={(v) => set("taglineColor", v)} label="Text colour" sub="Your words and venue name" />
+              <label className="cd-range">
+                <span>Text size</span>
+                <input type="range" min={24} max={54} value={d.taglineSize} onChange={(e) => set("taglineSize", Number(e.target.value))} />
+              </label>
               <label className="cd-toggle">
                 <input type="checkbox" checked={d.showTable} onChange={(e) => set("showTable", e.target.checked)} />
                 <span className="cd-toggle-ui" aria-hidden="true" />
@@ -480,18 +457,10 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
                   <span className="small muted">Shows &ldquo;TABLE 12&rdquo;. Drag it to move it.</span>
                 </span>
               </label>
-              <label className="cd-range">
-                <span>“Play at Your Table” size</span>
-                <input type="range" min={44} max={76} value={d.titleSize} onChange={(e) => set("titleSize", Number(e.target.value))} />
-              </label>
-              <label className="cd-range">
-                <span>Bottom line size</span>
-                <input type="range" min={28} max={54} value={d.taglineSize} onChange={(e) => set("taglineSize", Number(e.target.value))} />
-              </label>
             </div>
           </Step>
 
-          <Step n={6} title="Print" hint="One page per coaster, 100 mm round, about 300 dpi. Each table gets its own QR.">
+          <Step n={5} title="Print" hint="One page per coaster, 100 mm round, about 300 dpi. Each table gets its own QR.">
             <div className="cd-print">
               <div className="field" style={{ maxWidth: 160 }}>
                 <label htmlFor="cd-n">Tables</label>

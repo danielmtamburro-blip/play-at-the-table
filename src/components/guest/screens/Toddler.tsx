@@ -128,7 +128,7 @@ const ANIMALS: { e: string; n: Record<Lang, string>; s: Record<Lang, string> }[]
 ];
 
 export function AnimalSounds({ k }: { k: string }) {
-  const { lang } = useGuest();
+  const { lang, demo } = useGuest();
   const ui = UI[lang];
   const make = () => {
     const four = shuffle(ANIMALS).slice(0, 4);
@@ -138,7 +138,9 @@ export function AnimalSounds({ k }: { k: string }) {
   const [hit, setHit] = useState<string | null>(null);
   const [wrong, setWrong] = useState<string | null>(null);
   const [stars, setStars] = useState(0);
-  const ask = (t = r.target) => say(`${ui.who} ${t.s[lang]}?`, lang);
+  // No talking in the sales-page demo phone.
+  const speak = (text: string) => !demo && say(text, lang);
+  const ask = (t = r.target) => speak(`${ui.who} ${t.s[lang]}?`);
   useEffect(() => {
     if (!hit) ask();
   }, [r]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -149,12 +151,12 @@ export function AnimalSounds({ k }: { k: string }) {
       setHit(a.e);
       setStars((s) => s + 1);
       buzz(HAPTIC.win);
-      say(`${ui.yes} ${lang === "ar" ? a.n.ar : `The ${a.n.en}`} ${ui.says} ${a.s[lang]}!`, lang);
+      speak(`${ui.yes} ${lang === "ar" ? a.n.ar : `The ${a.n.en}`} ${ui.says} ${a.s[lang]}!`);
       setTimeout(() => (setHit(null), setR(make())), 2200);
     } else {
       setWrong(a.e);
       buzz(HAPTIC.tap);
-      say(`${a.s[lang]}! ${ui.tryAgain}`, lang);
+      speak(`${a.s[lang]}! ${ui.tryAgain}`);
       setTimeout(() => setWrong(null), 600);
     }
   }
@@ -176,6 +178,7 @@ export function AnimalSounds({ k }: { k: string }) {
             className={`tod-animal${hit === a.e ? " hit" : ""}${wrong === a.e ? " wiggle" : ""}${hit && hit !== a.e ? " dim" : ""}`}
             onClick={() => pick(a)}
             aria-label={a.n[lang]}
+            data-right={demo && a === r.target ? "" : undefined}
           >
             {a.e}
           </button>
