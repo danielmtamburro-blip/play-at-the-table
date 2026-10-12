@@ -6,6 +6,7 @@ import { getBrowserClient } from "@/lib/supabase/client";
 import { BASE_THEME, normaliseTheme, THEME_PRESETS, themeWarnings, type GuestTheme } from "@/lib/theme";
 import type { Venue } from "@/lib/types";
 import { removeVenueFile, uploadVenueFile } from "@/lib/upload";
+import LogoUploader from "./LogoUploader";
 
 const COLOURS: [keyof GuestTheme, string, string][] = [
   ["accent", "Brand colour", "Buttons and highlights"],
@@ -31,7 +32,7 @@ function Swatch({ value, onChange, label, sub }: { value: string; onChange: (v: 
 }
 
 /** Venue branding for the guest page, with a live phone preview. */
-export default function ThemeEditor({ venueId, saved, preview }: { venueId: string; saved: unknown; preview: Venue }) {
+export default function ThemeEditor({ venueId, saved, preview, logoUrl }: { venueId: string; saved: unknown; preview: Venue; logoUrl: string }) {
   const router = useRouter();
   const initial = normaliseTheme(saved);
   const [theme, setTheme] = useState<GuestTheme | null>(initial);
@@ -212,9 +213,16 @@ export default function ThemeEditor({ venueId, saved, preview }: { venueId: stri
             </div>
           </section>
 
-          <p className="small muted">
-            Your logo comes from the Coaster studio and shows at the top of the guest page. Menu tiles keep their icons so guests always know where to tap.
-          </p>
+          <section className="cd-step">
+            <header>
+              <span className="cd-num">4</span>
+              <div>
+                <h3>Your logo</h3>
+                <p className="small muted">Sits big at the top of the guest page, above &ldquo;Welcome to…&rdquo;.</p>
+              </div>
+            </header>
+            <LogoUploader venueId={venueId} logoUrl={logoUrl} />
+          </section>
         </div>
       </div>
     </div>

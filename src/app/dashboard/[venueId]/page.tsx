@@ -100,7 +100,7 @@ export default async function VenueDashboard({
         )}
         {tab === "games" && <GamesEditor venue={venue} />}
         {tab === "coaster" && <CoasterDesigner venue={venue} />}
-        {tab === "look" && <ThemeEditor venueId={venue.id} saved={venue.theme} preview={rowToVenue(venue)} />}
+        {tab === "look" && <ThemeEditor venueId={venue.id} saved={venue.theme} preview={rowToVenue(venue)} logoUrl={venue.logo_url ?? ""} />}
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
         {tab === "qr" && <QrCodes slug={venue.slug} name={venue.name_en} />}
