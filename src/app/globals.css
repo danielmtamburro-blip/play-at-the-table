@@ -733,3 +733,26 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .blob{opacity:.28}}
 @media (max-width:760px){.float{font-size:1.5rem;opacity:.16}.blob{filter:blur(50px)}}
 @media (prefers-reduced-motion:reduce){.blob,.float{animation:none}}
+
+/* ---------- hero in full brand colours ---------- */
+.hero{background:#1B1740;color:#fff}
+.hero-bg{background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.10) 1px,transparent 0) 0 0/26px 26px}
+.blob{filter:blur(70px);opacity:.75;mix-blend-mode:screen}
+.b1{background:#FF5A4E;opacity:.7}
+.b2{background:#F0457F;opacity:.6}
+.b3{background:#12A594;opacity:.55}
+.b4{background:#6E4BFF;opacity:.8}
+:root[data-theme="dark"] .blob{opacity:.6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .blob{opacity:.6}}
+.float{opacity:.35}
+.hero h1{color:#fff;text-shadow:0 2px 24px rgba(27,23,64,.35)}
+.hero .eyebrow{color:#FFD27A}
+.hero-copy .lede{color:rgba(255,255,255,.88)}
+.hero-meta{color:rgba(255,255,255,.8)}
+.hero-meta span::before{background:#FFB51F}
+.hero .btn-primary{background:#FFB51F;color:#1B1740;box-shadow:0 8px 24px rgba(255,181,31,.35)}
+.hero .btn-ghost{border-color:#fff;color:#fff}
+.hero .btn-ghost:hover{background:rgba(255,255,255,.1)}
+.hero .phone{box-shadow:0 30px 70px rgba(0,0,0,.45),inset 0 0 0 2px #3D3770}
+.live-badge{display:inline-flex;align-items:center;gap:8px;background:#FF5A4E;color:#fff;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:999px;box-shadow:0 6px 16px rgba(255,90,78,.4)}
+.live-badge span{width:8px;height:8px;border-radius:50%;background:#fff;animation:vsPulse 1.2s ease-in-out infinite}

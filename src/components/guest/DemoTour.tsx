@@ -63,19 +63,17 @@ export default function DemoTour({ root, body, onCaption }: Props) {
         setRun((r) => r + 1);
       }, IDLE_RESTART_MS);
     };
-    el.addEventListener("pointerdown", onUser, true);
-    el.addEventListener("wheel", onUser, { passive: true, capture: true });
+    // Only a real tap or key press hands control over; scrolling the page over the phone doesn't.
+    el.addEventListener("click", onUser, true);
     el.addEventListener("keydown", onUser, true);
     return () => {
       clearTimeout(idle);
-      el.removeEventListener("pointerdown", onUser, true);
-      el.removeEventListener("wheel", onUser, true);
+      el.removeEventListener("click", onUser, true);
       el.removeEventListener("keydown", onUser, true);
     };
   }, [root]);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let alive = true;
     const ok = () => alive && !stopped.current;
     const wait = (ms: number) => new Promise<void>((res, rej) => setTimeout(() => (ok() ? res() : rej(new Error("stop"))), ms));
@@ -139,8 +137,20 @@ export default function DemoTour({ root, body, onCaption }: Props) {
       await wait(250);
     };
 
+    /** Wait until the phone is on screen, so visitors on mobile see the tour from the start. */
+    const visible = () =>
+      new Promise<void>((res) => {
+        const el = root.current;
+        if (!el || typeof IntersectionObserver === "undefined") return res();
+        const io = new IntersectionObserver((es) => {
+          if (es.some((e) => e.isIntersecting)) (io.disconnect(), res());
+        }, { threshold: 0.4 });
+        io.observe(el);
+      });
+
     (async () => {
-      await wait(1200);
+      await visible();
+      await wait(800);
       while (ok()) {
         homeRef.current();
         await wait(300);
