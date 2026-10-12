@@ -149,7 +149,7 @@ export function BubblePop({ k }: { k: string }) {
           <div className="arena-overlay">
             {state === "done" && <p className="arena-big">🫧 {score}</p>}
             <p>{ui.tapBubbles}</p>
-            <button className="g-btn" onClick={start}>
+            <button className="g-btn" data-act="start" onClick={start}>
               {state === "done" ? ui.again : ui.start}
             </button>
           </div>
@@ -347,17 +347,17 @@ export function Racer({ k }: { k: string }) {
                 {ui.crashed} {dist} m
               </p>
             )}
-            <button className="g-btn" onClick={start}>
+            <button className="g-btn" data-act="start" onClick={start}>
               {state === "done" ? ui.again : ui.start}
             </button>
           </div>
         )}
       </div>
       <div className="g-row">
-        <button className="g-btn alt" onPointerDown={() => move(-1)}>
+        <button className="g-btn alt" data-act="left" onPointerDown={() => move(-1)}>
           {ui.left}
         </button>
-        <button className="g-btn alt" onPointerDown={() => move(1)}>
+        <button className="g-btn alt" data-act="right" onPointerDown={() => move(1)}>
           {ui.right}
         </button>
       </div>
@@ -436,7 +436,7 @@ export function KeepyUppy({ k }: { k: string }) {
               </p>
             )}
             <p>{ui.tapBall}</p>
-            <button className="g-btn" onClick={start}>
+            <button className="g-btn" data-act="start" onClick={start}>
               {state === "done" ? ui.again : ui.start}
             </button>
           </div>
@@ -607,7 +607,7 @@ export function MathSprint({ k }: { k: string }) {
         <div className="prompt kids">
           {state === "done" && <p className="arena-big">🧮 {score}</p>}
           <div>
-            <button className="g-btn" onClick={start}>
+            <button className="g-btn" data-act="start" onClick={start}>
               {state === "done" ? ui.again : ui.start}
             </button>
           </div>

@@ -259,7 +259,7 @@ function LobbyForm() {
           <span className="vs-pulse" aria-hidden="true" />
           <p>{fmt(u.waiting, { t: l.to })}</p>
           <div>
-            <button className="g-btn" style={{ background: "#fff", color: "#1B1740" }} onClick={v.cancel}>
+            <button className="g-btn" data-act="vs-cancel" style={{ background: "#fff", color: "#1B1740" }} onClick={v.cancel}>
               {u.cancel}
             </button>
           </div>
