@@ -5,7 +5,7 @@ import { EXTRA_DATE_DECKS } from "./gameContent";
 import type { Loc } from "./types";
 
 export type GameGroup = "kids" | "group" | "date" | "drink";
-export type AgeBand = "3" | "6" | "12";
+export type AgeBand = "2" | "3" | "6" | "12";
 
 export type GameCat = "featured" | "puzzles" | "trivia" | "party" | "cards" | "talk";
 export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string };
@@ -15,7 +15,10 @@ const L = (en: string, ar: string): Loc => ({ en, ar });
 export const ALL_DATE_DECKS = [...DATE_DECKS, ...EXTRA_DATE_DECKS];
 
 export const GAMES: GameInfo[] = [
-  // Kids: 4 for ages 3+, 4 for 6+, 4 for teens
+  // Kids: babies and toddlers, then 4 for ages 3+, 4 for 6+, 4 for teens
+  { key: "animals", group: "kids", band: "2", title: L("Animal sounds", "أصوات الحيوانات"), sub: L("Who says moo? Huge buttons for little hands", "من يقول مووو؟ أزرار كبيرة للأيدي الصغيرة"), ages: "2+" },
+  { key: "fruit", group: "kids", band: "2", title: L("Dancing fruit", "الفواكه الراقصة"), sub: L("Happy fruit dancing to music", "فواكه سعيدة ترقص على الموسيقى"), ages: "0+" },
+  { key: "calm", group: "kids", band: "2", title: L("Sleepy lights", "أضواء النوم"), sub: L("Soft lights and a lullaby for babies", "أضواء هادئة وتهويدة للرضّع"), ages: "0+" },
   { key: "colour", group: "kids", band: "3", title: L("Colouring", "التلوين"), sub: L("Tap a colour, then tap a shape", "اختر لوناً ثم اضغط على شكل"), ages: "3+" },
   { key: "bubbles", group: "kids", band: "3", title: L("Bubble pop", "فقاعات"), sub: L("Pop as many bubbles as you can!", "افقع أكبر عدد من الفقاعات!"), ages: "3+" },
   { key: "oddone", group: "kids", band: "3", title: L("Odd one out", "الشكل المختلف"), sub: L("Spot the picture that's different", "اعثر على الصورة المختلفة"), ages: "3+" },
@@ -29,6 +32,7 @@ export const GAMES: GameInfo[] = [
   { key: "maths", group: "kids", band: "12", title: L("Maths sprint", "سباق الحساب"), sub: L("Solve as many as you can in 60 seconds", "حل أكبر عدد ممكن في 60 ثانية"), ages: "12+" },
   { key: "scramble", group: "kids", band: "12", title: L("Word scramble", "ترتيب الحروف"), sub: L("Unjumble the letters to find the word", "رتّب الحروف لتجد الكلمة"), ages: "12+" },
   // Adult games
+  { key: "split", group: "group", cat: "featured", icon: "🧮", title: L("Split the bill", "قسّم الحساب"), sub: L("Type the total and how many people", "اكتب الإجمالي وعدد الأشخاص") },
   { key: "bill", group: "group", cat: "featured", icon: "🎡", title: L("Who pays the bill?", "من يدفع الحساب؟"), sub: L("Add everyone's names and spin the wheel", "أضف أسماء الجميع ولف العجلة") },
   { key: "sudoku", group: "group", cat: "puzzles", icon: "🔢", title: L("Sudoku", "سودوكو"), sub: L("Fill the grid with 1 to 9", "املأ الشبكة بالأرقام من 1 إلى 9") },
   { key: "crossword", group: "group", cat: "puzzles", icon: "✏️", title: L("Mini crossword", "كلمات متقاطعة"), sub: L("A fresh crossword every time", "كلمات متقاطعة جديدة في كل مرة") },
@@ -70,6 +74,7 @@ export const CATS: Record<GameCat, Loc> = {
 };
 
 export const KIDS_BANDS: { band: AgeBand; label: Loc }[] = [
+  { band: "2", label: L("Babies & toddlers · 0–4", "للرضّع والصغار · 0–4") },
   { band: "3", label: L("Little ones · ages 3+", "للصغار · من 3 سنوات") },
   { band: "6", label: L("Big kids · ages 6+", "للأطفال · من 6 سنوات") },
   { band: "12", label: L("Teens · ages 12+", "لليافعين · من 12 سنة") },

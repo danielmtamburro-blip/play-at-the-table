@@ -1,4 +1,5 @@
 "use client";
+import { buzz, HAPTIC } from "@/lib/haptics";
 // Action games for kids and teens. Everything runs on the phone; nothing is saved or sent except anonymous start/finish counts.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SCRAMBLE_WORDS } from "@/lib/gameContent";
@@ -143,6 +144,7 @@ export function BubblePop({ k }: { k: string }) {
               e.stopPropagation();
               if (state !== "play" || b.popped) return;
               setScore((s) => s + 1);
+              buzz(HAPTIC.tap);
               setBubbles((bs) => bs.map((x) => (x.id === b.id ? { ...x, popped: true } : x)));
               setTimeout(() => setBubbles((bs) => bs.filter((x) => x.id !== b.id)), 180);
             }}
@@ -197,6 +199,7 @@ export function Penalty({ k }: { k: string }) {
     setTimeout(() => {
       const r: "goal" | "saved" | "missed" = aim < 6 || aim > 94 ? "missed" : Math.abs(aim - guess) < 17 ? "saved" : "goal";
       setResult(r);
+      buzz(r === "goal" ? HAPTIC.win : HAPTIC.bad);
       const g = goals + (r === "goal" ? 1 : 0);
       setGoals(g);
       setPhase("result");
@@ -411,6 +414,7 @@ export function KeepyUppy({ k }: { k: string }) {
       b.vy = -95 - Math.random() * 15;
       b.vx = (b.x - px) * 6 + (Math.random() - 0.5) * 20;
       kicksRef.current += 1;
+      buzz(HAPTIC.tap);
       setKicks(kicksRef.current);
     }
   }
@@ -595,6 +599,7 @@ export function MathSprint({ k }: { k: string }) {
                 onClick={() => {
                   const ok = o === sum.ans;
                   if (ok) scoreRef.current += 1;
+                  buzz(ok ? HAPTIC.good : HAPTIC.bad);
                   setScore(scoreRef.current);
                   setFlash(ok ? "ok" : "bad");
                   setTimeout(() => setFlash(null), 250);
@@ -650,6 +655,7 @@ export function Scramble({ k }: { k: string }) {
   }, [lang]);
   useEffect(() => {
     if (!right) return;
+    buzz();
     setSolved((s) => s + 1);
     if ((solved + 1) % 5 === 0) log("game_finish", { item: k, value: solved + 1 });
     const t = setTimeout(() => (setI((x) => x + 1), setPicked([]), setHint(false)), 900);

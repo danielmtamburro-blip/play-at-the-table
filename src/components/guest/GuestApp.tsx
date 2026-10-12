@@ -8,6 +8,7 @@ import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
+import { setHaptics } from "@/lib/haptics";
 import { BackIcon, ICON } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
 import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, SPORTS_TRIVIA, TABLE_RULES } from "@/lib/gameContent";
@@ -20,6 +21,9 @@ import { Deck, Picker } from "./screens/Games";
 import { Colour, Memory } from "./screens/Kids";
 import { AgeGate, Feedback } from "./screens/Service";
 import { Pour } from "./screens/Pour";
+import { SplitBill } from "./screens/SplitBill";
+import { AnimalSounds, DancingFruit, SleepyLights } from "./screens/Toddler";
+import { KidsLockProvider, KidsPill } from "./KidsLock";
 import { VersusProvider, VersusScreen } from "./screens/Versus";
 import { Events, Home, Menu, Offers } from "./screens/Venue";
 import { PlayTab } from "./screens/Play";
@@ -65,6 +69,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   const [redeemOffer, setRedeemOffer] = useState<Offer | null>(null);
   const [privacy, setPrivacy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  setHaptics(!embedded);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   // Language: saved choice, else the phone's language.
@@ -181,6 +186,11 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
             <GameHub group="drink" title={x.drink} sub={x.drinkS.replace("{age}", String(age))} note={x.drinkNote} />
           </AgeGate>
         );
+      // Babies and toddlers
+      case "animals": return <AnimalSounds k="animals" />;
+      case "fruit": return <DancingFruit k="fruit" />;
+      case "calm": return <SleepyLights k="calm" />;
+      case "split": return <SplitBill k="split" />;
       // Kids: 3+
       case "colour": return <Colour />;
       case "bubbles": return <BubblePop k="bubbles" />;
@@ -238,6 +248,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
         dir={lang === "ar" ? "rtl" : "ltr"}
         lang={lang}
       >
+        <KidsLockProvider>
         {cur !== "home" && (
           <div className="g-top">
             {stack.length > 1 ? (
@@ -293,7 +304,9 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
           </div>
         )}
         {redeemOffer && <Redeem offer={redeemOffer} onClose={() => setRedeemOffer(null)} />}
+        {GAMES.some((g) => g.key === cur && g.group === "kids") && <KidsPill />}
         {autoplay && <DemoTour root={rootRef} body={bodyRef} onCaption={onCaption} />}
+        </KidsLockProvider>
       </div>
       </LeaderboardProvider>
       </VersusProvider>

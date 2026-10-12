@@ -1,10 +1,12 @@
 "use client";
+import { buzz, HAPTIC } from "@/lib/haptics";
 // Reusable game engines + the newer one-off games. Nothing a guest does here is saved.
 import { useEffect, useRef, useState } from "react";
 import { COUNT_ITEMS, ODD_SETS } from "@/lib/gameContent";
 import { CATS, GAMES, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Lang, Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
+import { ParentBar } from "../KidsLock";
 import { useScores } from "../Leaderboard";
 
 type Tone = "kids" | "group" | "date";
@@ -66,6 +68,7 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
         <h2 className="g-h">{title}</h2>
         <p className="g-sub">{sub}</p>
       </div>
+      {group === "kids" && <ParentBar />}
       {group === "kids" ? (
         KIDS_BANDS.map(({ band, label }) => {
           const inBand = list.filter((g) => g.band === band);
@@ -79,7 +82,8 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
         })
       ) : group === "group" || group === "drink" ? (
         <>
-          {gameOn(venue.games as Record<string, boolean>, "bill") && <BillBanner />}
+          {group === "group" && gameOn(venue.games as Record<string, boolean>, "split") && <FeatureBanner k="split" />}
+          {gameOn(venue.games as Record<string, boolean>, "bill") && <FeatureBanner k="bill" />}
           {(Object.keys(CATS) as GameCat[])
             .filter((c) => c !== "featured")
             .map((c) => {
@@ -101,14 +105,14 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
   );
 }
 
-/** Featured "Who pays the bill?" banner, shown in the adult and drinking hubs. */
-function BillBanner() {
+/** Featured banners ("Who pays the bill?", "Split the bill") at the top of the adult and drinking hubs. */
+function FeatureBanner({ k }: { k: string }) {
   const { go, L } = useGuest();
-  const g = GAMES.find((x) => x.key === "bill")!;
+  const g = GAMES.find((x) => x.key === k)!;
   return (
-    <button className="g-feature" data-game="bill" onClick={() => go("bill")}>
+    <button className="g-feature" data-game={k} onClick={() => go(k)}>
       <span className="g-feature-ico" aria-hidden="true">
-        🎡
+        {g.icon}
       </span>
       <span>
         <b>{L(g.title)}</b>
@@ -232,7 +236,7 @@ export function QuizGame({ k, questions, tone, rounds = 5 }: { k: string; questi
               className={cls}
               disabled={z.ans != null}
               data-right={demo && i === q.a ? "" : undefined}
-              onClick={() => setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) })}
+              onClick={() => (buzz(i === q.a ? HAPTIC.good : HAPTIC.bad), setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) }))}
             >
               {L(o)}
             </button>
@@ -487,6 +491,7 @@ export function OddOneOut({ k }: { k: string }) {
             className={wrong === i ? "shake" : ""}
             onClick={() => {
               if (i === r.odd) {
+                buzz();
                 setScore(score + (wrong == null ? 1 : 0));
                 setRound(round + 1);
                 setR(make());
@@ -573,6 +578,7 @@ export function CountIt({ k }: { k: string }) {
             onClick={() => {
               setPicked(o);
               if (o === r.n) setScore(score + 1);
+              buzz(o === r.n ? HAPTIC.good : HAPTIC.bad);
             }}
           >
             {o}
