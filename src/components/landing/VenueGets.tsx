@@ -41,8 +41,8 @@ export default function VenueGets() {
           <span className="vg-tag">Printed coasters</span>
           <h3>Your brand on every table</h3>
           <p>
-            Every coaster has the colourful Play at Your Table rim, so guests know there&apos;s fun to be had. Inside it, it&apos;s all yours: your colour,
-            your logo, icons and words. Each table gets its own QR code.
+            Fully editable in your brand colours, with your logo, icons and your own text. Every coaster keeps the colourful Play at Your Table rim so
+            guests know there&apos;s fun to be had, and each table gets its own QR code.
           </p>
         </div>
         <div className="vg-table" aria-hidden="true">
@@ -53,14 +53,6 @@ export default function VenueGets() {
             <span className="vg-glass" />
             <span className="vg-cup">☕</span>
           </div>
-        </div>
-        <div className="vg-flat">
-          {EXAMPLES.map((ex, i) => (
-            <figure key={i}>
-              <div className="vg-flat-c" dangerouslySetInnerHTML={{ __html: coaster(ex, `f${i + 1}`) }} />
-              <figcaption>{ex.venueName ?? "Saffron Terrace"}</figcaption>
-            </figure>
-          ))}
         </div>
       </article>
 

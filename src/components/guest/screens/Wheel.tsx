@@ -35,9 +35,10 @@ const pt = (r: number, deg: number) => {
 };
 
 export function SpinWheel({ k, mode }: { k: string; mode: "bill" | "sip" }) {
-  const { log } = useGuest();
+  const { log, demo } = useGuest();
   const ui = useUi();
   const [names, setNames] = useState<string[]>(() => {
+    if (demo) return ["Sam", "Layla", "Omar", "Mia", "Jack"];
     try {
       return JSON.parse(sessionStorage.getItem("patt-names") || "[]");
     } catch {

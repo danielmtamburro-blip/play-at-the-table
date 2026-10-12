@@ -417,7 +417,7 @@ function nextOccurrence(ev: VenueEvent): { date: Date; add: number } | null {
 const ymd = (d: Date) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
 
 export function OfferCards() {
-  const { venue, tr, L, locale, redeem } = useGuest();
+  const { venue, tr, L, locale } = useGuest();
   return (
     <>
       {venue.offers.map((o: Offer) => (
@@ -436,9 +436,6 @@ export function OfferCards() {
             {o.endsOn &&
               `${tr("validUntil")} ${new Date(o.endsOn + "T12:00:00").toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })}.`}
           </p>
-          <button className="g-btn" data-act="redeem" onClick={() => redeem(o)}>
-            {tr("showServer")}
-          </button>
         </article>
       ))}
     </>

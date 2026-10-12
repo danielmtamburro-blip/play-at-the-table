@@ -117,7 +117,7 @@ export function Deck({ id, onExit }: { id: string; onExit: () => void }) {
         <button className="g-btn alt" onClick={() => setI(i + 1)}>
           {tr("skip")}
         </button>
-        <button className="g-btn" onClick={() => setI(i + 1)}>
+        <button className="g-btn" data-act="next" onClick={() => setI(i + 1)}>
           {tr("reveal")}
         </button>
       </div>
