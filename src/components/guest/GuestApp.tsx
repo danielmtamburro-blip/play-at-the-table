@@ -5,14 +5,16 @@ import { T, type TKey } from "@/lib/content";
 import { GAMES } from "@/lib/games";
 import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Offer, Venue } from "@/lib/types";
-import { GuestContext, useGuest, type GuestCtx } from "./context";
+import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { BackIcon } from "./icons";
-import { GROUP_Q, KIDS_QUIZ, THIS_THAT } from "@/lib/content";
-import { ADULT_TRIVIA, ADULT_WYR, ANIMAL_QUIZ, CATEGORIES, CHARADES, EMOJI_PUZZLES, KIDS_RIDDLES, KIDS_WYR, MOST_LIKELY, NEVER_HAVE_I } from "@/lib/gameContent";
-import { CountIt, GameHub, Charades, NameFive, OddOneOut, Pairs, PromptCards, QuizGame, Reveal, TicTacToe } from "./screens/Engines";
+import { GROUP_Q, THIS_THAT } from "@/lib/content";
+import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, TABLE_RULES } from "@/lib/gameContent";
+import { drinkAge } from "@/lib/games";
+import { BubblePop, KeepyUppy, MathSprint, Penalty, Racer, Reaction, Scramble, TicTacToe } from "./screens/Arcade";
+import { Charades, CountIt, GameHub, NameFive, OddOneOut, Pairs, PromptCards, QuizGame, Reveal } from "./screens/Engines";
 import { Deck, Picker } from "./screens/Games";
-import { Challenge, Colour, Memory } from "./screens/Kids";
-import { Feedback } from "./screens/Service";
+import { Colour, Memory } from "./screens/Kids";
+import { AgeGate, Feedback } from "./screens/Service";
 import { Events, Home, Menu, Offers } from "./screens/Venue";
 
 type Props = {
@@ -120,6 +122,8 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
 
   const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   const { tr, L } = ctx;
+  const x = EXTRA[lang];
+  const age = drinkAge(venue.games);
 
   const screen = (() => {
     if (cur.startsWith("deck:")) return <Deck key={cur} id={cur.slice(5)} onExit={back} />;
@@ -130,20 +134,35 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       case "offers": return <Offers />;
       case "feedback": return <Feedback demo={embedded} onDone={back} />;
       // Section hubs
-      case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={tr("kidsSub")} note={tr("playTogether")} />;
-      case "group": return <GameHub group="group" title={tr("groupTitle")} sub={tr("groupSub")} />;
+      case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={x.kidsSub} note={tr("playTogether")} />;
+      case "group": return <GameHub group="group" title={x.adults} sub={tr("groupSub")} />;
       case "date": return <GameHub group="date" title={tr("dateTitle")} sub={tr("dateSub")} />;
-      // Kids (10)
+      case "drink":
+        return (
+          <AgeGate age={age} onNo={back}>
+            <GameHub group="drink" title={x.drink} sub={x.drinkS.replace("{age}", String(age))} note={x.drinkNote} />
+          </AgeGate>
+        );
+      // Kids: 3+
       case "colour": return <Colour />;
-      case "memory": return <Memory />;
+      case "bubbles": return <BubblePop k="bubbles" />;
       case "oddone": return <OddOneOut k="oddone" />;
       case "count": return <CountIt k="count" />;
+      // Kids: 6+
+      case "penalty": return <Penalty k="penalty" />;
+      case "racer": return <Racer k="racer" />;
+      case "memory": return <Memory />;
       case "tictactoe": return <TicTacToe k="tictactoe" />;
-      case "quiz": return <QuizGame k="quiz" questions={KIDS_QUIZ} tone="kids" />;
-      case "animals": return <QuizGame k="animals" questions={ANIMAL_QUIZ} tone="kids" />;
-      case "riddles": return <Reveal k="riddles" items={KIDS_RIDDLES} tone="kids" />;
-      case "kwyr": return <Pairs k="kwyr" pairs={KIDS_WYR} />;
-      case "challenge": return <Challenge />;
+      // Teens
+      case "keepy": return <KeepyUppy k="keepy" />;
+      case "reaction": return <Reaction k="reaction" />;
+      case "maths": return <MathSprint k="maths" />;
+      case "scramble": return <Scramble k="scramble" />;
+      // Drinking games (age-gated)
+      case "dnever": return <AgeGate age={age} onNo={back}><PromptCards k="dnever" items={DRINK_NEVER} tone="date" note={x.drinkNote} /></AgeGate>;
+      case "dlikely": return <AgeGate age={age} onNo={back}><PromptCards k="dlikely" items={DRINK_LIKELY} tone="date" note={x.drinkNote} /></AgeGate>;
+      case "sipshare": return <AgeGate age={age} onNo={back}><PromptCards k="sipshare" items={SIP_OR_SHARE} tone="date" note={x.drinkNote} /></AgeGate>;
+      case "rules": return <AgeGate age={age} onNo={back}><PromptCards k="rules" items={TABLE_RULES} tone="date" note={x.drinkNote} /></AgeGate>;
       // Groups (10)
       case "quick": return <PromptCards k="quick" items={GROUP_Q} tone="group" />;
       case "tot": return <Pairs k="tot" pairs={THIS_THAT} />;
@@ -167,11 +186,10 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
             <button className="g-back" onClick={back} aria-label={tr("back")}>
               <BackIcon />
             </button>
-          ) : venue.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={venue.logoUrl} alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: "contain", flex: "none", borderRadius: 10 }} />
           ) : (
-            <LogoMark size={40} />
+            <span className="g-top-mark" aria-hidden="true">
+              <LogoMark size={36} />
+            </span>
           )}
           <div className="g-venue">
             <strong>{L(venue.name)}</strong>

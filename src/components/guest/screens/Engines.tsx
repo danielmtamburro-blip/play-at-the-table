@@ -2,7 +2,7 @@
 // Reusable game engines + the newer one-off games. Nothing a guest does here is saved.
 import { useEffect, useRef, useState } from "react";
 import { COUNT_ITEMS, ODD_SETS } from "@/lib/gameContent";
-import { GAMES, type GameGroup } from "@/lib/games";
+import { GAMES, KIDS_BANDS, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Lang, Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 
@@ -43,25 +43,37 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
   const { venue, go, L, tr } = useGuest();
   const cls = group === "kids" ? "bg-kids" : group === "group" ? "bg-group" : "bg-date";
   const list = GAMES.filter((g) => g.group === group && venue.games?.[g.key] !== false);
+  const card = (g: GameInfo) => (
+    <button key={g.key} className={`g-pick ${cls}`} onClick={() => go(g.key)}>
+      <b>{L(g.title)}</b>
+      <span>{L(g.sub)}</span>
+      {g.ages && (
+        <span className="age">
+          {tr("ages")} {g.ages}
+        </span>
+      )}
+    </button>
+  );
   return (
     <>
       <div>
         <h2 className="g-h">{title}</h2>
         <p className="g-sub">{sub}</p>
       </div>
-      <div className="g-list">
-        {list.map((g) => (
-          <button key={g.key} className={`g-pick ${cls}`} onClick={() => go(g.key)}>
-            <b>{L(g.title)}</b>
-            <span>{L(g.sub)}</span>
-            {g.ages && (
-              <span className="age">
-                {tr("ages")} {g.ages}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      {group === "kids" ? (
+        KIDS_BANDS.map(({ band, label }) => {
+          const inBand = list.filter((g) => g.band === band);
+          if (!inBand.length) return null;
+          return (
+            <section key={band} className="g-band">
+              <h3 className="g-band-h">{L(label)}</h3>
+              <div className="g-list g-list-2">{inBand.map(card)}</div>
+            </section>
+          );
+        })
+      ) : (
+        <div className="g-list">{list.map(card)}</div>
+      )}
       {note && <p className="g-note">{note}</p>}
     </>
   );
@@ -69,7 +81,7 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
 
 /* ---------- Prompt cards (Quick questions, Most likely to, Never have I ever) ---------- */
 
-export function PromptCards({ k, items, tone }: { k: string; items: Loc[]; tone: Tone }) {
+export function PromptCards({ k, items, tone, note }: { k: string; items: Loc[]; tone: Tone; note?: string }) {
   const { tr, L } = useGuest();
   const [order] = useState(() => shuffle(items));
   const [i, setI] = useState(0);
@@ -91,6 +103,7 @@ export function PromptCards({ k, items, tone }: { k: string; items: Loc[]; tone:
           {tr("next")}
         </button>
       </div>
+      {note && <p className="g-note">{note}</p>}
     </>
   );
 }
@@ -367,63 +380,6 @@ export function NameFive({ k, cats }: { k: string; cats: Loc[] }) {
           {ui.start}
         </button>
       </div>
-    </>
-  );
-}
-
-/* ---------- Noughts & crosses ---------- */
-
-const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-
-export function TicTacToe({ k }: { k: string }) {
-  const { log } = useGuest();
-  const ui = useUi();
-  const [cells, setCells] = useState<("X" | "O" | null)[]>(Array(9).fill(null));
-  const [turn, setTurn] = useState<"X" | "O">("X");
-  const [tally, setTally] = useState({ X: 0, O: 0 });
-  const line = LINES.find(([a, b, c]) => cells[a] && cells[a] === cells[b] && cells[a] === cells[c]);
-  const winner = line ? cells[line[0]] : null;
-  const full = cells.every(Boolean);
-
-  const play = (i: number) => {
-    if (cells[i] || winner) return;
-    const next = cells.slice();
-    next[i] = turn;
-    setCells(next);
-    const w = LINES.find(([a, b, c]) => next[a] && next[a] === next[b] && next[a] === next[c]);
-    if (w) {
-      setTally((t) => ({ ...t, [turn]: t[turn] + 1 }));
-      log("game_finish", { item: k });
-    } else if (next.every(Boolean)) log("game_finish", { item: k });
-    setTurn(turn === "X" ? "O" : "X");
-  };
-
-  return (
-    <>
-      <GameHead k={k} />
-      <div className="g-row" style={{ justifyContent: "space-between", fontWeight: 600 }}>
-        <span>❌ {tally.X}</span>
-        <span>{winner ? `${winner === "X" ? "❌" : "⭕"} ${ui.wins}` : full ? ui.draw : `${ui.turn}: ${turn === "X" ? "❌" : "⭕"}`}</span>
-        <span>⭕ {tally.O}</span>
-      </div>
-      <div className="ttt">
-        {cells.map((c, i) => (
-          <button key={i} onClick={() => play(i)} className={line?.includes(i) ? "win" : ""} aria-label={c ?? String(i + 1)}>
-            {c === "X" ? "❌" : c === "O" ? "⭕" : ""}
-          </button>
-        ))}
-      </div>
-      {(winner || full) && (
-        <button
-          className="g-btn"
-          onClick={() => {
-            setCells(Array(9).fill(null));
-            log("game_start", { item: k });
-          }}
-        >
-          {ui.newRound}
-        </button>
-      )}
     </>
   );
 }

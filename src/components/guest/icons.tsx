@@ -47,6 +47,14 @@ export const ICON: Record<string, React.ReactNode> = {
       <circle cx="22.5" cy="21" r="3.5" />
     </svg>
   ),
+  drink: (
+    <svg {...base}>
+      <path d="M5 5h8l-1 8a3 3 0 0 1-6 0z" />
+      <path d="M9 16v8M6 24h6" />
+      <path d="M19 5h8l-1 8a3 3 0 0 1-6 0z" />
+      <path d="M23 16v8M20 24h6" />
+    </svg>
+  ),
   feedback: (
     <svg {...base}>
       <circle cx="16" cy="16" r="12" />

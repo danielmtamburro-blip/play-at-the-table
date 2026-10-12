@@ -105,3 +105,55 @@ export function Feedback({ demo, onDone }: { demo: boolean; onDone: () => void }
     </>
   );
 }
+
+/* ---------- Age check for drinking games ---------- */
+
+/** Asks once per visit; "No" sends the guest back. Nothing is stored except this tab's answer. */
+export function AgeGate({ age, onNo, children }: { age: number; onNo: () => void; children: React.ReactNode }) {
+  const { lang } = useGuest();
+  const x = EXTRA[lang];
+  const [ok, setOk] = useState<boolean | null>(() => {
+    try {
+      return sessionStorage.getItem("patt-age-ok") === String(age) ? true : null;
+    } catch {
+      return null;
+    }
+  });
+  if (ok) return <>{children}</>;
+  if (ok === false)
+    return (
+      <div className="prompt group">
+        <p>🙂</p>
+        <p style={{ fontSize: "1.2rem" }}>{x.ageBlocked}</p>
+        <div>
+          <button className="g-btn" style={{ background: "#fff", color: "#1B1740" }} onClick={onNo}>
+            {x.fbDone}
+          </button>
+        </div>
+      </div>
+    );
+  return (
+    <div className="prompt date age-gate">
+      <span className="count">{x.drink}</span>
+      <p>{x.ageQ.replace("{age}", String(age))}</p>
+      <div className="g-row">
+        <button className="g-btn" style={{ background: "#fff", color: "#1B1740" }} onClick={() => setOk(false)}>
+          {x.ageNo}
+        </button>
+        <button
+          className="g-btn"
+          style={{ background: "#1B1740", color: "#fff" }}
+          onClick={() => {
+            try {
+              sessionStorage.setItem("patt-age-ok", String(age));
+            } catch {}
+            setOk(true);
+          }}
+        >
+          {x.ageYes.replace("{age}", String(age))}
+        </button>
+      </div>
+      <span style={{ fontSize: ".8rem" }}>{x.drinkNote}</span>
+    </div>
+  );
+}
