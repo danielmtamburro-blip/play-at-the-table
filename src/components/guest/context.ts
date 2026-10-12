@@ -2,7 +2,7 @@
 import { createContext, useContext } from "react";
 import type { TKey } from "@/lib/content";
 import type { TrackEvent, TrackOpts } from "@/lib/track";
-import type { Lang, Loc, Offer, Venue } from "@/lib/types";
+import type { Lang, Loc, Venue } from "@/lib/types";
 
 export type GuestCtx = {
   venue: Venue;
@@ -16,7 +16,6 @@ export type GuestCtx = {
   home: () => void;
   /** The screen currently showing. */
   screen: string;
-  redeem: (o: Offer) => void;
   /** Anonymous usage event (no-op inside the sales-page phone demo). */
   log: (event: TrackEvent, opts?: TrackOpts) => void;
   /** True inside the sales-page phone demo: nothing is sent. */

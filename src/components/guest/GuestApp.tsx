@@ -4,7 +4,7 @@ import { LogoMark } from "@/components/Logo";
 import { T, type TKey } from "@/lib/content";
 import { GAMES } from "@/lib/games";
 import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
-import type { Lang, Loc, Offer, Venue } from "@/lib/types";
+import type { Lang, Loc, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
@@ -39,34 +39,9 @@ type Props = {
   onCaption?: (text: string) => void;
 };
 
-function Redeem({ offer, onClose }: { offer: Offer; onClose: () => void }) {
-  const { venue, table, tr, L, locale } = useGuest();
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="redeem" role="dialog" aria-modal="true" style={{ background: `var(--${offer.color})` }}>
-      <span className="eyebrow" style={{ color: "#fff", opacity: 0.9 }}>
-        {L(venue.name)}
-        {table && ` · ${tr("table")} ${table}`}
-      </span>
-      <h3>{L(offer.title)}</h3>
-      <p style={{ maxWidth: "32ch" }}>{tr("showThis")}</p>
-      <div className="clock">{now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</div>
-      {L(offer.terms) && <p style={{ fontSize: ".8rem", opacity: 0.9, maxWidth: "34ch" }}>{L(offer.terms)}</p>}
-      <button className="g-btn" data-act="redeem-done" onClick={onClose} autoFocus>
-        {tr("done")}
-      </button>
-    </div>
-  );
-}
-
 export default function GuestApp({ venue, table = null, embedded = false, autoplay = false, onCaption }: Props) {
   const [lang, setLang] = useState<Lang>("en");
   const [stack, setStack] = useState<string[]>(["home"]);
-  const [redeemOffer, setRedeemOffer] = useState<Offer | null>(null);
   const [privacy, setPrivacy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   setHaptics(!embedded);
@@ -127,10 +102,6 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       tr,
       L,
       go,
-      redeem: (o: Offer) => {
-        setRedeemOffer(o);
-        log("redeem", { module: "offers", item: o.title.en });
-      },
       log,
       demo: embedded,
       home: () => setStack(["home"]),
@@ -303,7 +274,6 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
             </button>
           </div>
         )}
-        {redeemOffer && <Redeem offer={redeemOffer} onClose={() => setRedeemOffer(null)} />}
         {GAMES.some((g) => g.key === cur && g.group === "kids") && <KidsPill />}
         {autoplay && <DemoTour root={rootRef} body={bodyRef} onCaption={onCaption} />}
         </KidsLockProvider>

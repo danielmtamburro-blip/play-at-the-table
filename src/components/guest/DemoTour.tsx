@@ -13,29 +13,33 @@ type Props = {
 const CAPTIONS = {
   en: {
     home: "Your venue's own page: one scan, no app",
-    offers: "📣 Tonight's offers, ready to show the server",
-    events: "🎶 What's on: events, live music, quiz nights",
-    menu: "🍽️ Your menu with prices and allergens",
-    call: "🙋 Call a server or ask for the bill",
-    lock: "🍽️ Parents lock the games when food arrives",
-    baby: "🐮 Babies and toddlers: animal sounds",
-    kids: "⚽ Kids' games, from football to racing",
-    quiz: "🧠 Quizzes, puzzles and party games for adults",
+    offers: "📣 Tonight's offers and what's on",
+    menu: "🍽️ Your menu, with prices and allergens",
+    lock: "🍽️ Dinner's here! Parents pause the games",
+    baby: "🍓 Dancing fruit for babies and toddlers",
+    keepy: "⚽ Keepy-uppy for the kids",
+    racer: "🏎️ Car racing while they wait",
+    quiz: "🧠 Table trivia for the grown-ups",
+    split: "🧮 Split the bill in seconds",
+    wheel: "🎡 Who pays? Spin the wheel!",
     pour: "🍺 Drinking games, age-checked",
+    date: "❤️ First-date questions for couples",
     board: "🏆 Live leaderboards keep tables playing",
     yourTurn: "Your turn! Tap anything to explore.",
   },
   ar: {
     home: "صفحة مكانك الخاصة: مسحة واحدة بدون تطبيق",
-    offers: "📣 عروض الليلة جاهزة لعرضها على النادل",
-    events: "🎶 الفعاليات والموسيقى الحية وليالي المسابقات",
+    offers: "📣 عروض الليلة والفعاليات",
     menu: "🍽️ قائمتك بالأسعار ومسببات الحساسية",
-    call: "🙋 نادِ النادل أو اطلب الحساب",
-    lock: "🍽️ الأهل يوقفون الألعاب عند وصول الطعام",
-    baby: "🐮 للرضّع والصغار: أصوات الحيوانات",
-    kids: "⚽ ألعاب الأطفال من كرة القدم إلى السباق",
-    quiz: "🧠 مسابقات وألغاز وألعاب جماعية للكبار",
+    lock: "🍽️ وصل العشاء! الأهل يوقفون الألعاب",
+    baby: "🍓 فواكه راقصة للرضّع والصغار",
+    keepy: "⚽ تنطيط الكرة للأطفال",
+    racer: "🏎️ سباق سيارات أثناء الانتظار",
+    quiz: "🧠 مسابقات للكبار",
+    split: "🧮 قسّم الحساب في ثوانٍ",
+    wheel: "🎡 من يدفع؟ لف العجلة!",
     pour: "🍺 ألعاب المشروبات مع التحقق من العمر",
+    date: "❤️ أسئلة الموعد الأول للأزواج",
     board: "🏆 لوحات المتصدرين تبقي الطاولات تلعب",
     yourTurn: "دورك! اضغط على أي شيء للاستكشاف.",
   },
@@ -172,67 +176,8 @@ export default function DemoTour({ root, body, onCaption }: Props) {
           el.dispatchEvent(new Event("input", { bubbles: true }));
         };
 
-        // 1. The venue's page and tonight's offer
-        await part(async () => {
-          caption("home");
-          await scrollBody(160, 900);
-          caption("offers");
-          await tap('[data-tcard="offer"]', 500);
-          await tap('[data-act="redeem"]', 1500);
-          await tap('[data-act="redeem-done"]', 200);
-        });
-
-        // 2. What's on
-        await part(async () => {
-          caption("events");
-          await tap('[data-tab="events"]', 700);
-          await scrollBody(260, 900);
-        });
-
-        // 3. Menu, then drinks
-        await part(async () => {
-          caption("menu");
-          await tap('[data-q="menu"]', 600);
-          await scrollBody(220, 800);
-          await tap('[data-act="menu-drinks"]', 900);
-        });
-
-        // 4. Call a server
-        await part(async () => {
-          caption("call");
-          await tap('[data-act="call"]', 1000);
-        });
-
-        // 5. Parents: dinner's here
-        await part(async () => {
-          caption("lock");
-          await tap('[data-tile="kids"]', 400);
-          await tap(".kl-dinner", 1500);
-          await tap(".kl-grown", 300);
-          const label = (await find(".kl-gate label")).textContent ?? "";
-          const m = label.match(/(\d+)\s*×\s*(\d+)/);
-          const ans = (await find("#kl-ans")) as HTMLInputElement;
-          await moveTo(...pointOf(ans));
-          ripple();
-          setInput(ans, m ? String(Number(m[1]) * Number(m[2])) : "");
-          await wait(300);
-          await tap(".kl-gate .g-btn", 300);
-        });
-
-        // 6. Babies and toddlers
-        await part(async () => {
-          caption("baby");
-          await tap('[data-tile="kids"]', 300);
-          await tap('[data-game="animals"]', 600);
-          await tap("[data-right]", 1300);
-        });
-
-        // 7. Kids: keepy-uppy
-        await part(async () => {
-          caption("kids");
-          await openGame("keepy");
-          await tap('[data-act="start"]', 150);
-          for (let k = 0; k < 3; k++) {
+        const kicks = async (n: number) => {
+          for (let k = 0; k < n; k++) {
             const arena = await find(".arena.keepy");
             const ball = await find(".keepy-ball");
             let [x, y] = pointOf(ball);
@@ -244,16 +189,100 @@ export default function DemoTour({ root, body, onCaption }: Props) {
             pressAt(arena, r.left + r.width / 2, r.top + r.height / 2);
             await wait(380);
           }
+        };
+
+        // The venue's page, tonight's offers and events
+        await part(async () => {
+          caption("home");
+          await wait(700);
+          caption("offers");
+          const row = await find(".g-scroll-sec .g-scroller");
+          await reveal(row);
+          for (const left of [230, 460, 0]) {
+            const [x, y] = pointOf(row, 0.7, 0.5);
+            await moveTo(x, y, 250);
+            row.scrollTo({ left, behavior: "smooth" });
+            await wait(650);
+          }
         });
 
-        // 8. Adults: trivia
+        // Menu, then drinks
+        await part(async () => {
+          caption("menu");
+          await tap('[data-q="menu"]', 500);
+          await scrollBody(220, 700);
+          await tap('[data-act="menu-drinks"]', 700);
+        });
+
+        // Dinner's here: lock, then a grown-up unlocks
+        await part(async () => {
+          caption("lock");
+          await tap('[data-tile="kids"]', 350);
+          await tap(".kl-dinner", 1400);
+          await tap(".kl-grown", 250);
+          const label = (await find(".kl-gate label")).textContent ?? "";
+          const m = label.match(/(\d+)\s*×\s*(\d+)/);
+          const ans = (await find("#kl-ans")) as HTMLInputElement;
+          await moveTo(...pointOf(ans));
+          ripple();
+          setInput(ans, m ? String(Number(m[1]) * Number(m[2])) : "");
+          await wait(250);
+          await tap(".kl-gate .g-btn", 250);
+        });
+
+        // Babies and toddlers: dancing fruit
+        await part(async () => {
+          caption("baby");
+          await tap('[data-tile="kids"]', 300);
+          await tap('[data-game="fruit"]', 700);
+          await tap(".fruit-stage .fruit:nth-child(2)", 500);
+          await tap(".fruit-stage .fruit:nth-child(6)", 700);
+        });
+
+        // Kids: keepy-uppy and car racing
+        await part(async () => {
+          caption("keepy");
+          await openGame("keepy");
+          await tap('[data-act="start"]', 150);
+          await kicks(3);
+        });
+        await part(async () => {
+          caption("racer");
+          await openGame("racer");
+          await tap('[data-act="start"]', 250);
+          for (const side of ["left", "right", "right"]) await tap(`[data-act="${side}"]`, 280);
+        });
+
+        // Adults: trivia
         await part(async () => {
           caption("quiz");
           await openGame("trivia");
-          await tap("[data-right]", 800);
+          await tap("[data-right]", 900);
         });
 
-        // 9. Drinking games: pour it right
+        // Split the bill
+        await part(async () => {
+          caption("split");
+          await tap('[data-tile="group"]', 300);
+          await tap('[data-game="split"]', 400);
+          const total = (await find("#split-total")) as HTMLInputElement;
+          await moveTo(...pointOf(total));
+          ripple();
+          for (const v of ["3", "34", "348"]) (setInput(total, v), await wait(160));
+          await tap('[aria-label="One more person"]', 200);
+          await tap('[aria-label="One more person"]', 200);
+          await tap(".split-card .g-seg button:nth-child(3)", 900);
+        });
+
+        // Who pays? Spin the wheel
+        await part(async () => {
+          caption("wheel");
+          await tap('[data-tile="group"]', 300);
+          await tap('[data-game="bill"]', 400);
+          await tap('[data-act="spin"]', 4700);
+        });
+
+        // Drinking games: pour it right
         await part(async () => {
           caption("pour");
           await openGame("pour", "drink");
@@ -274,10 +303,18 @@ export default function DemoTour({ root, body, onCaption }: Props) {
             if (beer + foam * 0.35 >= lo + (hi - lo) * 0.45) break;
           }
           stage.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
-          await wait(1200);
+          await wait(1100);
         });
 
-        // 10. Leaderboards
+        // Date night: first-date questions
+        await part(async () => {
+          caption("date");
+          await tap('[data-tile="date"]', 300);
+          await tap('[data-game="deck:first"]', 1100);
+          await tap('[data-act="next"]', 1100);
+        });
+
+        // Leaderboards
         await part(async () => {
           caption("board");
           await tap('[data-tab="play"]', 1600);
