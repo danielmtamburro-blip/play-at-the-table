@@ -240,11 +240,13 @@ export function Home() {
   if (gameOn(venue.games as Record<string, boolean>, "darts") || gameOn(venue.games as Record<string, boolean>, "pool"))
     explore.push(["bar", x.barGames, x.barGamesS]);
   if (m.drink && games("drink")) explore.push(["drink", x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))]);
-  if (m.versus) explore.push(["versus", x.versus, x.versusS]);
+  if (m.feedback) explore.push(["feedback", x.feedback, x.feedbackS]);
   if (m.events) explore.push(["events", tr("events"), tr("eventsS")]);
   if (m.offers) explore.push(["offers", tr("offers"), x.offersS]);
   if (m.nearby && venue.nearby.length) explore.push(["nearby", x.nearby, x.nearbyS]);
-  if (m.feedback) explore.push(["feedback", x.feedback, x.feedbackS]);
+  // Challenge another table always sits last, as the wide tile.
+  if (m.versus) explore.push(["versus", x.versus, x.versusS]);
+  const others = explore.filter(([k]) => k !== "versus").length;
 
   return (
     <>
@@ -259,8 +261,8 @@ export function Home() {
             {explore.map(([k, t, sub], n) => (
               <button
                 key={k}
-                // The last tile spans the row if it would sit alone.
-                className={`g-ex t-${k}${n === explore.length - 1 && explore.length % 2 ? " span" : ""}`}
+                // Challenge spans the bottom row; another tile spans too if it would sit alone.
+                className={`g-ex t-${k}${k === "versus" || (n === others - 1 && others % 2) ? " span" : ""}`}
                 data-tile={k}
                 onClick={() => go(k)}
               >
