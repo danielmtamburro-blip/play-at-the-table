@@ -1314,3 +1314,20 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .cel-lyrics p.on{opacity:1;font-size:1.25rem}
 .cel-lyrics p.past{opacity:.6}
 .cel-lyrics span.sung{color:#FFE27A;text-shadow:0 0 12px rgba(255,226,122,.6)}
+
+/* Contact us: compact */
+.ct{gap:8px}
+.ct-card{padding:12px 14px;gap:8px;border-radius:18px}
+.ct-row{gap:10px;align-items:center}
+.ct-row b{font-size:.86rem}
+.ct-row span{font-size:.8rem;line-height:1.35}
+.ct-ico{width:26px;height:26px;border-radius:9px}
+.ct-actions{grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px}
+.ct-btn{padding:8px 8px;font-size:.8rem;border-radius:12px}
+.ct-btn svg{width:15px;height:15px}
+.ct-insta{font-size:.82rem}
+.ct-review{flex-direction:row;justify-content:center;gap:8px;padding:9px 10px;font-size:.82rem;border-radius:12px}
+.ct-review span{font-size:.85rem;letter-spacing:1px}
+.ct-actions{grid-template-columns:repeat(auto-fit,minmax(64px,1fr))}
+.ct-btn{flex-direction:column;gap:3px;padding:7px 4px;font-size:.74rem}
+.ct-btn svg{width:17px;height:17px}
