@@ -6,6 +6,7 @@ import { GAMES } from "@/lib/games";
 import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
+import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
 import { BackIcon } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
@@ -201,7 +202,13 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   return (
     <GuestContext.Provider value={ctx}>
       <VersusProvider>
-      <div ref={rootRef} className="g" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+      <div
+        ref={rootRef}
+        className={`g${venue.theme ? " themed" : ""}${venue.theme?.tiles === "brand" ? " tiles-brand" : ""}`}
+        style={themeStyle(venue.theme)}
+        dir={lang === "ar" ? "rtl" : "ltr"}
+        lang={lang}
+      >
         <div className="g-top">
           {stack.length > 1 ? (
             <button className="g-back" onClick={back} aria-label={tr("back")}>

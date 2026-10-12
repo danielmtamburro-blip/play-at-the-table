@@ -35,6 +35,7 @@ export const SAMPLE_VENUE: Venue = {
   },
   "brandColor": "#FF5A4E",
   "logoUrl": "",
+  "theme": null,
   "games": {},
   "menuMode": "items",
   "menuPdf": "",

@@ -66,6 +66,8 @@ export type Venue = {
   allergyNote: Loc;
   brandColor: string;
   logoUrl: string;
+  /** Venue branding for the guest page (null = default look). */
+  theme: import("./theme").GuestTheme | null;
   modules: Modules;
   /** Hidden games are stored as { key: false }. */
   games: Record<string, boolean | number>;
