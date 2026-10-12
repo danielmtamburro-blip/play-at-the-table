@@ -1,17 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Baloo_Bhaijaan_2, Readex_Pro } from "next/font/google";
+import { Rubik } from "next/font/google";
 import "./globals.css";
 
-const display = Baloo_Bhaijaan_2({
+// Rubik covers Latin and Arabic, so English and العربية match.
+const rubik = Rubik({
   subsets: ["latin", "arabic"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-display",
-  display: "swap",
-});
-const body = Readex_Pro({
-  subsets: ["latin", "arabic"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-body",
+  variable: "--font-rubik",
   display: "swap",
 });
 
@@ -31,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={rubik.variable}>
       <body>{children}</body>
     </html>
   );
