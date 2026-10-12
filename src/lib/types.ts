@@ -1,7 +1,7 @@
 export type Lang = "en" | "ar";
 export type Loc = { en: string; ar: string };
 
-export const MODULE_KEYS = ["menu", "drinks", "kids", "group", "date", "events", "offers", "drink", "feedback", "service"] as const;
+export const MODULE_KEYS = ["menu", "drinks", "kids", "group", "date", "events", "offers", "drink", "versus", "feedback", "service"] as const;
 /** Sections that stay off until a venue switches them on. */
 export const OFF_BY_DEFAULT: readonly string[] = ["service", "drink"];
 export const moduleOn = (raw: Record<string, unknown> | null | undefined, k: string) =>
