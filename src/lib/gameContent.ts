@@ -390,3 +390,21 @@ export const DICE_RULES: { test: (a: number, b: number) => boolean; t: Loc }[] =
   { test: (a, b) => a + b === 3, t: L("Three: you sip.", "ثلاثة: أنت ترتشف.") },
   { test: () => true, t: L("Safe! Pass the phone on.", "نجوت! مرّر الهاتف.") },
 ];
+
+/* ------------------------------ Table vs table ------------------------------ */
+
+/** Real-life tasks for "Challenge another table": first table to tap "Done!" wins the round. Seated and safe. */
+export const TABLE_TASKS: Loc[] = [
+  L("Build a tower of 5 sugar packets or napkins!", "ابنوا برجاً من 5 أكياس سكر أو مناديل!"),
+  L("Everyone at your table makes a heart with their hands!", "كل من على طاولتكم يصنع قلباً بيديه!"),
+  L("Find something red, something blue and something round on your table!", "اعثروا على شيء أحمر وشيء أزرق وشيء دائري على طاولتكم!"),
+  L("Take a group selfie with everyone pulling a funny face!", "التقطوا صورة سيلفي جماعية بوجوه مضحكة!"),
+  L("Everyone says their favourite dessert, one after another!", "كل شخص يقول حلواه المفضلة بالدور!"),
+  L("Spell the venue's name out loud, one letter per person!", "تهجّوا اسم المكان بصوت عالٍ، حرف لكل شخص!"),
+  L("Line up every phone on your table, screens down!", "صفّوا كل الهواتف على الطاولة ووجهها للأسفل!"),
+  L("Everyone touches their nose and says 'Play at Your Table'!", "الجميع يلمس أنفه ويقول 'العب على طاولتك'!"),
+  L("Name 5 countries beginning with 'S' as a table!", "اذكروا 5 دول تبدأ بحرف 'س' كفريق!"),
+  L("Everyone hums the same song together for 5 seconds!", "دندنوا نفس الأغنية معاً لمدة 5 ثوانٍ!"),
+  L("Make a paper-napkin crown and put it on someone!", "اصنعوا تاجاً من المناديل وضعوه على رأس أحدكم!"),
+  L("Every person names a different animal, no repeats!", "كل شخص يذكر حيواناً مختلفاً بدون تكرار!"),
+];

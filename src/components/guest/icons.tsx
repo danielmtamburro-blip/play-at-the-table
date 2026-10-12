@@ -55,6 +55,12 @@ export const ICON: Record<string, React.ReactNode> = {
       <path d="M23 16v8M20 24h6" />
     </svg>
   ),
+  versus: (
+    <svg {...base}>
+      <path d="M5 4l13 13M4 20l4-4M7 21l-3-3" />
+      <path d="M27 4L14 17M28 20l-4-4M25 21l3-3" />
+    </svg>
+  ),
   feedback: (
     <svg {...base}>
       <circle cx="16" cy="16" r="12" />

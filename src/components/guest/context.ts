@@ -12,6 +12,10 @@ export type GuestCtx = {
   tr: (k: TKey) => string;
   L: (o: Loc | string | undefined | null) => string;
   go: (screen: string) => void;
+  /** Jump straight back to the home screen. */
+  home: () => void;
+  /** The screen currently showing. */
+  screen: string;
   redeem: (o: Offer) => void;
   /** Anonymous usage event (no-op inside the sales-page phone demo). */
   log: (event: TrackEvent, opts?: TrackOpts) => void;
@@ -34,7 +38,7 @@ export type ExtraKey =
   | "feedback" | "feedbackS" | "fbTitle" | "fbSub" | "fbComment" | "fbSend" | "fbThanks" | "fbThanksSub" | "fbDone"
   | "fb1" | "fb2" | "fb3" | "fb4" | "fb5"
   | "welcomeTo" | "whatToDo" | "adults" | "adultsS" | "drink" | "drinkS" | "ageQ" | "ageYes" | "ageNo" | "ageBlocked" | "drinkNote"
-  | "wifi" | "pass" | "kidsSub" | "wifiName";
+  | "wifi" | "pass" | "kidsSub" | "wifiName" | "kidsGames" | "versus" | "versusS";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -75,6 +79,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     wifi: "Wi-Fi",
     pass: "Password",
     wifiName: "Wi-Fi name",
+    kidsGames: "Kids games",
+    versus: "Challenge another table",
+    versusS: "Live head-to-head games for points",
     kidsSub: "Games for every age, from colouring to football. No sign-up, no links, nothing is uploaded.",
   },
   ar: {
@@ -114,6 +121,9 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     wifi: "واي فاي",
     pass: "كلمة المرور",
     wifiName: "اسم الواي فاي",
+    kidsGames: "ألعاب الأطفال",
+    versus: "تحدَّ طاولة أخرى",
+    versusS: "ألعاب مباشرة وجهاً لوجه لجمع النقاط",
     kidsSub: "ألعاب لكل الأعمار، من التلوين إلى كرة القدم. بدون تسجيل أو روابط، ولا يتم رفع أي شيء.",
   },
 };

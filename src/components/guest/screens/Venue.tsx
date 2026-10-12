@@ -136,11 +136,14 @@ export function Home() {
   if (m.date && games("date")) tiles.push(["date", "t-date"]);
   if (m.events) tiles.push(["events", "t-events"]);
   else if (m.offers) tiles.push(["offers", "t-events"]);
+  if (m.versus) tiles.push(["versus", "t-versus wide"]);
   if (m.drink && games("drink")) tiles.push(["drink", "t-drink"]);
   if (m.feedback) tiles.push(["feedback", "t-feedback"]);
 
   const label = (k: string): [string, string] => {
     if (k === "group") return [x.adults, x.adultsS];
+    if (k === "kids") return [x.kidsGames, tr("kidsS")];
+    if (k === "versus") return [x.versus, x.versusS];
     if (k === "drink") return [x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))];
     if (k === "feedback") return [x.feedback, x.feedbackS];
     if (k === "offers") return [tr("offers"), x.offersS];

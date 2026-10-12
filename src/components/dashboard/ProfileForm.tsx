@@ -14,6 +14,7 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   events: "What's on",
   offers: "Offers",
   drink: "Drinking games (age-checked)",
+  versus: "Challenge another table",
   feedback: "Guest feedback",
   service: "Call server / Bill please buttons",
 };

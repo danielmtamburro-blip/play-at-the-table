@@ -17,6 +17,7 @@ import { Charades, CountIt, GameHub, NameFive, OddOneOut, Pairs, PromptCards, Qu
 import { Deck, Picker } from "./screens/Games";
 import { Colour, Memory } from "./screens/Kids";
 import { AgeGate, Feedback } from "./screens/Service";
+import { VersusProvider, VersusScreen } from "./screens/Versus";
 import { Events, Home, Menu, Offers } from "./screens/Venue";
 
 type Props = {
@@ -119,8 +120,10 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       },
       log,
       demo: embedded,
+      home: () => setStack(["home"]),
+      screen: cur,
     };
-  }, [lang, venue, table, go, log, embedded]);
+  }, [lang, venue, table, go, log, embedded, cur]);
 
   const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   const { tr, L } = ctx;
@@ -135,6 +138,7 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       case "events": return <Events />;
       case "offers": return <Offers />;
       case "feedback": return <Feedback demo={embedded} onDone={back} />;
+      case "versus": return <VersusScreen />;
       // Section hubs
       case "kids": return <GameHub group="kids" title={tr("kidsTitle")} sub={x.kidsSub} note={tr("playTogether")} />;
       case "group": return <GameHub group="group" title={x.adults} sub={tr("groupSub")} />;
@@ -192,6 +196,7 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
 
   return (
     <GuestContext.Provider value={ctx}>
+      <VersusProvider>
       <div ref={rootRef} className="g" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
         <div className="g-top">
           {stack.length > 1 ? (
@@ -243,6 +248,7 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
         )}
         {redeemOffer && <Redeem offer={redeemOffer} onClose={() => setRedeemOffer(null)} />}
       </div>
+      </VersusProvider>
     </GuestContext.Provider>
   );
 }
