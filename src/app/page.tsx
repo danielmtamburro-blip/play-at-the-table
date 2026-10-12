@@ -58,6 +58,17 @@ export default async function Landing() {
 
       <main id="top">
         <section className="hero">
+          <div className="hero-bg" aria-hidden="true">
+            <span className="blob b1" />
+            <span className="blob b2" />
+            <span className="blob b3" />
+            <span className="blob b4" />
+            {["🎲", "⚽", "🃏", "🏎️", "🍔", "🧩", "🎨", "🥤", "🏆", "🎉", "☕", "❤️"].map((e, i) => (
+              <span key={i} className={`float f${i}`}>
+                {e}
+              </span>
+            ))}
+          </div>
           <div className="wrap">
             <div className="hero-copy">
               <span className="eyebrow">Table QR experiences · Dubai</span>

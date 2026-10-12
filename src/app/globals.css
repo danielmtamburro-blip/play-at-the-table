@@ -704,8 +704,32 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 
 /* ---------- self-playing demo phone ---------- */
 .tour-layer{position:absolute;inset:0;pointer-events:none;z-index:30;overflow:hidden}
-.tour-finger{position:absolute;left:0;top:0;font-size:2.4rem;line-height:1;margin:-6px 0 0 -16px;opacity:0;transition:transform .6s cubic-bezier(.3,.7,.3,1),opacity .3s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.tour-finger{position:absolute;left:0;top:0;font-size:2.4rem;line-height:1;margin:-6px 0 0 -16px;opacity:0;transition:transform .32s cubic-bezier(.3,.7,.3,1),opacity .25s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
 .tour-finger.show{opacity:1}
 .tour-ripple{position:absolute;left:4px;top:-2px;width:34px;height:34px;border-radius:50%;background:rgba(110,75,255,.45);transform:scale(0);animation:ripple .55s ease-out}
 @keyframes ripple{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1.6);opacity:0}}
 .phone-caption{position:relative;z-index:5;margin-top:-58px;min-height:3em;max-width:340px;text-align:center;font-family:var(--display);font-weight:700;font-size:1.05rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 18px;box-shadow:var(--shadow);animation:fadeIn .5s ease}
+
+/* ---------- hero background: drifting colour blobs + floating game icons ---------- */
+.hero{position:relative;overflow:hidden;isolation:isolate}
+.hero > .wrap{position:relative;z-index:1}
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--ink) 9%,transparent) 1px,transparent 0) 0 0/26px 26px}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;animation:drift 18s ease-in-out infinite alternate}
+.b1{width:460px;height:460px;background:#FFB51F;left:-120px;top:-140px}
+.b2{width:420px;height:420px;background:#F0457F;right:8%;top:-160px;animation-duration:22s;opacity:.4}
+.b3{width:520px;height:520px;background:#12A594;left:30%;bottom:-300px;animation-duration:26s;opacity:.35}
+.b4{width:360px;height:360px;background:#6E4BFF;right:-120px;bottom:-120px;animation-duration:20s;opacity:.4}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.12)}100%{transform:translate(-40px,70px) scale(.95)}}
+.float{position:absolute;font-size:2.2rem;opacity:.22;animation:floaty 9s ease-in-out infinite;filter:saturate(1.2)}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-22px) rotate(8deg)}}
+.f0{left:4%;top:16%;animation-delay:-1s}.f1{left:46%;top:8%;animation-delay:-3s;font-size:1.8rem}
+.f2{left:12%;top:78%;animation-delay:-5s}.f3{left:58%;top:84%;animation-delay:-2s}
+.f4{left:38%;top:62%;animation-delay:-6s;font-size:1.6rem}.f5{left:92%;top:12%;animation-delay:-4s}
+.f6{left:27%;top:30%;animation-delay:-7s;font-size:1.5rem}.f7{left:88%;top:70%;animation-delay:-2.5s}
+.f8{left:52%;top:40%;animation-delay:-8s;font-size:1.5rem}.f9{left:70%;top:6%;animation-delay:-1.5s}
+.f10{left:3%;top:50%;animation-delay:-4.5s;font-size:1.6rem}.f11{left:96%;top:44%;animation-delay:-6.5s;font-size:1.5rem}
+:root[data-theme="dark"] .blob{opacity:.28}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .blob{opacity:.28}}
+@media (max-width:760px){.float{font-size:1.5rem;opacity:.16}.blob{filter:blur(50px)}}
+@media (prefers-reduced-motion:reduce){.blob,.float{animation:none}}

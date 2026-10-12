@@ -142,6 +142,7 @@ export function AgeGate({ age, onNo, children }: { age: number; onNo: () => void
         </button>
         <button
           className="g-btn"
+          data-act="age-yes"
           style={{ background: "#1B1740", color: "#fff" }}
           onClick={() => {
             try {

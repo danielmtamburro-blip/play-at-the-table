@@ -246,10 +246,10 @@ export function HigherLower({ k }: { k: string }) {
         {msg?.t ?? "."}
       </p>
       <div className="g-row">
-        <button className="g-btn" onClick={() => guess(true)}>
+        <button className="g-btn" data-act="higher" onClick={() => guess(true)}>
           {ui.higher}
         </button>
-        <button className="g-btn alt" onClick={() => guess(false)}>
+        <button className="g-btn alt" data-act="lower" onClick={() => guess(false)}>
           {ui.lower}
         </button>
       </div>

@@ -12,26 +12,25 @@ type Props = {
 
 const CAPTIONS = {
   en: {
-    home: "Your menu, offers and Wi-Fi, all in one place",
-    call: "Guests call staff with one tap",
-    kids: "Kids colour in while they wait",
-    sport: "Games for every age, from 3 to teens",
-    bill: "…and the table spins to see who pays!",
-    menu: "Prices, allergens and today's specials",
+    home: "Menu, offers and Wi-Fi in one scan",
+    call: "Call a server with one tap",
+    keepy: "⚽ Keepy-uppy for the kids",
+    racer: "🏎️ Car racing while they wait",
+    cards: "🃏 Card games for the grown-ups",
+    versus: "⚔️ Challenge another table, live!",
     yourTurn: "Your turn! Tap anything to explore.",
   },
   ar: {
-    home: "القائمة والعروض والواي فاي في مكان واحد",
-    call: "الضيوف ينادون الموظفين بضغطة واحدة",
-    kids: "الأطفال يلوّنون أثناء الانتظار",
-    sport: "ألعاب لكل الأعمار",
-    bill: "…والطاولة تلف العجلة لترى من يدفع!",
-    menu: "الأسعار ومسببات الحساسية وأطباق اليوم",
+    home: "القائمة والعروض والواي فاي بمسحة واحدة",
+    call: "نادِ النادل بضغطة واحدة",
+    keepy: "⚽ تنطيط الكرة للأطفال",
+    racer: "🏎️ سباق سيارات أثناء الانتظار",
+    cards: "🃏 ألعاب ورق للكبار",
+    versus: "⚔️ تحدَّ طاولة أخرى مباشرة!",
     yourTurn: "دورك! اضغط على أي شيء للاستكشاف.",
   },
 };
 
-const DEMO_NAMES = ["Sara", "Omar", "Dan", "Lily"];
 const IDLE_RESTART_MS = 20_000;
 
 export default function DemoTour({ root, body, onCaption }: Props) {
@@ -78,13 +77,6 @@ export default function DemoTour({ root, body, onCaption }: Props) {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let alive = true;
-    const prevNames = (() => {
-      try {
-        return sessionStorage.getItem("patt-names");
-      } catch {
-        return null;
-      }
-    })();
     const ok = () => alive && !stopped.current;
     const wait = (ms: number) => new Promise<void>((res, rej) => setTimeout(() => (ok() ? res() : rej(new Error("stop"))), ms));
     const caption = (k: keyof (typeof CAPTIONS)["en"]) => capRef.current?.(CAPTIONS[langRef.current][k]);
@@ -96,15 +88,16 @@ export default function DemoTour({ root, body, onCaption }: Props) {
       }
       throw new Error(`missing ${sel}`);
     };
-    /** Glide the finger to a point (relative to the phone) and tap. */
-    const moveTo = async (x: number, y: number) => {
+    /** Glide the finger to a point (relative to the phone). */
+    const moveTo = async (x: number, y: number, ms = 380) => {
       setFinger((f) => ({ ...f, x, y, show: true }));
-      await wait(650);
+      await wait(ms);
     };
     const pointOf = (el: Element, fx = 0.5, fy = 0.5) => {
       const r = el.getBoundingClientRect(), base = root.current!.getBoundingClientRect();
       return [r.left - base.left + r.width * fx, r.top - base.top + r.height * fy] as const;
     };
+    const ripple = () => setFinger((f) => ({ ...f, tap: f.tap + 1 }));
     /** Scroll only inside the phone (never the sales page) so the element is visible. */
     const reveal = async (el: HTMLElement) => {
       const b = body.current;
@@ -112,96 +105,111 @@ export default function DemoTour({ root, body, onCaption }: Props) {
       const er = el.getBoundingClientRect(), br = b.getBoundingClientRect();
       if (er.top >= br.top + 8 && er.bottom <= br.bottom - 8) return;
       b.scrollTo({ top: b.scrollTop + (er.top - br.top) - br.height / 3, behavior: "smooth" });
-      await wait(450);
+      await wait(320);
     };
-    const tap = async (sel: string) => {
+    const tap = async (sel: string, after = 260) => {
       const el = await find(sel);
       await reveal(el);
       const [x, y] = pointOf(el);
       await moveTo(x, y);
-      setFinger((f) => ({ ...f, tap: f.tap + 1 }));
+      ripple();
       el.click();
-      await wait(450);
+      await wait(after);
     };
-    /** Tap a spot inside an element that listens for pointerdown (canvas, arenas). */
-    const press = async (sel: string, fx: number, fy: number) => {
-      const el = await find(sel);
-      await reveal(el);
-      const [x, y] = pointOf(el, fx, fy);
-      await moveTo(x, y);
-      setFinger((f) => ({ ...f, tap: f.tap + 1 }));
-      const r = el.getBoundingClientRect();
-      el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: r.left + r.width * fx, clientY: r.top + r.height * fy }));
-      await wait(500);
-    };
-    const back = () => tap(".g-back");
-    const scrollBody = async (to: number) => {
+    /** pointerdown at a spot inside an element (game arenas listen for this, not click). */
+    const pressAt = (el: Element, clientX: number, clientY: number) =>
+      el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX, clientY }));
+    const back = () => tap(".g-back", 200);
+    const scrollBody = async (to: number, ms = 650) => {
       body.current?.scrollTo({ top: to, behavior: "smooth" });
-      await wait(1100);
+      await wait(ms);
+    };
+    const setInput = (el: HTMLInputElement, v: string) => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(el, v);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    /** Run one part of the tour; if that part isn't available (e.g. switched off), skip it. */
+    const part = async (fn: () => Promise<void>) => {
+      try {
+        await fn();
+      } catch (e) {
+        if (!ok()) throw e;
+      }
+      homeRef.current();
+      await wait(250);
     };
 
     (async () => {
-      await wait(1800);
+      await wait(1200);
       while (ok()) {
         homeRef.current();
-        await wait(400);
-        caption("home");
-        await scrollBody(260);
-        await scrollBody(0);
-        caption("call");
-        await tap('[data-act="call"]');
-        await wait(1400);
+        await wait(300);
 
-        caption("kids");
-        await tap('[data-tile="kids"]');
-        await tap('[data-game="colour"]');
-        await wait(500);
-        const fills: [number, number, number][] = [[0, 0.45, 0.5], [2, 0.88, 0.5], [5, 0.2, 0.2], [7, 0.3, 0.95]];
-        for (const [sw, fx, fy] of fills) {
-          await tap(`.swatches button:nth-child(${sw + 1})`);
-          await press(".color-canvas", fx, fy);
-        }
-        await wait(900);
-        await back();
+        await part(async () => {
+          caption("home");
+          await scrollBody(200);
+          await scrollBody(0, 450);
+          caption("call");
+          await tap('[data-act="call"]', 900);
+        });
 
-        caption("sport");
-        await tap('[data-game="penalty"]');
-        await wait(1200);
-        await tap('[data-act="shoot"]');
-        await wait(2200);
-        await back();
-        await back();
+        await part(async () => {
+          caption("keepy");
+          await tap('[data-tile="kids"]');
+          await tap('[data-game="keepy"]');
+          await tap('[data-act="start"]', 150);
+          for (let k = 0; k < 4; k++) {
+            const arena = await find(".arena.keepy");
+            const ball = await find(".keepy-ball");
+            let [x, y] = pointOf(ball);
+            await moveTo(x, y + 6, 160);
+            const r = ball.getBoundingClientRect();
+            [x, y] = pointOf(ball);
+            setFinger((f) => ({ ...f, x, y: y + 6 }));
+            ripple();
+            pressAt(arena, r.left + r.width / 2, r.top + r.height / 2);
+            await wait(380);
+          }
+          await wait(300);
+        });
 
-        caption("bill");
-        try {
-          sessionStorage.setItem("patt-names", JSON.stringify(DEMO_NAMES));
-        } catch {}
-        await tap('[data-tile="group"]');
-        await tap('[data-game="bill"]');
-        await wait(500);
-        await tap('[data-act="spin"]');
-        await wait(5200);
-        await back();
-        await back();
+        await part(async () => {
+          caption("racer");
+          await tap('[data-tile="kids"]');
+          await tap('[data-game="racer"]');
+          await tap('[data-act="start"]', 300);
+          for (const side of ["left", "right", "right", "left"]) await tap(`[data-act="${side}"]`, 300);
+          await wait(250);
+        });
 
-        caption("menu");
-        await tap('[data-tile="menu"]');
-        await tap(".g-tabs button:nth-child(2)");
-        await scrollBody(240);
-        await wait(800);
-        await scrollBody(0);
-        await back();
+        await part(async () => {
+          caption("cards");
+          await tap('[data-tile="drink"]');
+          if (root.current?.querySelector('[data-act="age-yes"]')) await tap('[data-act="age-yes"]');
+          await tap('[data-game="hilo"]', 400);
+          await tap('[data-act="higher"]', 650);
+          await tap('[data-act="lower"]', 650);
+          await tap('[data-act="higher"]', 700);
+        });
+
+        await part(async () => {
+          caption("versus");
+          await tap('[data-tile="versus"]', 300);
+          const input = (await find("#vs-to")) as HTMLInputElement;
+          await moveTo(...pointOf(input));
+          ripple();
+          for (const d of ["", "7"]) (setInput(input, d), await wait(220));
+          await tap(".vs-send", 1500);
+          await tap('[data-act="vs-cancel"]', 200);
+        });
+
         setFinger((f) => ({ ...f, show: false }));
-        await wait(1500);
+        await wait(700);
       }
     })().catch(() => {});
 
     return () => {
       alive = false;
-      try {
-        if (prevNames == null) sessionStorage.removeItem("patt-names");
-        else sessionStorage.setItem("patt-names", prevNames);
-      } catch {}
     };
   }, [run, root, body]);
 
