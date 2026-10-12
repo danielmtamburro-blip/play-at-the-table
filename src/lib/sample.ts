@@ -47,6 +47,7 @@ export const SAMPLE_VENUE: Venue = {
     "date": true,
     "events": true,
     "offers": true,
+    "drink": false,
     "feedback": true,
     "service": true
   },

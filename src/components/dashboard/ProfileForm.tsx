@@ -9,10 +9,11 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   menu: "Food menu",
   drinks: "Drinks",
   kids: "Kids' corner",
-  group: "Play together",
+  group: "For the adults",
   date: "Date night",
   events: "What's on",
   offers: "Offers",
+  drink: "Drinking games (age-checked)",
   feedback: "Guest feedback",
   service: "Call server / Bill please buttons",
 };

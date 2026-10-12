@@ -232,3 +232,65 @@ export const EXTRA_DATE_DECKS: { id: string; t: Loc; s: Loc; cards: Loc[] }[] = 
       L("Plan our dream weekend away in one minute.", "خطط لعطلة نهاية أسبوع مثالية لنا في دقيقة."),
     ]},
 ];
+
+/* ------------------------------ Teens ------------------------------ */
+
+/** Word scramble lists per language (letters are shuffled in the game). */
+export const SCRAMBLE_WORDS: { en: string[]; ar: string[] } = {
+  en: ["PIZZA", "FALCON", "DESERT", "ROCKET", "BURGER", "PLANET", "GUITAR", "CAMERA", "DOLPHIN", "FOOTBALL", "TABLE", "MANGO", "TIGER", "CASTLE", "WIZARD"],
+  ar: ["قمر", "بحر", "صقر", "جمل", "كتاب", "مدرسة", "شمس", "نخلة", "سيارة", "قلم", "برتقال", "طائرة", "حديقة", "ملعب", "صحراء"],
+};
+
+/* ------------------------------ Drinking games (opt-in, age-gated) ------------------------------ */
+
+export const DRINK_NEVER: Loc[] = [
+  L("Never have I ever… sung in the shower like it was a concert.", "لم يسبق لي أبداً… أن غنيت تحت الدش وكأنها حفلة."),
+  L("Never have I ever… stalked an ex online.", "لم يسبق لي أبداً… أن تتبعت حبيباً سابقاً على الإنترنت."),
+  L("Never have I ever… pretended to know a song.", "لم يسبق لي أبداً… أن تظاهرت بأنني أعرف أغنية."),
+  L("Never have I ever… fallen asleep at a party.", "لم يسبق لي أبداً… أن نمت في حفلة."),
+  L("Never have I ever… sent a voice note longer than 3 minutes.", "لم يسبق لي أبداً… أن أرسلت رسالة صوتية أطول من 3 دقائق."),
+  L("Never have I ever… cancelled plans to stay in.", "لم يسبق لي أبداً… أن ألغيت خططاً لأبقى في البيت."),
+  L("Never have I ever… laughed at my own joke before finishing it.", "لم يسبق لي أبداً… أن ضحكت على نكتتي قبل أن أنهيها."),
+  L("Never have I ever… gone on a blind date.", "لم يسبق لي أبداً… أن ذهبت إلى موعد أعمى."),
+  L("Never have I ever… lied about my age.", "لم يسبق لي أبداً… أن كذبت بشأن عمري."),
+  L("Never have I ever… danced on a table.", "لم يسبق لي أبداً… أن رقصت على طاولة."),
+];
+
+export const DRINK_LIKELY: Loc[] = [
+  L("Most likely to start a dance-off. They take a sip!", "الأكثر احتمالاً أن يبدأ تحدي رقص. يأخذ رشفة!"),
+  L("Most likely to text their ex tonight. They take a sip!", "الأكثر احتمالاً أن يراسل حبيبه السابق الليلة. يأخذ رشفة!"),
+  L("Most likely to order one more round. They take a sip!", "الأكثر احتمالاً أن يطلب جولة إضافية. يأخذ رشفة!"),
+  L("Most likely to make friends with the staff. They take a sip!", "الأكثر احتمالاً أن يصادق الموظفين. يأخذ رشفة!"),
+  L("Most likely to forget where they parked. They take a sip!", "الأكثر احتمالاً أن ينسى مكان سيارته. يأخذ رشفة!"),
+  L("Most likely to start singing first. They take a sip!", "الأكثر احتمالاً أن يبدأ الغناء أولاً. يأخذ رشفة!"),
+  L("Most likely to tell an embarrassing story. They take a sip!", "الأكثر احتمالاً أن يحكي قصة محرجة. يأخذ رشفة!"),
+  L("Most likely to be late tomorrow. They take a sip!", "الأكثر احتمالاً أن يتأخر غداً. يأخذ رشفة!"),
+  L("Most likely to take 50 selfies tonight. They take a sip!", "الأكثر احتمالاً أن يلتقط 50 صورة سيلفي الليلة. يأخذ رشفة!"),
+  L("Most likely to win a game show. They take a sip!", "الأكثر احتمالاً أن يفوز ببرنامج مسابقات. يأخذ رشفة!"),
+];
+
+export const SIP_OR_SHARE: Loc[] = [
+  L("Show the last photo on your phone, or take a sip.", "أظهر آخر صورة في هاتفك، أو خذ رشفة."),
+  L("Tell us your most awkward date story, or take a sip.", "احكِ لنا أكثر موعد محرج حصل لك، أو خذ رشفة."),
+  L("Read out your last text message, or take a sip.", "اقرأ آخر رسالة نصية لديك، أو خذ رشفة."),
+  L("Who here would you call in an emergency? Answer, or sip.", "من هنا ستتصل به في حالة طارئة؟ أجب، أو خذ رشفة."),
+  L("What's your most-played song this month? Answer, or sip.", "ما أكثر أغنية سمعتها هذا الشهر؟ أجب، أو خذ رشفة."),
+  L("Do your best impression of someone at the table, or take a sip.", "قلّد أحد الجالسين على الطاولة، أو خذ رشفة."),
+  L("Reveal your screen time today, or take a sip.", "اكشف مدة استخدامك للهاتف اليوم، أو خذ رشفة."),
+  L("What's the worst gift you've ever received? Answer, or sip.", "ما أسوأ هدية تلقيتها؟ أجب، أو خذ رشفة."),
+  L("Tell us a secret talent, or take a sip.", "أخبرنا عن موهبة سرية، أو خذ رشفة."),
+  L("Let the table post a story on your Instagram, or take two sips.", "دع الطاولة تنشر قصة على إنستغرامك، أو خذ رشفتين."),
+];
+
+export const TABLE_RULES: Loc[] = [
+  L("New rule: no first names. Slip up? Take a sip.", "قاعدة جديدة: ممنوع ذكر الأسماء. أخطأت؟ خذ رشفة."),
+  L("Everyone born in summer takes a sip.", "كل من ولد في الصيف يأخذ رشفة."),
+  L("The person with the most recent birthday makes a toast.", "صاحب أقرب عيد ميلاد يلقي كلمة نخب."),
+  L("Thumb master: the last to copy your thumb on the table sips.", "سيد الإبهام: آخر من يضع إبهامه على الطاولة يأخذ رشفة."),
+  L("Category round: name cities. First to pause takes a sip.", "جولة الفئات: اذكروا مدناً. أول من يتوقف يأخذ رشفة."),
+  L("Everyone wearing black takes a sip.", "كل من يرتدي الأسود يأخذ رشفة."),
+  L("Rhyme time: say a word, go round rhyming. First to fail sips.", "وقت القافية: قل كلمة ويتبادلون القافية. أول من يفشل يأخذ رشفة."),
+  L("Question master: anyone who answers your question sips.", "سيد الأسئلة: كل من يجيب على سؤالك يأخذ رشفة."),
+  L("Phones down! The first to touch theirs takes a sip.", "ضعوا الهواتف! أول من يلمس هاتفه يأخذ رشفة."),
+  L("The youngest at the table picks someone to sip.", "الأصغر على الطاولة يختار شخصاً ليأخذ رشفة."),
+];

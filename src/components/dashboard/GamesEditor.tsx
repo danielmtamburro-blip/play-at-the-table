@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { GAMES, GROUP_LABEL, gameOn, type GameGroup } from "@/lib/games";
+import { drinkAge, GAMES, GROUP_LABEL, gameOn, KIDS_BANDS, type GameGroup, type GameInfo } from "@/lib/games";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { moduleOn } from "@/lib/types";
 import type { Row } from "./CrudList";
 
 export default function GamesEditor({ venue }: { venue: Row }) {
@@ -10,9 +11,11 @@ export default function GamesEditor({ venue }: { venue: Row }) {
   const [games, setGames] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(GAMES.map((g) => [g.key, gameOn(venue.games, g.key)])),
   );
+  const [drinkOn, setDrinkOn] = useState(() => moduleOn(venue.modules, "drink"));
+  const [age, setAge] = useState<18 | 21>(() => drinkAge(venue.games));
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const groups: GameGroup[] = ["kids", "group", "date"];
+  const groups: GameGroup[] = ["kids", "group", "date", "drink"];
   const setGroup = (grp: GameGroup, on: boolean) =>
     setGames((s) => ({ ...s, ...Object.fromEntries(GAMES.filter((g) => g.group === grp).map((g) => [g.key, on])) }));
 
@@ -21,11 +24,26 @@ export default function GamesEditor({ venue }: { venue: Row }) {
     // Store only the hidden ones, so new games we add later appear switched on.
     // _saved marks the setup step as done even when every game is left on.
     const hidden = Object.fromEntries(Object.entries(games).filter(([, on]) => !on).map(([k]) => [k, false]));
-    const { error } = await getBrowserClient()!.from("venues").update({ games: { ...hidden, _saved: true } }).eq("id", venue.id);
+    const { error } = await getBrowserClient()!
+      .from("venues")
+      .update({ games: { ...hidden, _saved: true, _drinkAge: age }, modules: { ...(venue.modules ?? {}), drink: drinkOn } })
+      .eq("id", venue.id);
     setBusy(false);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved. Guests will see your choice within a minute." });
     if (!error) router.refresh();
   }
+
+  const card = (g: GameInfo) => (
+    <label key={g.key} className={`game-card${games[g.key] ? " on" : ""}`}>
+      <input type="checkbox" checked={games[g.key]} onChange={(e) => setGames({ ...games, [g.key]: e.target.checked })} />
+      <span>
+        <b>{g.title.en}</b>
+        {g.ages && <span className="badge" style={{ marginInlineStart: 8 }}>Ages {g.ages}</span>}
+        <br />
+        <span className="small muted">{g.sub.en}</span>
+      </span>
+    </label>
+  );
 
   return (
     <section className="panel">
@@ -52,19 +70,41 @@ export default function GamesEditor({ venue }: { venue: Row }) {
                 </button>
               </div>
             </div>
-            <div className="game-list">
-              {list.map((g) => (
-                <label key={g.key} className={`game-card${games[g.key] ? " on" : ""}`}>
-                  <input type="checkbox" checked={games[g.key]} onChange={(e) => setGames({ ...games, [g.key]: e.target.checked })} />
+            {grp === "drink" && (
+              <div className="drink-settings">
+                <label className="cd-toggle">
+                  <input type="checkbox" checked={drinkOn} onChange={(e) => setDrinkOn(e.target.checked)} />
+                  <span className="cd-toggle-ui" aria-hidden="true" />
                   <span>
-                    <b>{g.title.en}</b>
-                    {g.ages && <span className="badge" style={{ marginInlineStart: 8 }}>Ages {g.ages}</span>}
-                    <br />
-                    <span className="small muted">{g.sub.en}</span>
+                    <b>Show drinking games to guests</b>
+                    <span className="small muted">Off by default. Guests must confirm their age before playing.</span>
                   </span>
                 </label>
-              ))}
-            </div>
+                <div className="field" style={{ maxWidth: 260 }}>
+                  <label htmlFor="drink-age">Minimum age</label>
+                  <select id="drink-age" value={age} onChange={(e) => setAge(Number(e.target.value) === 18 ? 18 : 21)}>
+                    <option value={21}>21+ (UAE)</option>
+                    <option value={18}>18+ (UK)</option>
+                  </select>
+                </div>
+                <p className="small muted">
+                  Every card is sip-based (no downing or racing), and reminds guests that a mocktail or water counts. Check this suits your licence
+                  and local rules before switching it on.
+                </p>
+              </div>
+            )}
+            {grp === "kids" ? (
+              KIDS_BANDS.map(({ band, label }) => (
+                <div key={band} className="game-band">
+                  <h4>{label.en}</h4>
+                  <div className="game-list">{list.filter((g) => g.band === band).map(card)}</div>
+                </div>
+              ))
+            ) : (
+              <div className="game-list" style={grp === "drink" && !drinkOn ? { opacity: 0.55 } : undefined}>
+                {list.map(card)}
+              </div>
+            )}
           </div>
         );
       })}

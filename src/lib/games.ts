@@ -4,26 +4,29 @@ import { DATE_DECKS } from "./content";
 import { EXTRA_DATE_DECKS } from "./gameContent";
 import type { Loc } from "./types";
 
-export type GameGroup = "kids" | "group" | "date";
+export type GameGroup = "kids" | "group" | "date" | "drink";
+export type AgeBand = "3" | "6" | "12";
 
-export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string };
+export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand };
 
 const L = (en: string, ar: string): Loc => ({ en, ar });
 
 export const ALL_DATE_DECKS = [...DATE_DECKS, ...EXTRA_DATE_DECKS];
 
 export const GAMES: GameInfo[] = [
-  // Kids
-  { key: "colour", group: "kids", title: L("Colouring", "التلوين"), sub: L("Tap a colour, then tap a shape", "اختر لوناً ثم اضغط على شكل"), ages: "3+" },
-  { key: "memory", group: "kids", title: L("Memory match", "لعبة الذاكرة"), sub: L("Find the matching pairs", "ابحث عن الأزواج المتطابقة"), ages: "4+" },
-  { key: "oddone", group: "kids", title: L("Odd one out", "الشكل المختلف"), sub: L("Spot the picture that's different", "اعثر على الصورة المختلفة"), ages: "3+" },
-  { key: "count", group: "kids", title: L("Count it!", "عُدّها!"), sub: L("How many can you count?", "كم واحدة تستطيع أن تعد؟"), ages: "3+" },
-  { key: "tictactoe", group: "kids", title: L("Noughts & crosses", "إكس-أو"), sub: L("Play a grown-up or a friend", "العب مع أحد الكبار أو صديق"), ages: "5+" },
-  { key: "quiz", group: "kids", title: L("Kids' quiz", "مسابقة الأطفال"), sub: L("Fun questions with instant answers", "أسئلة ممتعة بإجابات فورية"), ages: "6+" },
-  { key: "animals", group: "kids", title: L("Animal quiz", "مسابقة الحيوانات"), sub: L("How well do you know animals?", "كم تعرف عن الحيوانات؟"), ages: "5+" },
-  { key: "riddles", group: "kids", title: L("Riddles", "ألغاز"), sub: L("Guess the answer, then reveal it", "خمّن الإجابة ثم اكشفها"), ages: "6+" },
-  { key: "kwyr", group: "kids", title: L("Would you rather?", "ماذا تفضل؟"), sub: L("Silly choices for little ones", "اختيارات مضحكة للصغار"), ages: "4+" },
-  { key: "challenge", group: "kids", title: L("Table challenge", "تحدي الطاولة"), sub: L("Find-it missions at your table", "مهام بحث على طاولتك"), ages: "4+" },
+  // Kids: 4 for ages 3+, 4 for 6+, 4 for teens
+  { key: "colour", group: "kids", band: "3", title: L("Colouring", "التلوين"), sub: L("Tap a colour, then tap a shape", "اختر لوناً ثم اضغط على شكل"), ages: "3+" },
+  { key: "bubbles", group: "kids", band: "3", title: L("Bubble pop", "فقاعات"), sub: L("Pop as many bubbles as you can!", "افقع أكبر عدد من الفقاعات!"), ages: "3+" },
+  { key: "oddone", group: "kids", band: "3", title: L("Odd one out", "الشكل المختلف"), sub: L("Spot the picture that's different", "اعثر على الصورة المختلفة"), ages: "3+" },
+  { key: "count", group: "kids", band: "3", title: L("Count it!", "عُدّها!"), sub: L("How many can you count?", "كم واحدة تستطيع أن تعد؟"), ages: "3+" },
+  { key: "penalty", group: "kids", band: "6", title: L("Penalty shootout", "ركلات الترجيح"), sub: L("Time your shot and beat the keeper", "اختر التوقيت المناسب وتغلب على الحارس"), ages: "6+" },
+  { key: "racer", group: "kids", band: "6", title: L("Car racer", "سباق السيارات"), sub: L("Dodge the traffic and go faster", "تفادَ السيارات وزِد سرعتك"), ages: "6+" },
+  { key: "memory", group: "kids", band: "6", title: L("Memory match", "لعبة الذاكرة"), sub: L("Find all 8 pairs in as few moves as you can", "اعثر على 8 أزواج بأقل عدد من المحاولات"), ages: "6+" },
+  { key: "tictactoe", group: "kids", band: "6", title: L("Noughts & crosses", "إكس-أو"), sub: L("Beat the phone or a friend", "تغلب على الهاتف أو على صديق"), ages: "6+" },
+  { key: "keepy", group: "kids", band: "12", title: L("Keepy-uppy", "تنطيط الكرة"), sub: L("Tap the ball. Don't let it drop!", "اضغط على الكرة ولا تدعها تسقط!"), ages: "12+" },
+  { key: "reaction", group: "kids", band: "12", title: L("Reaction test", "اختبار رد الفعل"), sub: L("How fast are your reflexes?", "ما مدى سرعة رد فعلك؟"), ages: "12+" },
+  { key: "maths", group: "kids", band: "12", title: L("Maths sprint", "سباق الحساب"), sub: L("Solve as many as you can in 60 seconds", "حل أكبر عدد ممكن في 60 ثانية"), ages: "12+" },
+  { key: "scramble", group: "kids", band: "12", title: L("Word scramble", "ترتيب الحروف"), sub: L("Unjumble the letters to find the word", "رتّب الحروف لتجد الكلمة"), ages: "12+" },
   // Groups
   { key: "quick", group: "group", title: L("Quick questions", "أسئلة سريعة"), sub: L("Everyone answers out loud", "الجميع يجيب بصوت عالٍ") },
   { key: "tot", group: "group", title: L("This or that", "هذا أم ذاك"), sub: L("Pick a side, then explain yourself", "اختر جانباً ثم اشرح السبب") },
@@ -37,9 +40,23 @@ export const GAMES: GameInfo[] = [
   { key: "picker", group: "group", title: L("Party picker", "مختار الحفلة"), sub: L("The phone chooses who goes next", "الهاتف يختار من التالي") },
   // Date night (one deck each)
   ...ALL_DATE_DECKS.map((d) => ({ key: `deck:${d.id}`, group: "date" as const, title: d.t, sub: d.s })),
+  // Drinking games: only if the venue switches them on; guests confirm their age first.
+  { key: "dnever", group: "drink", title: L("Never have I ever: sip edition", "لم يسبق لي أبداً: نسخة الرشفات"), sub: L("If you have, take a sip", "إذا فعلتها، خذ رشفة") },
+  { key: "dlikely", group: "drink", title: L("Most likely to: sip edition", "من الأكثر احتمالاً: نسخة الرشفات"), sub: L("Point on three. Most votes sips", "أشيروا عند العد لثلاثة. صاحب أكثر الأصوات يرتشف") },
+  { key: "sipshare", group: "drink", title: L("Sip or share", "رشفة أو اعتراف"), sub: L("Answer honestly, or take a sip", "أجب بصدق أو خذ رشفة") },
+  { key: "rules", group: "drink", title: L("Table rules", "قواعد الطاولة"), sub: L("Draw a card, follow the rule", "اسحب بطاقة واتبع القاعدة") },
 ];
 
-export const GROUP_LABEL: Record<GameGroup, string> = { kids: "Kids' corner", group: "Play together (friends & groups)", date: "Date night" };
+export const KIDS_BANDS: { band: AgeBand; label: Loc }[] = [
+  { band: "3", label: L("Little ones · ages 3+", "للصغار · من 3 سنوات") },
+  { band: "6", label: L("Big kids · ages 6+", "للأطفال · من 6 سنوات") },
+  { band: "12", label: L("Teens · ages 12+", "لليافعين · من 12 سنة") },
+];
+
+export const GROUP_LABEL: Record<GameGroup, string> = { kids: "Kids' corner", group: "For the adults", date: "Date night", drink: "Drinking games" };
+
+/** Drinking-games age limit set by the venue (stored in venues.games._drinkAge). Defaults to 21 (UAE). */
+export const drinkAge = (games: Record<string, unknown> | undefined) => (games?._drinkAge === 18 ? 18 : 21);
 
 export const gameOn = (games: Record<string, boolean> | undefined, key: string) => games?.[key] !== false;
 

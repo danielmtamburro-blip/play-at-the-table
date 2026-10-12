@@ -169,7 +169,7 @@ export function Colour() {
 
 /* ---------- Memory match ---------- */
 
-const FACES = ["🐪", "🌴", "🐠", "⭐", "🍉", "🦩"];
+const FACES = ["🐪", "🌴", "🐠", "⭐", "🍉", "🦩", "🚀", "🦁"];
 const newDeck = () => ({ cards: shuffle([...FACES, ...FACES]), open: [] as number[], done: [] as number[], moves: 0, lock: false });
 
 export function Memory() {

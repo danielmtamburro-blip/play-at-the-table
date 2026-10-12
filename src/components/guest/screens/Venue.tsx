@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ALLERGEN, DAYS, DIET, type TKey } from "@/lib/content";
-import { anyGameOn } from "@/lib/games";
+import { anyGameOn, drinkAge } from "@/lib/games";
 import type { Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { ServiceBar } from "./Service";
@@ -31,92 +31,141 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+/** Slim Wi-Fi strip: network, password and a copy button. */
+function WifiStrip() {
+  const { venue, lang } = useGuest();
+  const x = EXTRA[lang];
+  if (!venue.wifi.ssid && !venue.wifi.pass) return null;
+  return (
+    <div className="g-wifi" aria-label={x.wifi}>
+      <span className="g-wifi-ico" aria-hidden="true">
+        📶
+      </span>
+      <span className="g-wifi-txt">
+        <b>{venue.wifi.ssid}</b>
+        {venue.wifi.pass && (
+          <span>
+            {x.pass}: <b dir="ltr">{venue.wifi.pass}</b>
+          </span>
+        )}
+      </span>
+      {venue.wifi.pass && <CopyButton text={venue.wifi.pass} />}
+    </div>
+  );
+}
+
+/** Today's offers, fading from one to the next every few seconds. */
+function OfferCarousel({ offers }: { offers: Offer[] }) {
+  const { tr, L, go, log } = useGuest();
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (offers.length < 2 || paused) return;
+    const t = setInterval(() => setI((n) => (n + 1) % offers.length), 4500);
+    return () => clearInterval(t);
+  }, [offers.length, paused]);
+  const o = offers[i % offers.length];
+  return (
+    <div className="g-carousel" onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
+      <button
+        key={o.id}
+        className="g-banner fade-in"
+        style={{ background: `var(--${o.color})` }}
+        onClick={() => {
+          log("offer_open", { item: o.title.en });
+          go("offers");
+        }}
+      >
+        <small>{tr("offerNow")}</small>
+        <b>{L(o.title)}</b>
+        {L(o.desc) && <span style={{ fontSize: ".85rem", opacity: 0.95 }}>{L(o.desc)}</span>}
+      </button>
+      {offers.length > 1 && (
+        <div className="g-dots" role="tablist" aria-label={tr("offers")}>
+          {offers.map((x, n) => (
+            <button key={x.id} role="tab" aria-selected={n === i % offers.length} aria-label={L(x.title)} onClick={() => setI(n)} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Big venue logo (or a monogram) above the welcome line. */
+function VenueHero() {
+  const { venue, L, lang } = useGuest();
+  const x = EXTRA[lang];
+  const name = L(venue.name);
+  const initials = venue.name.en
+    .split(/[\s&]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="g-hero">
+      {venue.logoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="g-hero-logo" src={venue.logoUrl} alt={name} />
+      ) : (
+        <span className="g-hero-mono" style={{ background: venue.brandColor }} aria-hidden="true">
+          {initials}
+        </span>
+      )}
+      <h2>{x.welcomeTo.replace("{name}", name)}</h2>
+      <p>{x.whatToDo}</p>
+    </div>
+  );
+}
+
 export function Home() {
-  const { venue, tr, L, lang, go, log, demo } = useGuest();
+  const { venue, tr, lang, go, demo } = useGuest();
+  const x = EXTRA[lang];
   const m = venue.modules;
-  const shown = (k: keyof typeof m) =>
-    m[k] && (k === "kids" || k === "group" || k === "date" ? anyGameOn(venue.games, k) : true);
-  const featured = m.offers ? venue.offers.find((o) => o.featured) ?? venue.offers[0] : undefined;
-  const tiles: [string, string][] = (
-    [
-      ["menu", "t-menu"],
-      ["drinks", "t-drinks"],
-      ["kids", "t-kids"],
-      ["group", "t-group"],
-      ["date", "t-date"],
-      ["events", "t-events"],
-    ] as [keyof typeof m, string][]
-  ).filter(([k]) => shown(k));
-  if (m.offers && !m.events) tiles.push(["offers", "t-events"]);
+  const games = (k: "kids" | "group" | "date" | "drink") => anyGameOn(venue.games as Record<string, boolean>, k);
+  const offers = m.offers ? [...venue.offers].sort((a, b) => Number(b.featured) - Number(a.featured)) : [];
+
+  // Feedback always sits last (bottom right when the grid is full).
+  const tiles: [string, string][] = [];
+  if (m.menu) tiles.push(["menu", "t-menu"]);
+  if (m.drinks) tiles.push(["drinks", "t-drinks"]);
+  if (m.kids && games("kids")) tiles.push(["kids", "t-kids"]);
+  if (m.group && games("group")) tiles.push(["group", "t-group"]);
+  if (m.date && games("date")) tiles.push(["date", "t-date"]);
+  if (m.events) tiles.push(["events", "t-events"]);
+  else if (m.offers) tiles.push(["offers", "t-events"]);
+  if (m.drink && games("drink")) tiles.push(["drink", "t-drink"]);
   if (m.feedback) tiles.push(["feedback", "t-feedback"]);
+
+  const label = (k: string): [string, string] => {
+    if (k === "group") return [x.adults, x.adultsS];
+    if (k === "drink") return [x.drink, x.drinkS.replace("{age}", String(drinkAge(venue.games)))];
+    if (k === "feedback") return [x.feedback, x.feedbackS];
+    if (k === "offers") return [tr("offers"), x.offersS];
+    return [tr(k as TKey), tr(`${k}S` as TKey)];
+  };
 
   return (
     <>
-      <div className="g-hello">
-        <h2>{tr("hello")}</h2>
-        <p>{tr("helloSub")}</p>
-      </div>
-      {featured && (
-        <button
-          className="g-banner"
-          onClick={() => {
-            log("offer_open", { item: featured.title.en });
-            go("offers");
-          }} style={{ background: `var(--${featured.color})` }}>
-          <small>{tr("offerNow")}</small>
-          <b>{L(featured.title)}</b>
-          <span style={{ fontSize: ".85rem", opacity: 0.95 }}>{L(featured.desc)}</span>
-        </button>
-      )}
+      <VenueHero />
+      <WifiStrip />
+      {offers.length > 0 && <OfferCarousel offers={offers} />}
       <ServiceBar demo={demo} />
       <div className="g-grid">
-        {tiles.map(([k, cls]) => (
-          <button key={k} className={`g-tile ${cls}`} onClick={() => go(k)}>
-            {ICON[k]}
-            <div>
-              <b>{k === "feedback" ? EXTRA[lang].feedback : tr(k as TKey)}</b>
-              <br />
-              <span>{k === "offers" ? EXTRA[lang].offersS : k === "feedback" ? EXTRA[lang].feedbackS : tr(`${k}S` as TKey)}</span>
-            </div>
-          </button>
-        ))}
-      </div>
-      <div className="g-info" aria-label={tr("info")}>
-        {venue.wifi.ssid && (
-          <div className="g-info-row">
-            <span>{tr("wifi")}</span>
-            <b>{venue.wifi.ssid}</b>
-          </div>
-        )}
-        {venue.wifi.pass && (
-          <div className="g-info-row">
-            <span>{tr("password")}</span>
-            <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <b style={{ fontVariantNumeric: "tabular-nums" }}>{venue.wifi.pass}</b>
-              <CopyButton text={venue.wifi.pass} />
-            </span>
-          </div>
-        )}
-        {L(venue.hours) && (
-          <div className="g-info-row">
-            <span>{tr("hours")}</span>
-            <b>{L(venue.hours)}</b>
-          </div>
-        )}
-        {venue.mapsUrl && (
-          <div className="g-info-row">
-            <span>{tr("directions")}</span>
-            <a className="g-link" href={venue.mapsUrl} target="_blank" rel="noopener noreferrer" onClick={() => log("directions")}>
-              {tr("openMaps")}
-            </a>
-          </div>
-        )}
-        {L(venue.access) && (
-          <div className="g-info-row" style={{ alignItems: "flex-start" }}>
-            <span>{tr("access")}</span>
-            <span style={{ textAlign: "end", maxWidth: "65%" }}>{L(venue.access)}</span>
-          </div>
-        )}
+        {tiles.map(([k, cls]) => {
+          const [t, sub] = label(k);
+          return (
+            <button key={k} className={`g-tile ${cls}`} onClick={() => go(k)}>
+              {ICON[k]}
+              <div>
+                <b>{t}</b>
+                <br />
+                <span>{sub}</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </>
   );

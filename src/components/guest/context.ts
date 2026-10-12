@@ -32,7 +32,9 @@ export type ExtraKey =
   | "empty" | "offersS" | "pdfMenu" | "openPdf" | "pdfHint"
   | "callServer" | "billPlease" | "called" | "billCalled" | "already" | "noTable" | "tryLater"
   | "feedback" | "feedbackS" | "fbTitle" | "fbSub" | "fbComment" | "fbSend" | "fbThanks" | "fbThanksSub" | "fbDone"
-  | "fb1" | "fb2" | "fb3" | "fb4" | "fb5";
+  | "fb1" | "fb2" | "fb3" | "fb4" | "fb5"
+  | "welcomeTo" | "whatToDo" | "adults" | "adultsS" | "drink" | "drinkS" | "ageQ" | "ageYes" | "ageNo" | "ageBlocked" | "drinkNote"
+  | "wifi" | "pass" | "kidsSub";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -59,6 +61,20 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     fbThanksSub: "We really appreciate you taking a moment to tell us.",
     fbDone: "Back to home",
     fb1: "Bad", fb2: "Not great", fb3: "OK", fb4: "Good", fb5: "Loved it",
+    welcomeTo: "Welcome to {name}!",
+    whatToDo: "What would you like to do?",
+    adults: "For the adults",
+    adultsS: "Games for the group",
+    drink: "Drinking games",
+    drinkS: "Sip-based fun · {age}+",
+    ageQ: "Are you {age} or over?",
+    ageYes: "Yes, I'm {age}+",
+    ageNo: "No",
+    ageBlocked: "These games are for adults only. There are lots of other games to try!",
+    drinkNote: "A sip of anything counts: a mocktail, water or your own drink. Please drink responsibly and never drink and drive.",
+    wifi: "Wi-Fi",
+    pass: "Password",
+    kidsSub: "Games for every age, from colouring to football. No sign-up, no links, nothing is uploaded.",
   },
   ar: {
     empty: "لا يوجد شيء هنا بعد. اسأل النادل.",
@@ -83,6 +99,20 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     fbThanksSub: "نقدّر حقاً أنك خصصت لحظة لإخبارنا.",
     fbDone: "العودة للرئيسية",
     fb1: "سيئة", fb2: "ليست جيدة", fb3: "مقبولة", fb4: "جيدة", fb5: "رائعة",
+    welcomeTo: "أهلاً بك في {name}!",
+    whatToDo: "ماذا تحب أن تفعل؟",
+    adults: "للكبار",
+    adultsS: "ألعاب للمجموعة",
+    drink: "ألعاب المشروبات",
+    drinkS: "مرح بالرشفات · {age}+",
+    ageQ: "هل عمرك {age} عاماً أو أكثر؟",
+    ageYes: "نعم، عمري {age}+",
+    ageNo: "لا",
+    ageBlocked: "هذه الألعاب للبالغين فقط. هناك الكثير من الألعاب الأخرى لتجربتها!",
+    drinkNote: "أي رشفة تُحتسب: موكتيل أو ماء أو مشروبك. يرجى الشرب بمسؤولية وعدم القيادة بعد الشرب.",
+    wifi: "واي فاي",
+    pass: "كلمة المرور",
+    kidsSub: "ألعاب لكل الأعمار، من التلوين إلى كرة القدم. بدون تسجيل أو روابط، ولا يتم رفع أي شيء.",
   },
 };
 
