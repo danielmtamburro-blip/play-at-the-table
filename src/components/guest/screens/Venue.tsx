@@ -180,7 +180,7 @@ function Tonight() {
   return (
     <Scroller title={x.tonight} more={() => go(m.events ? "events" : "offers")}>
       {events.map((ev) => (
-        <button key={ev.id} className="g-tcard" style={{ background: "linear-gradient(135deg, #7A3D8C, #3B2360)" }} onClick={() => go("events")}>
+        <button key={ev.id} data-tcard="event" className="g-tcard" style={{ background: "linear-gradient(135deg, #7A3D8C, #3B2360)" }} onClick={() => go("events")}>
           <small>
             {x.eventToday} · {ev.start}–{ev.end}
           </small>
@@ -191,6 +191,7 @@ function Tonight() {
       {offers.map((o) => (
         <button
           key={o.id}
+          data-tcard="offer"
           className="g-tcard"
           style={{ background: `var(--${o.color})` }}
           onClick={() => {
@@ -308,6 +309,7 @@ export function Menu({ kind: start }: { kind: "food" | "drinks" }) {
               key={k}
               type="button"
               aria-pressed={kind === k}
+              data-act={`menu-${k}`}
               onClick={() => {
                 setKind(k);
                 log("view", { module: k === "food" ? "menu" : "drinks" });
@@ -434,7 +436,7 @@ export function OfferCards() {
             {o.endsOn &&
               `${tr("validUntil")} ${new Date(o.endsOn + "T12:00:00").toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })}.`}
           </p>
-          <button className="g-btn" onClick={() => redeem(o)}>
+          <button className="g-btn" data-act="redeem" onClick={() => redeem(o)}>
             {tr("showServer")}
           </button>
         </article>

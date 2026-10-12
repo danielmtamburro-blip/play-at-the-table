@@ -12,25 +12,31 @@ type Props = {
 
 const CAPTIONS = {
   en: {
-    home: "Your venue, your branding, one scan",
-    call: "Call a server with one tap",
-    board: "🏆 Live leaderboards for every table",
-    sudoku: "🔢 Sudoku, crosswords and puzzles",
-    words: "🔍 Word search while you wait",
-    keepy: "⚽ Keepy-uppy for the kids",
-    quiz: "🧠 Table trivia for the group",
-    pour: "🍺 Drinking games: pour it right!",
+    home: "Your venue's own page: one scan, no app",
+    offers: "📣 Tonight's offers, ready to show the server",
+    events: "🎶 What's on: events, live music, quiz nights",
+    menu: "🍽️ Your menu with prices and allergens",
+    call: "🙋 Call a server or ask for the bill",
+    lock: "🍽️ Parents lock the games when food arrives",
+    baby: "🐮 Babies and toddlers: animal sounds",
+    kids: "⚽ Kids' games, from football to racing",
+    quiz: "🧠 Quizzes, puzzles and party games for adults",
+    pour: "🍺 Drinking games, age-checked",
+    board: "🏆 Live leaderboards keep tables playing",
     yourTurn: "Your turn! Tap anything to explore.",
   },
   ar: {
-    home: "مكانك وهويتك بمسحة واحدة",
-    call: "نادِ النادل بضغطة واحدة",
-    board: "🏆 لوحات متصدرين مباشرة لكل طاولة",
-    sudoku: "🔢 سودوكو وكلمات متقاطعة وألغاز",
-    words: "🔍 البحث عن الكلمات أثناء الانتظار",
-    keepy: "⚽ تنطيط الكرة للأطفال",
-    quiz: "🧠 مسابقات للمجموعة",
-    pour: "🍺 ألعاب المشروبات: صبّها صح!",
+    home: "صفحة مكانك الخاصة: مسحة واحدة بدون تطبيق",
+    offers: "📣 عروض الليلة جاهزة لعرضها على النادل",
+    events: "🎶 الفعاليات والموسيقى الحية وليالي المسابقات",
+    menu: "🍽️ قائمتك بالأسعار ومسببات الحساسية",
+    call: "🙋 نادِ النادل أو اطلب الحساب",
+    lock: "🍽️ الأهل يوقفون الألعاب عند وصول الطعام",
+    baby: "🐮 للرضّع والصغار: أصوات الحيوانات",
+    kids: "⚽ ألعاب الأطفال من كرة القدم إلى السباق",
+    quiz: "🧠 مسابقات وألغاز وألعاب جماعية للكبار",
+    pour: "🍺 ألعاب المشروبات مع التحقق من العمر",
+    board: "🏆 لوحات المتصدرين تبقي الطاولات تلعب",
     yourTurn: "دورك! اضغط على أي شيء للاستكشاف.",
   },
 };
@@ -140,7 +146,8 @@ export default function DemoTour({ root, body, onCaption }: Props) {
     const visible = () =>
       new Promise<void>((res) => {
         const el = root.current;
-        if (!el || typeof IntersectionObserver === "undefined") return res();
+        // ?tour=now starts straight away (handy for testing and screen recordings).
+        if (!el || typeof IntersectionObserver === "undefined" || location.search.includes("tour=now")) return res();
         const io = new IntersectionObserver((es) => {
           if (es.some((e) => e.isIntersecting)) (io.disconnect(), res());
         }, { threshold: 0.4 });
@@ -154,50 +161,78 @@ export default function DemoTour({ root, body, onCaption }: Props) {
         homeRef.current();
         await wait(300);
 
-        await part(async () => {
-          caption("home");
-          await scrollBody(240, 900);
-          await scrollBody(520, 900);
-          await scrollBody(0, 600);
-          caption("call");
-          await tap('[data-act="call"]', 900);
-        });
-
         /** Open the Play tab, then a game card on it. */
-        const openGame = async (key: string) => {
+        const openGame = async (key: string, chip?: string) => {
           await tap('[data-tab="play"]', 250);
+          if (chip) await tap(`[data-chip="${chip}"]`, 250);
           await tap(`[data-card="${key}"]`, 350);
         };
+        const setInput = (el: HTMLInputElement, v: string) => {
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(el, v);
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        };
 
+        // 1. The venue's page and tonight's offer
         await part(async () => {
-          caption("board");
-          await tap('[data-tab="play"]', 1300);
-          caption("sudoku");
-          await tap('[data-card="sudoku"]', 350);
-          for (let n = 0; n < 4; n++) {
-            // An empty cell in the top rows, so it's visible without scrolling.
-            const cells = Array.from(root.current?.querySelectorAll<HTMLElement>("[data-sol]") ?? []).filter((c) => !c.textContent);
-            const cell = cells[Math.min(cells.length - 1, n * 3)];
-            if (!cell) break;
-            await tap(`[aria-label="${cell.getAttribute("aria-label")}"]`, 120);
-            await tap(`[data-n="${cell.dataset.sol}"]`, 200);
-          }
+          caption("home");
+          await scrollBody(160, 900);
+          caption("offers");
+          await tap('[data-tcard="offer"]', 500);
+          await tap('[data-act="redeem"]', 1500);
+          await tap('[data-act="redeem-done"]', 200);
         });
 
+        // 2. What's on
         await part(async () => {
-          caption("words");
-          await openGame("wordsearch");
-          for (let n = 0; n < 2; n++) {
-            await tap(`[data-ws~="s${n}"]`, 150);
-            await tap(`[data-ws~="e${n}"]`, 450);
-          }
+          caption("events");
+          await tap('[data-tab="events"]', 700);
+          await scrollBody(260, 900);
         });
 
+        // 3. Menu, then drinks
         await part(async () => {
-          caption("keepy");
+          caption("menu");
+          await tap('[data-q="menu"]', 600);
+          await scrollBody(220, 800);
+          await tap('[data-act="menu-drinks"]', 900);
+        });
+
+        // 4. Call a server
+        await part(async () => {
+          caption("call");
+          await tap('[data-act="call"]', 1000);
+        });
+
+        // 5. Parents: dinner's here
+        await part(async () => {
+          caption("lock");
+          await tap('[data-tile="kids"]', 400);
+          await tap(".kl-dinner", 1500);
+          await tap(".kl-grown", 300);
+          const label = (await find(".kl-gate label")).textContent ?? "";
+          const m = label.match(/(\d+)\s*×\s*(\d+)/);
+          const ans = (await find("#kl-ans")) as HTMLInputElement;
+          await moveTo(...pointOf(ans));
+          ripple();
+          setInput(ans, m ? String(Number(m[1]) * Number(m[2])) : "");
+          await wait(300);
+          await tap(".kl-gate .g-btn", 300);
+        });
+
+        // 6. Babies and toddlers
+        await part(async () => {
+          caption("baby");
+          await tap('[data-tile="kids"]', 300);
+          await tap('[data-game="animals"]', 600);
+          await tap("[data-right]", 1300);
+        });
+
+        // 7. Kids: keepy-uppy
+        await part(async () => {
+          caption("kids");
           await openGame("keepy");
           await tap('[data-act="start"]', 150);
-          for (let k = 0; k < 4; k++) {
+          for (let k = 0; k < 3; k++) {
             const arena = await find(".arena.keepy");
             const ball = await find(".keepy-ball");
             let [x, y] = pointOf(ball);
@@ -209,22 +244,19 @@ export default function DemoTour({ root, body, onCaption }: Props) {
             pressAt(arena, r.left + r.width / 2, r.top + r.height / 2);
             await wait(380);
           }
-          await wait(200);
         });
 
+        // 8. Adults: trivia
         await part(async () => {
           caption("quiz");
           await openGame("trivia");
-          await tap("[data-right]", 700);
-          await tap('[data-act="next"]', 250);
-          await tap("[data-right]", 700);
+          await tap("[data-right]", 800);
         });
 
+        // 9. Drinking games: pour it right
         await part(async () => {
           caption("pour");
-          await tap('[data-tab="play"]', 250);
-          await tap('[data-chip="drink"]', 300);
-          await tap('[data-card="pour"]', 350);
+          await openGame("pour", "drink");
           if (root.current?.querySelector('[data-act="age-yes"]')) await tap('[data-act="age-yes"]', 300);
           const stage = await find(".pour-stage");
           await reveal(stage);
@@ -242,7 +274,13 @@ export default function DemoTour({ root, body, onCaption }: Props) {
             if (beer + foam * 0.35 >= lo + (hi - lo) * 0.45) break;
           }
           stage.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
-          await wait(1500);
+          await wait(1200);
+        });
+
+        // 10. Leaderboards
+        await part(async () => {
+          caption("board");
+          await tap('[data-tab="play"]', 1600);
         });
 
         setFinger((f) => ({ ...f, show: false }));

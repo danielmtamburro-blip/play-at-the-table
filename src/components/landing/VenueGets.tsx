@@ -1,15 +1,31 @@
 // "What venues get": printed coasters (3D table scene), the stats dashboard and the live staff screen.
 // Everything here is an illustration with example numbers.
-import { applyPreset, coasterSvg, DEFAULT_DESIGN, PRESETS } from "@/lib/coaster";
+import { coasterSvg, DEFAULT_DESIGN, inkOn } from "@/lib/coaster";
 
 const URL = "https://playatthetable.netlify.app/v/saffron-terrace/12";
 
-const coaster = (preset: string | null, opts: { table: string; logo?: string; venueName?: string }, idPrefix: string) => {
-  const p = PRESETS.find((x) => x.name === preset);
-  const d = p ? applyPreset(DEFAULT_DESIGN, p) : DEFAULT_DESIGN;
-  // Each inline SVG needs its own ids for the curved text and clip path.
-  return coasterSvg(d, { url: URL, ...opts }).replace(/(arcTop|arcBottom|disc)/g, `${idPrefix}-$1`);
+type Example = { base: string; icons: [string, string][]; iconColour: string; words: string; table: string; logo?: string; venueName?: string };
+const ICON_SPOTS: [number, number][] = [[210, 380], [790, 380], [225, 575], [775, 575]];
+
+/** One example venue's coaster: the fixed colourful rim, with their own colour, logo, icons and words. */
+const coaster = (ex: Example, idPrefix: string) => {
+  const d = {
+    ...DEFAULT_DESIGN,
+    base: ex.base,
+    taglineColor: inkOn(ex.base),
+    tagline: ex.words,
+    taglineSize: 34,
+    icons: ex.icons.map(([k], i) => ({ k, x: ICON_SPOTS[i][0], y: ICON_SPOTS[i][1], s: 78, c: ex.iconColour })),
+  };
+  // Each inline SVG needs its own ids for the curved text, clip path and shadow.
+  return coasterSvg(d, { url: URL, table: ex.table, logo: ex.logo, venueName: ex.venueName }).replace(/(arcTop|arcBottom|disc|qrShadow)/g, `${idPrefix}-$1`);
 };
+
+const EXAMPLES: Example[] = [
+  { base: "#1A1410", icons: [["cocktail", ""], ["music", ""], ["moon", ""], ["sparkle", ""]], iconColour: "#E3A94B", words: "Welcome to the terrace", table: "12", logo: "/showcase/saffron-logo.svg" },
+  { base: "#0E4D3A", icons: [["coffee", ""], ["food", ""], ["kids", ""], ["heart", ""]], iconColour: "#F7F1E3", words: "Family brunch every Friday", table: "4", venueName: "The Olive Tree" },
+  { base: "#F7F1E3", icons: [["palm", ""], ["icecream", ""], ["football", ""], ["smile", ""]], iconColour: "#12A594", words: "Sun, sea and good food", table: "9", venueName: "Beach Shack" },
+];
 
 const DAYS = [["Mon", 142], ["Tue", 168], ["Wed", 155], ["Thu", 214], ["Fri", 296], ["Sat", 318], ["Sun", 241]] as const;
 const TOP_GAMES = [["⚽ Penalty shootout", 412], ["🏎️ Car racer", 356], ["🧠 Table trivia", 298], ["🍺 Pour it right", 241], ["🔢 Sudoku", 187]] as const;
@@ -24,16 +40,27 @@ export default function VenueGets() {
         <div className="vg-head">
           <span className="vg-tag">Printed coasters</span>
           <h3>Your brand on every table</h3>
-          <p>Design them in the dashboard: move anything, pick your colours, add your logo. Every coaster opens your page for that table.</p>
+          <p>
+            Every coaster has the colourful Play at Your Table rim, so guests know there&apos;s fun to be had. Inside it, it&apos;s all yours: your colour,
+            your logo, icons and words. Each table gets its own QR code.
+          </p>
         </div>
         <div className="vg-table" aria-hidden="true">
           <div className="vg-scene">
-            <div className="vg-coaster c1" dangerouslySetInnerHTML={{ __html: coaster(null, { table: "12", logo: "/showcase/saffron-logo.svg" }, "c1") }} />
-            <div className="vg-coaster c2" dangerouslySetInnerHTML={{ __html: coaster("Emerald", { table: "4", venueName: "The Olive Tree" }, "c2") }} />
-            <div className="vg-coaster c3" dangerouslySetInnerHTML={{ __html: coaster("Coral pop", { table: "9", venueName: "Beach Shack" }, "c3") }} />
+            {EXAMPLES.map((ex, i) => (
+              <div key={i} className={`vg-coaster c${i + 1}`} dangerouslySetInnerHTML={{ __html: coaster(ex, `c${i + 1}`) }} />
+            ))}
             <span className="vg-glass" />
             <span className="vg-cup">☕</span>
           </div>
+        </div>
+        <div className="vg-flat">
+          {EXAMPLES.map((ex, i) => (
+            <figure key={i}>
+              <div className="vg-flat-c" dangerouslySetInnerHTML={{ __html: coaster(ex, `f${i + 1}`) }} />
+              <figcaption>{ex.venueName ?? "Saffron Terrace"}</figcaption>
+            </figure>
+          ))}
         </div>
       </article>
 
