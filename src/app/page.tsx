@@ -62,7 +62,7 @@ export default async function Landing() {
             <div className="hero-copy">
               <span className="eyebrow">Table QR experiences · Dubai</span>
               <h1>
-                Waiting for food? <span className="hl hl-1">Play</span> at the <span className="hl hl-2">table.</span>
+                Waiting for food? <span className="hl hl-1">Play</span> at your <span className="hl hl-2">table.</span>
               </h1>
               <p className="lede">
                 One QR on every table opens your menu, tonight&apos;s offers and events, plus games for kids, friends and couples. Guests
@@ -212,7 +212,7 @@ export default async function Landing() {
           <div className="wrap pilot">
             <div className="section-head">
               <span className="eyebrow">Free pilot</span>
-              <h2>Bring Play at the Table to your venue</h2>
+              <h2>Bring Play at Your Table to your venue</h2>
               <p>Tell us a little about your place. We&apos;ll build a sample page with your real menu before you commit to anything.</p>
               <p>
                 Prefer to talk? Email <strong>{CONTACT_EMAIL}</strong>
@@ -242,7 +242,7 @@ export default async function Landing() {
       <div className="confetti" role="presentation" />
       <footer className="site">
         <div className="wrap">
-          <span>© 2026 Play at the Table · Dubai, UAE</span>
+          <span>© 2026 Play at Your Table · Dubai, UAE</span>
           <span>Guests are never asked for personal details.</span>
           <a href="/dashboard">Venue login</a>
         </div>

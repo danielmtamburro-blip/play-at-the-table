@@ -106,7 +106,7 @@ svg=f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1
 <rect x="{C-h}" y="{C-h}" width="{QS}" height="{QS}" rx="26" fill="#fff"/>
 <g fill="{INK}">{mods}</g>{eyes}{mark}
 {vl}
-<text font-family="Inter Display, Inter, sans-serif" font-weight="900" font-size="58" fill="#fff" letter-spacing="5"><textPath href="#top" startOffset="50%" text-anchor="middle">PLAY AT THE TABLE</textPath></text>
+<text font-family="Inter Display, Inter, sans-serif" font-weight="900" font-size="58" fill="#fff" letter-spacing="5"><textPath href="#top" startOffset="50%" text-anchor="middle">PLAY AT YOUR TABLE</textPath></text>
 <text font-family="Inter Display, Inter, sans-serif" font-weight="800" font-size="38" fill="{SUN}" letter-spacing="5"><textPath href="#bot" startOffset="50%" text-anchor="middle">SCAN HERE TO HAVE FUN</textPath></text>
 </svg>'''
 open(out,"w").write(svg); print(len(placed),"icons")

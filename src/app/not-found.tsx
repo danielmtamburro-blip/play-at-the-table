@@ -11,7 +11,7 @@ export default function NotFound() {
           لم نتمكن من العثور على هذه الصفحة. يرجى سؤال النادل.
         </p>
         <a className="btn btn-primary" href="/">
-          Play at the Table home
+          Play at Your Table home
         </a>
       </div>
     </main>

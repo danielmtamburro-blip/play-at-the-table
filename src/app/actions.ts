@@ -23,7 +23,7 @@ export async function submitPilot(_prev: PilotState, form: FormData): Promise<Pi
   }
 
   const summary = [
-    "Pilot request: Play at the Table",
+    "Pilot request: Play at Your Table",
     `Venue: ${row.venue_name}`,
     `Area: ${row.area || "-"}`,
     `Type: ${row.venue_type}`,
