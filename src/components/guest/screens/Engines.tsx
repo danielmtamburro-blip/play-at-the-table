@@ -2,7 +2,7 @@
 // Reusable game engines + the newer one-off games. Nothing a guest does here is saved.
 import { useEffect, useRef, useState } from "react";
 import { COUNT_ITEMS, ODD_SETS } from "@/lib/gameContent";
-import { GAMES, KIDS_BANDS, type GameGroup, type GameInfo } from "@/lib/games";
+import { CATS, GAMES, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Lang, Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 
@@ -42,9 +42,14 @@ export function GameHead({ k }: { k: string }) {
 export function GameHub({ group, title, sub, note }: { group: GameGroup; title: string; sub: string; note?: string }) {
   const { venue, go, L, tr } = useGuest();
   const cls = group === "kids" ? "bg-kids" : group === "group" ? "bg-group" : "bg-date";
-  const list = GAMES.filter((g) => g.group === group && venue.games?.[g.key] !== false);
+  const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && venue.games?.[g.key] !== false);
   const card = (g: GameInfo) => (
     <button key={g.key} className={`g-pick ${cls}`} onClick={() => go(g.key)}>
+      {g.icon && (
+        <span className="g-pick-ico" aria-hidden="true">
+          {g.icon}
+        </span>
+      )}
       <b>{L(g.title)}</b>
       <span>{L(g.sub)}</span>
       {g.ages && (
@@ -71,11 +76,45 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
             </section>
           );
         })
+      ) : group === "group" || group === "drink" ? (
+        <>
+          {gameOn(venue.games as Record<string, boolean>, "bill") && <BillBanner />}
+          {(Object.keys(CATS) as GameCat[])
+            .filter((c) => c !== "featured")
+            .map((c) => {
+              const inCat = list.filter((g) => g.cat === c);
+              if (!inCat.length) return null;
+              return (
+                <section key={c} className="g-band">
+                  <h3 className="g-band-h">{L(CATS[c])}</h3>
+                  <div className="g-list g-list-2">{inCat.map(card)}</div>
+                </section>
+              );
+            })}
+        </>
       ) : (
         <div className="g-list">{list.map(card)}</div>
       )}
       {note && <p className="g-note">{note}</p>}
     </>
+  );
+}
+
+/** Featured "Who pays the bill?" banner, shown in the adult and drinking hubs. */
+function BillBanner() {
+  const { go, L } = useGuest();
+  const g = GAMES.find((x) => x.key === "bill")!;
+  return (
+    <button className="g-feature" onClick={() => go("bill")}>
+      <span className="g-feature-ico" aria-hidden="true">
+        🎡
+      </span>
+      <span>
+        <b>{L(g.title)}</b>
+        <span>{L(g.sub)}</span>
+      </span>
+      <span aria-hidden="true">›</span>
+    </button>
   );
 }
 

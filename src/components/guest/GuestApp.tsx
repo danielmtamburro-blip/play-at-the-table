@@ -8,9 +8,11 @@ import type { Lang, Loc, Offer, Venue } from "@/lib/types";
 import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { BackIcon } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
-import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, TABLE_RULES } from "@/lib/gameContent";
+import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, SPORTS_TRIVIA, TABLE_RULES } from "@/lib/gameContent";
 import { drinkAge } from "@/lib/games";
 import { BubblePop, KeepyUppy, MathSprint, Penalty, Racer, Reaction, Scramble, TicTacToe } from "./screens/Arcade";
+import { Crossword, Sudoku, WordGuess, WordSearch } from "./screens/Puzzles";
+import { CardRules, DrinkDice, HigherLower, SpinWheel } from "./screens/Wheel";
 import { Charades, CountIt, GameHub, NameFive, OddOneOut, Pairs, PromptCards, QuizGame, Reveal } from "./screens/Engines";
 import { Deck, Picker } from "./screens/Games";
 import { Colour, Memory } from "./screens/Kids";
@@ -163,6 +165,10 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       case "dlikely": return <AgeGate age={age} onNo={back}><PromptCards k="dlikely" items={DRINK_LIKELY} tone="date" note={x.drinkNote} /></AgeGate>;
       case "sipshare": return <AgeGate age={age} onNo={back}><PromptCards k="sipshare" items={SIP_OR_SHARE} tone="date" note={x.drinkNote} /></AgeGate>;
       case "rules": return <AgeGate age={age} onNo={back}><PromptCards k="rules" items={TABLE_RULES} tone="date" note={x.drinkNote} /></AgeGate>;
+      case "hilo": return <AgeGate age={age} onNo={back}><HigherLower k="hilo" /></AgeGate>;
+      case "kings": return <AgeGate age={age} onNo={back}><CardRules k="kings" /></AgeGate>;
+      case "dice": return <AgeGate age={age} onNo={back}><DrinkDice k="dice" /></AgeGate>;
+      case "sipwheel": return <AgeGate age={age} onNo={back}><SpinWheel k="sipwheel" mode="sip" /></AgeGate>;
       // Groups (10)
       case "quick": return <PromptCards k="quick" items={GROUP_Q} tone="group" />;
       case "tot": return <Pairs k="tot" pairs={THIS_THAT} />;
@@ -173,6 +179,12 @@ export default function GuestApp({ venue, table = null, embedded = false }: Prop
       case "categories": return <NameFive k="categories" cats={CATEGORIES} />;
       case "emoji": return <Reveal k="emoji" items={EMOJI_PUZZLES} tone="group" big />;
       case "trivia": return <QuizGame k="trivia" questions={ADULT_TRIVIA} tone="group" />;
+      case "sports": return <QuizGame k="sports" questions={SPORTS_TRIVIA} tone="group" />;
+      case "bill": return <SpinWheel k="bill" mode="bill" />;
+      case "sudoku": return <Sudoku k="sudoku" />;
+      case "crossword": return <Crossword k="crossword" />;
+      case "wordsearch": return <WordSearch k="wordsearch" />;
+      case "wordguess": return <WordGuess k="wordguess" />;
       case "picker": return <Picker />;
       default: return <Home />;
     }

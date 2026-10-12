@@ -553,3 +553,98 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .game-band{display:flex;flex-direction:column;gap:8px}
 .game-band h4{font-size:.9rem;color:var(--muted);margin:4px 0 0}
 .drink-settings{display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);padding:14px}
+
+/* ---------- game hub polish ---------- */
+.g-pick .g-pick-ico{font-size:1.9rem;line-height:1;margin-bottom:6px;opacity:1}
+.g-feature{display:flex;align-items:center;gap:14px;width:100%;border:0;text-align:start;border-radius:var(--r-lg);padding:16px 18px;background:linear-gradient(120deg,#6E4BFF,#F0457F);color:#fff;box-shadow:var(--shadow)}
+.g-feature > span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:2px}
+.g-feature b{font-family:var(--display);font-size:1.25rem;line-height:1.1}
+.g-feature > span:nth-child(2) > span{font-size:.85rem;opacity:.92}
+.g-feature-ico{font-size:2.2rem;line-height:1}
+.g-feature > span:last-child{font-size:1.8rem;opacity:.8}
+.g-wifi-txt{gap:4px 14px}
+
+/* ---------- wheel ---------- */
+.wheel-wrap{position:relative;width:min(100%,320px);margin-inline:auto;aspect-ratio:1}
+.wheel{width:100%;height:100%;border-radius:50%;box-shadow:0 10px 30px rgba(27,23,64,.25),0 0 0 6px var(--surface),0 0 0 8px var(--line)}
+.wheel-pointer{position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:2;font-size:1.9rem;color:var(--ink);text-shadow:0 2px 0 var(--surface)}
+.wheel-result p{font-size:1.6rem}
+.name-add{display:flex;gap:8px}
+.name-add input{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;min-height:46px}
+.name-add .g-btn{flex:none}
+.name-chips{display:flex;flex-wrap:wrap;gap:6px}
+.name-chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.88rem;font-weight:500}
+.name-chip span{width:10px;height:10px;border-radius:50%}
+
+/* ---------- playing cards and dice ---------- */
+.card-table{display:grid;place-items:center;position:relative;border:0;width:100%;padding:22px;border-radius:var(--r-lg);background:radial-gradient(circle at 50% 30%,#2E8A57,#14532D)}
+.pcard{width:150px;aspect-ratio:5/7;border-radius:14px;background:#fff;color:#1B1740;position:relative;box-shadow:0 10px 24px rgba(0,0,0,.35);font-family:var(--display);font-weight:800}
+.pcard.red{color:#D7263D}
+.pcard.back{background:repeating-linear-gradient(45deg,#6E4BFF 0 8px,#5A3BE0 8px 16px);border:6px solid #fff}
+.pcard.flip{animation:flip .35s ease}
+@keyframes flip{from{transform:rotateY(90deg)}to{transform:none}}
+.pc-corner{position:absolute;top:8px;left:10px;font-size:1.2rem;line-height:1;text-align:center}
+.pc-br{top:auto;left:auto;bottom:8px;right:10px;transform:rotate(180deg)}
+.pc-mid{position:absolute;inset:0;display:grid;place-items:center;font-size:3.6rem}
+.card-hint{position:absolute;bottom:10px;color:#fff;font-size:.85rem;font-weight:600;opacity:.9}
+.dice-table{display:flex;justify-content:center;gap:24px;border:0;width:100%;padding:34px 20px;border-radius:var(--r-lg);background:radial-gradient(circle at 50% 30%,#2E8A57,#14532D)}
+.die{width:84px;height:84px;border-radius:18px;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:12px;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.die span{display:grid;place-items:center}
+.die span.pip::before{content:"";width:14px;height:14px;border-radius:50%;background:#1B1740}
+.die.rolling{animation:wobble .14s linear infinite}
+@keyframes wobble{50%{transform:rotate(12deg) scale(.95)}}
+
+/* ---------- sudoku ---------- */
+.sudoku{display:grid;grid-template-columns:repeat(9,1fr);border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface);width:100%;max-width:420px;margin-inline:auto}
+.sudoku button{aspect-ratio:1;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;font-size:clamp(1rem,4.6vw,1.35rem);font-weight:500;color:var(--violet);padding:0;font-variant-numeric:tabular-nums}
+.sudoku button.given{color:var(--ink);font-weight:700}
+.sudoku button.br{border-right:2.5px solid var(--ink)}
+.sudoku button.bb{border-bottom:2.5px solid var(--ink)}
+.sudoku button.peer{background:var(--surface-2)}
+.sudoku button.same{background:var(--violet-soft)}
+.sudoku button.sel{background:var(--sun-soft);box-shadow:inset 0 0 0 2px var(--sun)}
+.sudoku button.bad{color:var(--coral);background:var(--coral-soft)}
+.numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:420px;width:100%;margin-inline:auto}
+.numpad button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 0;font-size:1.3rem;font-weight:700}
+.numpad .erase{font-size:.85rem;font-weight:600}
+
+/* ---------- crossword ---------- */
+.cw-clue{background:var(--violet-soft);border-radius:var(--r-md);padding:10px 14px;font-weight:600;font-size:.92rem;min-height:44px}
+.cw{display:grid;gap:2px;width:100%;max-width:420px;margin-inline:auto}
+.cw-x{aspect-ratio:1}
+.cw-c{aspect-ratio:1;position:relative;border:1.5px solid var(--ink);border-radius:4px;background:var(--surface);font-weight:700;font-size:clamp(.9rem,4.4vw,1.3rem);padding:0;text-transform:uppercase}
+.cw-c small{position:absolute;top:1px;left:3px;font-size:.55rem;font-weight:600;color:var(--muted)}
+.cw-c.on{background:var(--violet-soft)}
+.cw-c.cur{background:var(--sun)}
+.cw-c.bad{color:var(--coral)}
+.cw-input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;left:-100px}
+.cw-clues{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.cw-clues{grid-template-columns:1fr}}
+.cw-clues > div{display:flex;flex-direction:column;gap:4px}
+.cw-clues button{text-align:start;border:0;background:transparent;padding:6px 8px;border-radius:8px;font-size:.85rem;line-height:1.35}
+.cw-clues button.on{background:var(--violet-soft)}
+
+/* ---------- word search ---------- */
+.ws{display:grid;gap:3px;width:100%;max-width:420px;margin-inline:auto;user-select:none}
+.ws button{aspect-ratio:1;border:0;border-radius:6px;background:var(--surface);font-weight:700;font-size:clamp(.8rem,3.8vw,1.1rem);padding:0;transition:background .2s}
+.ws button.start{background:var(--ink);color:var(--bg)}
+.ws.shake{animation:shake .35s}
+.ws-words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.ws-words span{padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:.82rem}
+.ws-words span.done{text-decoration:line-through;opacity:.5}
+
+/* ---------- word guess ---------- */
+.wg{display:flex;flex-direction:column;gap:6px;align-items:center}
+.wg-row{display:grid;grid-template-columns:repeat(5,52px);gap:6px}
+.wg-cell{height:52px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:1.5rem;font-weight:800;background:var(--surface);text-transform:uppercase}
+.wg-cell.typed{border-color:var(--muted)}
+.wg-cell.hit{background:#12A594;border-color:#12A594;color:#fff}
+.wg-cell.near{background:#FFB51F;border-color:#FFB51F;color:#1B1740}
+.wg-cell.miss{background:#8B87A8;border-color:#8B87A8;color:#fff}
+.kb{display:flex;flex-direction:column;gap:6px}
+.kb-row{display:flex;gap:4px;justify-content:center}
+.kb-row button{flex:1;max-width:36px;height:50px;border:0;border-radius:8px;background:var(--surface-2);font-weight:700;font-size:.95rem;padding:0;color:var(--ink)}
+.kb-row button.wide{max-width:62px;flex:1.6;font-size:.75rem}
+.kb-row button.hit{background:#12A594;color:#fff}
+.kb-row button.near{background:#FFB51F;color:#1B1740}
+.kb-row button.miss{background:#8B87A8;color:#fff}

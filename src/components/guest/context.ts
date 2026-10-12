@@ -34,7 +34,7 @@ export type ExtraKey =
   | "feedback" | "feedbackS" | "fbTitle" | "fbSub" | "fbComment" | "fbSend" | "fbThanks" | "fbThanksSub" | "fbDone"
   | "fb1" | "fb2" | "fb3" | "fb4" | "fb5"
   | "welcomeTo" | "whatToDo" | "adults" | "adultsS" | "drink" | "drinkS" | "ageQ" | "ageYes" | "ageNo" | "ageBlocked" | "drinkNote"
-  | "wifi" | "pass" | "kidsSub";
+  | "wifi" | "pass" | "kidsSub" | "wifiName";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -63,7 +63,7 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     fb1: "Bad", fb2: "Not great", fb3: "OK", fb4: "Good", fb5: "Loved it",
     welcomeTo: "Welcome to {name}!",
     whatToDo: "What would you like to do?",
-    adults: "For the adults",
+    adults: "Adult games",
     adultsS: "Games for the group",
     drink: "Drinking games",
     drinkS: "Sip-based fun · {age}+",
@@ -74,6 +74,7 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     drinkNote: "A sip of anything counts: a mocktail, water or your own drink. Please drink responsibly and never drink and drive.",
     wifi: "Wi-Fi",
     pass: "Password",
+    wifiName: "Wi-Fi name",
     kidsSub: "Games for every age, from colouring to football. No sign-up, no links, nothing is uploaded.",
   },
   ar: {
@@ -101,7 +102,7 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     fb1: "سيئة", fb2: "ليست جيدة", fb3: "مقبولة", fb4: "جيدة", fb5: "رائعة",
     welcomeTo: "أهلاً بك في {name}!",
     whatToDo: "ماذا تحب أن تفعل؟",
-    adults: "للكبار",
+    adults: "ألعاب الكبار",
     adultsS: "ألعاب للمجموعة",
     drink: "ألعاب المشروبات",
     drinkS: "مرح بالرشفات · {age}+",
@@ -112,6 +113,7 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     drinkNote: "أي رشفة تُحتسب: موكتيل أو ماء أو مشروبك. يرجى الشرب بمسؤولية وعدم القيادة بعد الشرب.",
     wifi: "واي فاي",
     pass: "كلمة المرور",
+    wifiName: "اسم الواي فاي",
     kidsSub: "ألعاب لكل الأعمار، من التلوين إلى كرة القدم. بدون تسجيل أو روابط، ولا يتم رفع أي شيء.",
   },
 };

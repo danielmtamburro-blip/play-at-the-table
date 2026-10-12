@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { drinkAge, GAMES, GROUP_LABEL, gameOn, KIDS_BANDS, type GameGroup, type GameInfo } from "@/lib/games";
+import { CATS, drinkAge, GAMES, GROUP_LABEL, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { moduleOn } from "@/lib/types";
 import type { Row } from "./CrudList";
@@ -37,7 +37,10 @@ export default function GamesEditor({ venue }: { venue: Row }) {
     <label key={g.key} className={`game-card${games[g.key] ? " on" : ""}`}>
       <input type="checkbox" checked={games[g.key]} onChange={(e) => setGames({ ...games, [g.key]: e.target.checked })} />
       <span>
-        <b>{g.title.en}</b>
+        <b>
+          {g.icon ? `${g.icon} ` : ""}
+          {g.title.en}
+        </b>
         {g.ages && <span className="badge" style={{ marginInlineStart: 8 }}>Ages {g.ages}</span>}
         <br />
         <span className="small muted">{g.sub.en}</span>
@@ -100,10 +103,19 @@ export default function GamesEditor({ venue }: { venue: Row }) {
                   <div className="game-list">{list.filter((g) => g.band === band).map(card)}</div>
                 </div>
               ))
+            ) : grp === "group" || grp === "drink" ? (
+              (Object.keys(CATS) as GameCat[]).map((c) => {
+                const inCat = list.filter((g) => g.cat === c);
+                if (!inCat.length) return null;
+                return (
+                  <div key={c} className="game-band" style={grp === "drink" && !drinkOn ? { opacity: 0.55 } : undefined}>
+                    <h4>{CATS[c].en}</h4>
+                    <div className="game-list">{inCat.map(card)}</div>
+                  </div>
+                );
+              })
             ) : (
-              <div className="game-list" style={grp === "drink" && !drinkOn ? { opacity: 0.55 } : undefined}>
-                {list.map(card)}
-              </div>
+              <div className="game-list">{list.map(card)}</div>
             )}
           </div>
         );

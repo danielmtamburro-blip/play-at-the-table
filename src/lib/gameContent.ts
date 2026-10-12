@@ -294,3 +294,99 @@ export const TABLE_RULES: Loc[] = [
   L("Phones down! The first to touch theirs takes a sip.", "ضعوا الهواتف! أول من يلمس هاتفه يأخذ رشفة."),
   L("The youngest at the table picks someone to sip.", "الأصغر على الطاولة يختار شخصاً ليأخذ رشفة."),
 ];
+
+/* ------------------------------ Puzzles (adults) ------------------------------ */
+
+/** Crossword word bank (English). A fresh mini crossword is built from these each game. */
+export const CROSSWORD_BANK: { w: string; c: string }[] = [
+  { w: "DUBAI", c: "City with the Burj Khalifa" }, { w: "FALCON", c: "The UAE's national bird" }, { w: "DESERT", c: "Sandy place for a safari" },
+  { w: "CAMEL", c: "Ship of the desert" }, { w: "OASIS", c: "Green spot in the desert" }, { w: "DATES", c: "Sweet fruit from a palm" },
+  { w: "KARAK", c: "Spiced milky tea" }, { w: "COFFEE", c: "Morning pick-me-up" }, { w: "MENU", c: "List of dishes" },
+  { w: "WAITER", c: "Brings your food" }, { w: "TABLE", c: "You're sitting at one" }, { w: "PIZZA", c: "Italian dish with toppings" },
+  { w: "BURGER", c: "Patty in a bun" }, { w: "SALAD", c: "Bowl of greens" }, { w: "DESSERT", c: "Sweet course" },
+  { w: "LONDON", c: "Capital of the UK" }, { w: "PARIS", c: "City of the Eiffel Tower" }, { w: "OCEAN", c: "Very large sea" },
+  { w: "BEACH", c: "Sandy shore" }, { w: "SUNSET", c: "End-of-day sky show" }, { w: "MUSIC", c: "Songs and melodies" },
+  { w: "GUITAR", c: "Six-stringed instrument" }, { w: "PIANO", c: "Instrument with 88 keys" }, { w: "MOVIE", c: "Film at the cinema" },
+  { w: "SOCCER", c: "Football, to Americans" }, { w: "TENNIS", c: "Wimbledon sport" }, { w: "GOLF", c: "Sport with tees and greens" },
+  { w: "GOAL", c: "What strikers score" }, { w: "PLANET", c: "Mars or Venus" }, { w: "MOON", c: "Earth's night light" },
+  { w: "STAR", c: "Twinkler in the sky" }, { w: "RIVER", c: "Flows to the sea" }, { w: "ISLAND", c: "Land surrounded by water" },
+  { w: "SILVER", c: "Second-place medal" }, { w: "GOLD", c: "First-place medal" }, { w: "LEMON", c: "Sour yellow fruit" },
+  { w: "MANGO", c: "Tropical stone fruit" }, { w: "HONEY", c: "Made by bees" }, { w: "BREAD", c: "Baked loaf" },
+  { w: "CHEESE", c: "Say this for a photo" }, { w: "SPICE", c: "Saffron or cumin" }, { w: "ORANGE", c: "Colour and fruit" },
+  { w: "GREEN", c: "Colour of grass" }, { w: "PURPLE", c: "Red plus blue" }, { w: "WINTER", c: "Coldest season" },
+  { w: "SUMMER", c: "Hottest season" }, { w: "FRIDAY", c: "Brunch day in Dubai" }, { w: "PARTY", c: "Celebration" },
+  { w: "DANCE", c: "Move to the music" }, { w: "SMILE", c: "Happy face" }, { w: "LAUGH", c: "Ha ha ha" },
+  { w: "TRAIN", c: "Runs on rails" }, { w: "PLANE", c: "Flies to Heathrow" }, { w: "HOTEL", c: "Place to stay on holiday" },
+  { w: "TAXI", c: "Yellow cab" }, { w: "METRO", c: "Underground railway" }, { w: "PHONE", c: "You're holding one" },
+  { w: "CAMERA", c: "Takes photos" }, { w: "TIGER", c: "Striped big cat" }, { w: "LION", c: "King of the jungle" },
+  { w: "SHARK", c: "Toothy fish" }, { w: "EAGLE", c: "Bird of prey" }, { w: "ZEBRA", c: "Striped horse" },
+];
+
+/** Word search themes per language. */
+export const WORDSEARCH_THEMES: { en: { t: string; w: string[] }[]; ar: { t: string; w: string[] }[] } = {
+  en: [
+    { t: "Food", w: ["PIZZA", "PASTA", "BURGER", "SALAD", "CURRY", "SUSHI", "TACOS", "STEAK"] },
+    { t: "Travel", w: ["FLIGHT", "HOTEL", "BEACH", "PASSPORT", "TICKET", "MAP", "TRAIN", "CRUISE"] },
+    { t: "Sport", w: ["GOAL", "TENNIS", "GOLF", "RUGBY", "CRICKET", "PADEL", "BOXING", "RACING"] },
+    { t: "Dubai", w: ["DESERT", "MARINA", "DATES", "FALCON", "SOUK", "CAMEL", "DHOW", "BURJ"] },
+    { t: "Music", w: ["GUITAR", "DRUMS", "PIANO", "SINGER", "BAND", "CHORUS", "VIOLIN", "TEMPO"] },
+    { t: "Drinks", w: ["COFFEE", "KARAK", "LATTE", "JUICE", "SODA", "MOJITO", "SHAKE", "WATER"] },
+  ],
+  ar: [
+    { t: "طعام", w: ["خبز", "أرز", "حمص", "فلافل", "شاورما", "كبسة", "سلطة", "تمر"] },
+    { t: "سفر", w: ["طائرة", "فندق", "شاطئ", "جواز", "تذكرة", "خريطة", "قطار", "رحلة"] },
+    { t: "رياضة", w: ["كرة", "هدف", "ملعب", "سباق", "سباحة", "تنس", "فريق", "لاعب"] },
+    { t: "طبيعة", w: ["بحر", "جبل", "نهر", "صحراء", "شجرة", "قمر", "شمس", "نجمة"] },
+  ],
+};
+
+/** Word guess answers (5 letters, English). */
+export const WORDGUESS_ANSWERS = [
+  "TABLE", "PIZZA", "MANGO", "BEACH", "DANCE", "MUSIC", "SMILE", "LEMON", "HONEY", "PARTY", "TRAIN", "PLANE", "HOTEL",
+  "TIGER", "EAGLE", "SHARK", "CAMEL", "OASIS", "DATES", "BREAD", "SALAD", "SPICE", "GREEN", "LAUGH", "PHONE", "MOVIE",
+  "PIANO", "OCEAN", "RIVER", "STORM", "CLOUD", "SUGAR", "TOAST", "GRAPE", "PEACH", "CHAIR", "PLATE", "GLASS", "FEAST",
+  "CHEER", "TOWER", "SOUND", "LIGHT", "NIGHT", "SUNNY", "BRAVE", "HAPPY", "QUIET", "ROYAL", "CROWN", "PEARL", "STONE",
+];
+
+export const SPORTS_TRIVIA: { q: Loc; o: Loc[]; a: number }[] = [
+  { q: L("How long is a football match (normal time)?", "كم مدة مباراة كرة القدم (الوقت الأصلي)؟"), o: [L("80 minutes", "80 دقيقة"), L("90 minutes", "90 دقيقة"), L("100 minutes", "100 دقيقة")], a: 1 },
+  { q: L("Which country has won the most football World Cups?", "أي دولة فازت بأكبر عدد من كؤوس العالم؟"), o: [L("Germany", "ألمانيا"), L("Brazil", "البرازيل"), L("Argentina", "الأرجنتين")], a: 1 },
+  { q: L("In tennis, what is a score of zero called?", "في التنس، ماذا تسمى النتيجة صفر؟"), o: [L("Love", "لاف"), L("Nil", "صفر"), L("Duck", "دك")], a: 0 },
+  { q: L("How many players are on a basketball team on court?", "كم عدد لاعبي فريق كرة السلة في الملعب؟"), o: [L("5", "5"), L("6", "6"), L("7", "7")], a: 0 },
+  { q: L("Which city hosts the Formula 1 Yas Marina race?", "أي مدينة تستضيف سباق فورمولا 1 في حلبة ياس مارينا؟"), o: [L("Dubai", "دبي"), L("Abu Dhabi", "أبوظبي"), L("Doha", "الدوحة")], a: 1 },
+  { q: L("What sport is played at Wimbledon?", "ما الرياضة التي تُلعب في ويمبلدون؟"), o: [L("Golf", "الغولف"), L("Cricket", "الكريكيت"), L("Tennis", "التنس")], a: 2 },
+  { q: L("How many holes are on a standard golf course?", "كم عدد الحفر في ملعب الغولف القياسي؟"), o: [L("9", "9"), L("18", "18"), L("21", "21")], a: 1 },
+  { q: L("Which sport uses a shuttlecock?", "أي رياضة تستخدم الريشة؟"), o: [L("Badminton", "الريشة الطائرة"), L("Squash", "الاسكواش"), L("Padel", "البادل")], a: 0 },
+  { q: L("How often are the Summer Olympics held?", "كل كم سنة تقام الألعاب الأولمبية الصيفية؟"), o: [L("Every 2 years", "كل سنتين"), L("Every 4 years", "كل 4 سنوات"), L("Every 5 years", "كل 5 سنوات")], a: 1 },
+  { q: L("In cricket, how many balls are in an over?", "في الكريكيت، كم كرة في الأوفر الواحد؟"), o: [L("4", "4"), L("6", "6"), L("8", "8")], a: 1 },
+  { q: L("Which club plays at Old Trafford?", "أي نادٍ يلعب في ملعب أولد ترافورد؟"), o: [L("Liverpool", "ليفربول"), L("Manchester United", "مانشستر يونايتد"), L("Arsenal", "آرسنال")], a: 1 },
+  { q: L("What colour is the centre of an archery target?", "ما لون مركز هدف الرماية؟"), o: [L("Red", "أحمر"), L("Gold", "ذهبي"), L("Blue", "أزرق")], a: 1 },
+];
+
+/* ------------------------------ Drinking: cards and dice ------------------------------ */
+
+/** Card rules by rank (A, 2–10, J, Q, K). Sips only. */
+export const CARD_RULES: Record<string, Loc> = {
+  A: L("Everyone takes a sip. Cheers!", "الجميع يأخذ رشفة. في صحتكم!"),
+  "2": L("You: pick someone to take a sip.", "أنت: اختر شخصاً ليأخذ رشفة."),
+  "3": L("You take a sip.", "أنت تأخذ رشفة."),
+  "4": L("Floor! Last to touch the floor sips.", "الأرض! آخر من يلمس الأرض يرتشف."),
+  "5": L("Thumb master: put your thumb on the table any time. Last to copy sips.", "سيد الإبهام: ضع إبهامك على الطاولة متى شئت. آخر من يقلدك يرتشف."),
+  "6": L("Never have I ever: one round. If you have, sip.", "لم يسبق لي أبداً: جولة واحدة. إن فعلتها، ارتشف."),
+  "7": L("Heaven: point up! Last one sips.", "السماء: أشيروا للأعلى! الأخير يرتشف."),
+  "8": L("Mate: pick a buddy who sips whenever you do this round.", "رفيق: اختر رفيقاً يرتشف كلما ارتشفت في هذه الجولة."),
+  "9": L("Rhyme: say a word, go round rhyming. First to fail sips.", "القافية: قل كلمة ويتبادلون القافية. أول من يفشل يرتشف."),
+  "10": L("Categories: pick one, go round. First to pause sips.", "الفئات: اختر فئة ويتبادلون. أول من يتوقف يرتشف."),
+  J: L("Make a rule everyone must follow until the next Jack.", "ضع قاعدة يتبعها الجميع حتى الولد التالي."),
+  Q: L("Question master: anyone who answers your questions sips.", "سيد الأسئلة: كل من يجيب على أسئلتك يرتشف."),
+  K: L("King: raise a toast to the table and everyone sips.", "الملك: ارفع نخباً للطاولة والجميع يرتشف."),
+};
+
+export const DICE_RULES: { test: (a: number, b: number) => boolean; t: Loc }[] = [
+  { test: (a, b) => a + b === 7, t: L("Seven! Everyone sips.", "سبعة! الجميع يرتشف.") },
+  { test: (a, b) => a + b === 11, t: L("Eleven! You choose who sips.", "أحد عشر! أنت تختار من يرتشف.") },
+  { test: (a, b) => a === b, t: L("Doubles! Hand out that many sips.", "زوج متطابق! وزّع رشفات بعدد الرقم.") },
+  { test: (a, b) => a === 1 || b === 1, t: L("A one! The person on your left sips.", "رقم واحد! الشخص على يسارك يرتشف.") },
+  { test: (a, b) => a + b === 3, t: L("Three: you sip.", "ثلاثة: أنت ترتشف.") },
+  { test: () => true, t: L("Safe! Pass the phone on.", "نجوت! مرّر الهاتف.") },
+];
