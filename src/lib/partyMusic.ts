@@ -216,44 +216,169 @@ function loopBars(ctx: Ctx, barLen: number, schedule: (t: number, bar: number) =
   };
 }
 
-const GROOVE_CHORDS = [
-  ["C3", "E4", "G4", "C5"],
-  ["G2", "D4", "G4", "B4"],
-  ["A2", "C4", "E4", "A4"],
-  ["F2", "C4", "F4", "A4"],
-];
-// A bouncy, original 2-bar melody (8th-note steps; "" = rest), played over the 4 chords.
-const HOOK: string[][] = [
-  ["E5", "", "G5", "E5", "D5", "", "C5", ""],
-  ["D5", "", "G5", "", "B4", "D5", "", ""],
-  ["C5", "", "E5", "C5", "A4", "", "C5", "E5"],
-  ["F5", "", "E5", "", "C5", "", "", ""],
-];
+/** Marimba-like lead: a warm wooden tone with a quick, round decay. Friendly for little ears. */
+function marimba({ ac, out }: Ctx, freq: number, t: number, len: number, vol: number) {
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0008, t + Math.min(0.9, len * 2.2) + 0.15);
+  g.connect(out);
+  [[1, 1, "sine"], [4, 0.18, "sine"], [2, 0.12, "triangle"]].forEach(([h, a, type]) => {
+    const o = ac.createOscillator(), og = ac.createGain();
+    o.type = type as OscillatorType;
+    o.frequency.value = freq * (h as number);
+    og.gain.setValueAtTime(a as number, t);
+    if (h === 4) og.gain.exponentialRampToValueAtTime(0.0005, t + 0.12); // bright "tok" at the start only
+    o.connect(og).connect(g);
+    o.start(t);
+    o.stop(t + 1.2);
+  });
+}
 
-/** Upbeat dance track for the dancing fruit. onBeat(n) fires on every beat so the characters can dance in time. */
-export function playGroove(onBeat: (beat: number) => void, bpm = 118): () => void {
+/** Glassy bell for the counter-melody and sparkles. */
+function bell({ ac, out }: Ctx, freq: number, t: number, vol: number) {
+  const g = ac.createGain();
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0006, t + 1.4);
+  g.connect(out);
+  [[1, 1], [2.76, 0.35], [5.4, 0.12]].forEach(([h, a]) => {
+    const o = ac.createOscillator(), og = ac.createGain();
+    o.type = "sine";
+    o.frequency.value = freq * h;
+    og.gain.value = a;
+    o.connect(og).connect(g);
+    o.start(t);
+    o.stop(t + 1.5);
+  });
+}
+
+/** Soft sustained pad that fills out the chorus. */
+function pad({ ac, out }: Ctx, freqs: number[], t: number, len: number, vol: number) {
+  const g = ac.createGain(), f = ac.createBiquadFilter();
+  f.type = "lowpass";
+  f.frequency.value = 1400;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.25);
+  g.gain.setValueAtTime(vol, t + len - 0.2);
+  g.gain.linearRampToValueAtTime(0.0001, t + len + 0.3);
+  f.connect(g).connect(out);
+  freqs.forEach((fr) =>
+    [-7, 7].forEach((det) => {
+      const o = ac.createOscillator();
+      o.type = "sawtooth";
+      o.frequency.value = fr;
+      o.detune.value = det;
+      o.connect(f);
+      o.start(t);
+      o.stop(t + len + 0.4);
+    }),
+  );
+}
+
+/** Round, warm bass note. */
+function bass({ ac, out }: Ctx, freq: number, t: number, len: number, vol: number) {
+  const o = ac.createOscillator(), s = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+  o.type = "sine";
+  s.type = "sawtooth";
+  o.frequency.value = freq;
+  s.frequency.value = freq;
+  f.type = "lowpass";
+  f.frequency.setValueAtTime(700, t);
+  f.frequency.exponentialRampToValueAtTime(220, t + len);
+  const sg = ac.createGain();
+  sg.gain.value = 0.35;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, t + len + 0.05);
+  o.connect(g);
+  s.connect(sg).connect(f).connect(g);
+  g.connect(out);
+  [o, s].forEach((x) => (x.start(t), x.stop(t + len + 0.1)));
+}
+
+function snare(ctx: Ctx, t: number, vol = 0.16) {
+  clap(ctx, t, vol);
+  const { ac, out } = ctx, o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.setValueAtTime(240, t);
+  o.frequency.exponentialRampToValueAtTime(140, t + 0.08);
+  g.gain.setValueAtTime(vol * 0.9, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  o.connect(g).connect(out);
+  o.start(t);
+  o.stop(t + 0.15);
+}
+
+// "Fruit Party": an original song. Chords per bar, then an 8th-note melody per bar ("" = rest, "~" = hold).
+const C = ["C3", "E4", "G4", "C5"], Am = ["A2", "C4", "E4", "A4"], Fm = ["F2", "C4", "F4", "A4"], G = ["G2", "D4", "G4", "B4"], Em = ["E2", "B3", "E4", "G4"];
+type Bar = { ch: string[]; mel: string[]; part: "intro" | "verse" | "chorus" | "break" };
+const bars = (part: Bar["part"], chords: string[][], mels: string[][]): Bar[] => chords.map((ch, i) => ({ ch, mel: mels[i] ?? [], part }));
+const VERSE = bars("verse", [C, Am, Fm, G, C, Am, Fm, G], [
+  ["C5", "", "E5", "G5", "~", "E5", "D5", ""],
+  ["C5", "", "E5", "A5", "~", "G5", "E5", ""],
+  ["F5", "", "E5", "D5", "~", "C5", "A4", ""],
+  ["B4", "", "D5", "G5", "~", "F5", "D5", "B4"],
+  ["C5", "", "E5", "G5", "~", "E5", "D5", ""],
+  ["C5", "", "E5", "A5", "~", "B5", "C6", ""],
+  ["A5", "", "G5", "F5", "~", "E5", "D5", ""],
+  ["D5", "E5", "F5", "G5", "~", "~", "", ""],
+]);
+const CHORUS = bars("chorus", [Fm, G, Em, Am, Fm, G, C, C], [
+  ["C6", "", "A5", "C6", "~", "A5", "G5", ""],
+  ["B5", "", "G5", "B5", "~", "G5", "F5", ""],
+  ["E5", "", "G5", "B5", "~", "G5", "E5", ""],
+  ["A5", "~", "", "G5", "A5", "", "C6", ""],
+  ["C6", "", "A5", "C6", "~", "A5", "G5", ""],
+  ["B5", "", "G5", "B5", "~", "D6", "C6", "B5"],
+  ["C6", "", "G5", "E5", "~", "G5", "C6", ""],
+  ["C6", "~", "~", "~", "", "", "", ""],
+]);
+const INTRO = bars("intro", [C, Am, Fm, G], []);
+const BREAK = bars("break", [Fm, G, Em, G], [[], [], [], ["G5", "", "G5", "", "G5", "G5", "G5", "G5"]]);
+// Intro once, then verse, chorus, verse, chorus, clap-along break, chorus, and round again from the verse.
+const SONG: Bar[] = [...INTRO, ...VERSE, ...CHORUS, ...VERSE, ...CHORUS, ...BREAK, ...CHORUS];
+const LOOP_FROM = INTRO.length;
+
+/** "Fruit Party", the dancing fruit's song. onBeat(n) fires on every beat so the characters dance in time. */
+export function playGroove(onBeat: (beat: number) => void, bpm = 120): () => void {
   const ctx = makeCtx();
   if (!ctx) return () => {};
   const beat = 60 / bpm, eighth = beat / 2;
   const timers: ReturnType<typeof setTimeout>[] = [];
-  const stop = loopBars(ctx, beat * 4, (t, bar) => {
-    const ch = GROOVE_CHORDS[bar % 4], mel = HOOK[bar % 4], second = Math.floor(bar / 4) % 2 === 1;
+  const stop = loopBars(ctx, beat * 4, (t, n) => {
+    const i = n < SONG.length ? n : LOOP_FROM + ((n - LOOP_FROM) % (SONG.length - LOOP_FROM));
+    const { ch, mel, part } = SONG[i];
+    const nextPart = SONG[i + 1]?.part ?? "verse";
+    const fill = nextPart !== part; // last bar of a section gets a drum fill
     for (let b = 0; b < 4; b++) {
       const at = t + b * beat;
-      kick(ctx, at);
-      if (b % 2) clap(ctx, at);
-      shaker(ctx, at + eighth, 0.05);
-      shaker(ctx, at, 0.03);
-      // Bass: root on the beat, octave on the off-beat
-      synth(ctx, F[ch[0]], at, eighth * 0.9, 0.11, "sawtooth", 900);
-      synth(ctx, F[ch[0]] * 2, at + eighth, eighth * 0.8, 0.06, "sawtooth", 900);
-      // Chord stabs on the off-beat
-      ch.slice(1).forEach((n) => piano(ctx, F[n], at + eighth, eighth, 0.035));
+      // Drums: soft hats in the intro, full beat after, claps only in the break.
+      if (part === "break") clap(ctx, at, b % 2 ? 0.2 : 0.12);
+      else if (part !== "intro") {
+        kick(ctx, at);
+        if (b % 2) snare(ctx, at, part === "chorus" ? 0.18 : 0.14);
+      }
+      shaker(ctx, at + eighth, part === "chorus" ? 0.07 : 0.05);
+      if (part !== "break") shaker(ctx, at, 0.025);
+      // Bass bounces root and octave; the intro just plays the chords on bells.
+      if (part === "intro") bell(ctx, F[ch[1 + (b % 3)]] * 2, at, 0.05);
+      else {
+        bass(ctx, F[ch[0]], at, eighth * 0.9, 0.2);
+        bass(ctx, F[ch[0]] * 2, at + eighth, eighth * 0.7, 0.1);
+        if (part !== "break") ch.slice(1).forEach((x) => piano(ctx, F[x], at + eighth, eighth * 0.8, 0.028));
+      }
       const ms = (at - ctx.ac.currentTime) * 1000;
-      timers.push(setTimeout(() => onBeat(bar * 4 + b), Math.max(0, ms)));
+      timers.push(setTimeout(() => onBeat(n * 4 + b), Math.max(0, ms)));
     }
-    // Melody (every other time round it goes up an octave for a lift)
-    mel.forEach((n, i) => n && synth(ctx, F[n] * (second ? 2 : 1), t + i * eighth, eighth * 0.85, 0.05, "square", 3200));
+    if (fill && part !== "intro") [3, 3.25, 3.5, 3.75].forEach((x, k) => snare(ctx, t + x * beat, 0.07 + k * 0.03));
+    if (part === "chorus") pad(ctx, ch.slice(1).map((x) => F[x]), t, beat * 4, 0.018);
+    // Melody on marimba; held notes ("~") just let the previous note ring.
+    mel.forEach((x, k) => {
+      if (!x || x === "~") return;
+      let held = 1;
+      while (mel[k + held] === "~") held++;
+      marimba(ctx, F[x], t + k * eighth, held * eighth, part === "chorus" ? 0.2 : 0.17);
+      if (part === "chorus" && k % 4 === 0) bell(ctx, F[x] * 2, t + k * eighth, 0.035); // sparkle doubles the hook
+    });
   });
   return () => (timers.forEach(clearTimeout), stop());
 }

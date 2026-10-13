@@ -1512,3 +1512,44 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .fp-slot:nth-child(4){left:35%;bottom:10px;z-index:3}
 .fp-slot:nth-child(5){left:68%;bottom:18px;z-index:2}
 .fruit-party{height:360px}
+
+/* ===== Dancing fruit: tap to fly, "Tap me!" hint ===== */
+.fp-slot.flying{z-index:9;animation:fpFly 1.5s cubic-bezier(.35,.1,.3,1)}
+@keyframes fpFly{
+  0%{transform:none}
+  22%{transform:translate(var(--x1),var(--y1)) rotate(-25deg) scale(1.18)}
+  48%{transform:translate(var(--x2),var(--y2)) rotate(20deg) scale(1.25)}
+  74%{transform:translate(var(--x3),var(--y3)) rotate(-12deg) scale(1.12)}
+  90%{transform:translateY(6px) scale(1.08,.9)}
+  100%{transform:none}
+}
+.fp-slot.flying .fp-floor{opacity:0}
+.fp-slot.flying::after{content:"✨";position:absolute;left:50%;top:40%;font-size:1.4rem;animation:fpSpark .5s linear infinite;pointer-events:none}
+@keyframes fpSpark{0%{transform:translate(-50%,0) scale(.6);opacity:1}100%{transform:translate(-120%,40px) scale(1.2);opacity:0}}
+.fp-tap{position:absolute;left:50%;top:-8px;z-index:4;transform:translateX(-50%);white-space:nowrap;font:800 .72rem/1 var(--display,inherit);color:#1B1740;background:#FFD27A;border-radius:999px;padding:6px 10px;box-shadow:0 4px 12px rgba(0,0,0,.3);pointer-events:none;animation:fpTap 1s ease-in-out infinite}
+.fp-tap::after{content:"";position:absolute;left:50%;bottom:-4px;width:9px;height:9px;background:#FFD27A;transform:translateX(-50%) rotate(45deg);border-radius:2px}
+@keyframes fpTap{50%{transform:translate(-50%,-5px)}}
+@media (prefers-reduced-motion:reduce){.fp-slot.flying{animation-duration:.01s}.fp-tap{animation:none}}
+
+/* ===== Glassier icons: frosted highlight, inner glow and a soft light edge ===== */
+.glass-ico{background:linear-gradient(150deg,color-mix(in srgb,var(--c1) 88%,#fff),var(--c2));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.18),inset 0 -8px 14px color-mix(in srgb,var(--c2) 70%,#000),0 8px 18px color-mix(in srgb,var(--c2) 38%,transparent),0 2px 4px rgba(0,0,0,.12)}
+.glass-ico::before{background:
+  radial-gradient(120% 70% at 30% -10%,rgba(255,255,255,.75) 0%,rgba(255,255,255,.25) 38%,rgba(255,255,255,0) 60%),
+  linear-gradient(180deg,rgba(255,255,255,0) 60%,rgba(255,255,255,.18) 100%)}
+.glass-ico::after{border:1px solid rgba(255,255,255,.55);background:radial-gradient(60% 40% at 50% 110%,rgba(255,255,255,.35),transparent 70%)}
+.glass-ico svg{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.28))}
+
+/* ===== "Something for everyone": every card the same, one icon colour (the venue's accent) ===== */
+.mx-card.mx-kids,.mx-card.mx-celebrate{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.mx-card.mx-kids small,.mx-card.mx-celebrate small{background:var(--surface-2)}
+.mx-card .glass-ico{--c1:color-mix(in srgb,var(--g-accent,#6E4BFF) 70%,#fff);--c2:var(--g-accent,#6E4BFF)}
+
+/* ===== Cover greeting: left side of the cover, balancing the logo artwork on the right ===== */
+.g-cover-hello{position:absolute;z-index:2;inset-inline-start:16px;top:50%;max-width:52%;display:flex;flex-direction:column;gap:4px;color:#fff;opacity:0;transform:translateY(calc(-50% + 6px));transition:opacity .5s ease,transform .5s ease}
+.g-cover-hello.on{opacity:1;transform:translateY(-50%)}
+.g-cover-hello b{font-family:var(--display);font-size:1.45rem;font-weight:800;line-height:1.05;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.g-cover-hello span{font-size:.78rem;line-height:1.3;opacity:.88;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.phone .g-cover-hello{top:calc(50% + 14px)}
+.phone .g-cover-hello b{font-size:1.25rem}
+@media (prefers-reduced-motion:reduce){.g-cover-hello{transition:none}}
