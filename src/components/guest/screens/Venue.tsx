@@ -1,13 +1,13 @@
 "use client";
 import { Glyph, gameGlyph } from "../glyphs";
 import BrandCover from "../BrandCover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ALLERGEN, DAYS, DIET } from "@/lib/content";
 import { anyGameOn, drinkAge, gameOn } from "@/lib/games";
-import type { MenuItem, Offer, VenueEvent } from "@/lib/types";
+import type { Lang, MenuItem, Offer, VenueEvent } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { useService } from "./Service";
-import { gameIcon, venueGames } from "./Play";
+import { venueGames } from "./Play";
 import { ICON } from "../icons";
 
 /* ---------- Home ---------- */
@@ -76,6 +76,29 @@ function Scroller({ title, more, children }: { title: string; more?: () => void;
   );
 }
 
+const HELLO: Record<Lang, { morning: string; afternoon: string; evening: string; sub: string }> = {
+  en: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening", sub: "Menus, offers and games" },
+  ar: { morning: "صباح الخير", afternoon: "مساء الخير", evening: "مساء الخير", sub: "القوائم والعروض والألعاب" },
+};
+
+/** A time-of-day greeting in the empty left side of the cover, balancing the logo on the right. */
+function CoverHello() {
+  const { lang } = useGuest();
+  // Worked out on the phone after loading, so the guest's own clock decides (and the server render stays the same).
+  const [part, setPart] = useState<"morning" | "afternoon" | "evening" | null>(null);
+  useEffect(() => {
+    const h = new Date().getHours();
+    setPart(h >= 5 && h < 12 ? "morning" : h >= 12 && h < 17 ? "afternoon" : "evening");
+  }, []);
+  const t = HELLO[lang];
+  return (
+    <div className={`g-cover-hello${part ? " on" : ""}`}>
+      <b>{t[part ?? "evening"]}</b>
+      <span>{t.sub}</span>
+    </div>
+  );
+}
+
 /** Cover with the table and language on it, and the logo card overlapping. Our ring artwork in the venue's colours. */
 function Cover() {
   const { venue, table, tr, L, lang, toggleLang } = useGuest();
@@ -109,6 +132,7 @@ function Cover() {
             {tr("lang")}
           </button>
         </div>
+        {!img && <CoverHello />}
       </div>
       <div className="g-id">
         {venue.logoUrl ? (
@@ -326,10 +350,10 @@ function useMix(): MixCard[] {
   const first = (group: string, prefer: string[]) => prefer.map((k) => all.find((g) => g.key === k)).find(Boolean) ?? all.find((g) => g.group === group);
   const out: MixCard[] = [];
   const kid = first("kids", ["penalty", "racer", "keepy"]);
-  if (kid) out.push({ k: kid.key, title: L(kid.title), tag: x.kidsTag, tone: "kids", emoji: gameIcon(kid) });
+  if (kid) out.push({ k: kid.key, title: L(kid.title), tag: x.kidsTag, tone: "kids", glyph: gameGlyph(kid) });
   const adult = first("group", ["trivia", "wordguess", "charades"]);
   if (adult) out.push({ k: adult.key, title: L(adult.title), tag: x.adultsTag, tone: "group", glyph: gameGlyph(adult) });
-  if (m.celebrate) out.push({ k: "celebrate", title: x.mixCelebrate, tag: x.celebrate, tone: "celebrate", emoji: "🎂" });
+  if (m.celebrate) out.push({ k: "celebrate", title: x.mixCelebrate, tag: x.celebrate, tone: "celebrate", glyph: "party" });
   const date = first("date", ["deck:first"]);
   if (date) out.push({ k: date.key, title: L(date.title), tag: x.dateTag, tone: "date", glyph: "heart" });
   if (on("darts")) out.push({ k: "darts", title: x.mixDarts, tag: x.barGames, tone: "bar", glyph: "target" });
