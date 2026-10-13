@@ -173,8 +173,8 @@ export default async function Landing() {
             </div>
             <div className="steps">
               <div className="step">
-                <h3>We build your page</h3>
-                <p>Send us your menu, offers and logo. We set everything up in English and Arabic for you to approve.</p>
+                <h3>You build your page</h3>
+                <p>Sign up and use our simple portal to add your logo, colours, menu, offers and events, exactly how you want it, in English and Arabic.</p>
               </div>
               <div className="step">
                 <h3>Coasters go on tables</h3>
@@ -246,7 +246,7 @@ export default async function Landing() {
             </div>
             <div className="pilot-note">
               <strong>Founding venues:</strong>
-              <span>The first 10 Dubai venues get an 8-week pilot free, coasters included.</span>
+              <span>The first 10 Dubai venues get a four-week pilot free, coasters included.</span>
             </div>
           </div>
         </section>

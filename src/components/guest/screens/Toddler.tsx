@@ -9,15 +9,29 @@ import { playGroove, playLullaby } from "@/lib/partyMusic";
 
 /* ---------- Speech and music helpers ---------- */
 
+// Phones ship several voices; the "enhanced"/"natural" ones sound like a real person. Novelty voices are skipped.
+const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/i;
+function bestVoice(lang: Lang): SpeechSynthesisVoice | undefined {
+  const all = window.speechSynthesis?.getVoices() ?? [];
+  const want = lang === "ar" ? /^ar/i : /^en[-_](GB|US|AU|IE)/i;
+  const ok = all.filter((v) => want.test(v.lang) && !NOVELTY.test(v.name));
+  const score = (v: SpeechSynthesisVoice) =>
+    (/premium|enhanced|natural|neural/i.test(v.name) ? 4 : 0) + (/google|samantha|serena|daniel|kate|karen|moira|siri/i.test(v.name) ? 2 : 0) + (/en[-_]GB/i.test(v.lang) ? 1 : 0);
+  return ok.sort((a, b) => score(b) - score(a))[0];
+}
+
 function say(text: string, lang: Lang) {
   try {
     const s = window.speechSynthesis;
     if (!s) return;
     s.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "ar" ? "ar-SA" : "en-GB";
-    u.rate = 0.85;
-    u.pitch = 1.25;
+    const v = bestVoice(lang);
+    if (v) u.voice = v;
+    u.lang = v?.lang ?? (lang === "ar" ? "ar-SA" : "en-GB");
+    // A normal speaking voice: natural pitch, just a touch slower for little ones.
+    u.rate = 0.95;
+    u.pitch = 1;
     s.speak(u);
   } catch {}
 }
@@ -88,14 +102,37 @@ function boing() {
   } catch {}
 }
 
+/** A rising swoosh of air as a fruit takes off. */
+function whoosh() {
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ac = new AC(), t = ac.currentTime, len = 0.7;
+    const b = ac.createBuffer(1, len * ac.sampleRate, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = b;
+    f.type = "bandpass";
+    f.Q.value = 3;
+    f.frequency.setValueAtTime(400, t);
+    f.frequency.exponentialRampToValueAtTime(2600, t + 0.35);
+    f.frequency.exponentialRampToValueAtTime(900, t + len);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.exponentialRampToValueAtTime(0.35, t + 0.15);
+    g.gain.exponentialRampToValueAtTime(0.001, t + len);
+    s.connect(f).connect(g).connect(ac.destination);
+    s.start(t);
+    setTimeout(() => ac.close().catch(() => {}), 900);
+  } catch {}
+}
+
 const UI: Record<Lang, Record<string, string>> = {
   en: {
     who: "Who says", again: "Hear it again", yes: "Yes!", says: "says", tryAgain: "Try again!", music: "Music", stop: "Stop",
-    tapFruit: "Tap a fruit to make it jump!", calmTip: "Turn the brightness down and hold the phone a little way from baby's eyes.", noise: "Shh sound",
+    tapFruit: "Tap a fruit to send it flying!", tapMe: "Tap me!", calmTip: "Turn the brightness down and hold the phone a little way from baby's eyes.", noise: "Shh sound",
   },
   ar: {
     who: "من يقول", again: "اسمعها مرة أخرى", yes: "أحسنت!", says: "تقول", tryAgain: "حاول مرة أخرى!", music: "موسيقى", stop: "إيقاف",
-    tapFruit: "اضغط على فاكهة لتقفز!", calmTip: "خفّف سطوع الشاشة وأبعد الهاتف قليلاً عن عيني الطفل.", noise: "صوت هادئ",
+    tapFruit: "اضغط على فاكهة لتطير!", tapMe: "اضغط عليّ!", calmTip: "خفّف سطوع الشاشة وأبعد الهاتف قليلاً عن عيني الطفل.", noise: "صوت هادئ",
   },
 };
 
@@ -130,6 +167,8 @@ export function AnimalSounds({ k }: { k: string }) {
   // No talking in the sales-page demo phone.
   const speak = (text: string) => !demo && say(text, lang);
   const ask = (t = r.target) => speak(`${ui.who} ${t.s[lang]}?`);
+  // Some browsers load their voice list late; asking for it early means the first question uses the nice voice.
+  useEffect(() => void window.speechSynthesis?.getVoices(), []);
   useEffect(() => {
     if (!hit) ask();
   }, [r]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -307,19 +346,41 @@ function FruitCharacter({ kind, face, move, idx, onTap }: { kind: FruitKind; fac
   );
 }
 
+/** A random loop through the air for a tapped fruit: three waypoints, then home. */
+function flightPath(): Record<string, string> {
+  const r = (a: number, b: number) => `${Math.round(a + Math.random() * (b - a))}px`;
+  return { "--x1": r(-100, 100), "--y1": r(-150, -90), "--x2": r(-110, 110), "--y2": r(-110, -40), "--x3": r(-80, 80), "--y3": r(-160, -100) };
+}
+
 export function DancingFruit({ k }: { k: string }) {
   const { lang } = useGuest();
   const ui = UI[lang];
   const [beat, setBeat] = useState(-1);
-  const [spin, setSpin] = useState<Record<number, number>>({});
+  const [fly, setFly] = useState<Record<number, Record<string, string> | null>>({});
+  const [taps, setTaps] = useState(0);
+  const [hint, setHint] = useState(1);
   const stopRef = useRef<() => void>(() => {});
   useEffect(() => () => stopRef.current(), []);
+  // The "Tap me!" bubble hops to a different fruit every few seconds until they've tapped a few.
+  useEffect(() => {
+    if (taps >= 3) return;
+    const t = setInterval(() => setHint((h) => (h + 2) % FRUITS.length), 3200);
+    return () => clearInterval(t);
+  }, [taps]);
   const playing = beat >= 0;
   const toggle = () => {
     if (playing) return stopRef.current(), setBeat(-1);
     setBeat(0);
     stopRef.current = playGroove(setBeat);
   };
+  function tap(i: number) {
+    if (fly[i]) return;
+    whoosh();
+    buzz(HAPTIC.tap);
+    setTaps((n) => n + 1);
+    setFly((s) => ({ ...s, [i]: flightPath() }));
+    setTimeout(() => (boing(), setFly((s) => ({ ...s, [i]: null }))), 1500);
+  }
   // Change dance move every two beats; everyone dances together, with a small ripple.
   const move = playing ? MOVES[Math.floor(beat / 2) % MOVES.length] : "idle";
   return (
@@ -330,15 +391,13 @@ export function DancingFruit({ k }: { k: string }) {
         <span className="fp-stars" aria-hidden="true" />
         <div className="fp-row">
           {FRUITS.map((f, i) => (
-            <div key={i} className="fp-slot" style={{ ["--d" as string]: `${i * 0.05}s` }}>
-              <FruitCharacter
-                key={`${i}-${spin[i] ?? 0}`}
-                kind={f.kind}
-                face={f.face}
-                idx={i}
-                move={spin[i] ? "spin" : move}
-                onTap={() => (boing(), buzz(HAPTIC.tap), setSpin((s) => ({ ...s, [i]: (s[i] ?? 0) + 1 })), setTimeout(() => setSpin((s) => ({ ...s, [i]: 0 })), 700))}
-              />
+            <div key={i} className={`fp-slot${fly[i] ? " flying" : ""}`} style={{ ["--d" as string]: `${i * 0.05}s`, ...(fly[i] ?? {}) }}>
+              {taps < 3 && hint === i && !fly[i] && (
+                <span className="fp-tap" aria-hidden="true">
+                  {ui.tapMe}
+                </span>
+              )}
+              <FruitCharacter kind={f.kind} face={f.face} idx={i} move={fly[i] ? "spin" : move} onTap={() => tap(i)} />
               <span className="fp-floor" aria-hidden="true" />
             </div>
           ))}
