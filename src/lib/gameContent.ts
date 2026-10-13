@@ -141,7 +141,7 @@ export const EMOJI_PUZZLES: { q: Loc; a: Loc }[] = [
   { q: L("👻🚫", "👻🚫"), a: L("Ghostbusters", "صائدو الأشباح") },
 ];
 
-export const ADULT_TRIVIA: { q: Loc; o: Loc[]; a: number }[] = [
+export const ADULT_TRIVIA: { q: Loc; o: Loc[]; a: number; lvl?: 1 | 2 | 3 }[] = [
   { q: L("What is the tallest building in the world?", "ما هو أطول مبنى في العالم؟"), o: [L("Shanghai Tower", "برج شنغهاي"), L("Burj Khalifa", "برج خليفة"), L("One World Trade Center", "مركز التجارة العالمي")], a: 1 },
   { q: L("Which planet is known as the Red Planet?", "أي كوكب يعرف بالكوكب الأحمر؟"), o: [L("Mars", "المريخ"), L("Venus", "الزهرة"), L("Jupiter", "المشتري")], a: 0 },
   { q: L("How many emirates make up the UAE?", "كم عدد الإمارات في دولة الإمارات؟"), o: [L("5", "5"), L("7", "7"), L("9", "9")], a: 1 },
@@ -348,7 +348,7 @@ export const WORDGUESS_ANSWERS = [
   "CHEER", "TOWER", "SOUND", "LIGHT", "NIGHT", "SUNNY", "BRAVE", "HAPPY", "QUIET", "ROYAL", "CROWN", "PEARL", "STONE",
 ];
 
-export const SPORTS_TRIVIA: { q: Loc; o: Loc[]; a: number }[] = [
+export const SPORTS_TRIVIA: { q: Loc; o: Loc[]; a: number; lvl?: 1 | 2 | 3 }[] = [
   { q: L("How long is a football match (normal time)?", "كم مدة مباراة كرة القدم (الوقت الأصلي)؟"), o: [L("80 minutes", "80 دقيقة"), L("90 minutes", "90 دقيقة"), L("100 minutes", "100 دقيقة")], a: 1 },
   { q: L("Which country has won the most football World Cups?", "أي دولة فازت بأكبر عدد من كؤوس العالم؟"), o: [L("Germany", "ألمانيا"), L("Brazil", "البرازيل"), L("Argentina", "الأرجنتين")], a: 1 },
   { q: L("In tennis, what is a score of zero called?", "في التنس، ماذا تسمى النتيجة صفر؟"), o: [L("Love", "لاف"), L("Nil", "صفر"), L("Duck", "دك")], a: 0 },
@@ -408,3 +408,21 @@ export const TABLE_TASKS: Loc[] = [
   L("Make a paper-napkin crown and put it on someone!", "اصنعوا تاجاً من المناديل وضعوه على رأس أحدكم!"),
   L("Every person names a different animal, no repeats!", "كل شخص يذكر حيواناً مختلفاً بدون تكرار!"),
 ];
+
+/* ---------- Extra questions and cards (every quiz and deck has at least 20) ---------- */
+import { MORE_ADULT_TRIVIA, MORE_EMOJI_PUZZLES, MORE_SPORTS_TRIVIA } from "./moreTrivia";
+import {
+  MORE_ADULT_WYR, MORE_DATE_CARDS, MORE_DRINK_LIKELY, MORE_DRINK_NEVER, MORE_MOST_LIKELY, MORE_NEVER_HAVE_I, MORE_SIP_OR_SHARE, MORE_TABLE_RULES, MORE_TABLE_TASKS,
+} from "./moreDecks";
+ADULT_TRIVIA.push(...MORE_ADULT_TRIVIA);
+SPORTS_TRIVIA.push(...MORE_SPORTS_TRIVIA);
+EMOJI_PUZZLES.push(...MORE_EMOJI_PUZZLES);
+ADULT_WYR.push(...MORE_ADULT_WYR);
+MOST_LIKELY.push(...MORE_MOST_LIKELY);
+NEVER_HAVE_I.push(...MORE_NEVER_HAVE_I);
+DRINK_NEVER.push(...MORE_DRINK_NEVER);
+DRINK_LIKELY.push(...MORE_DRINK_LIKELY);
+SIP_OR_SHARE.push(...MORE_SIP_OR_SHARE);
+TABLE_RULES.push(...MORE_TABLE_RULES);
+TABLE_TASKS.push(...MORE_TABLE_TASKS);
+for (const d of EXTRA_DATE_DECKS) d.cards.push(...(MORE_DATE_CARDS[d.id] ?? []));

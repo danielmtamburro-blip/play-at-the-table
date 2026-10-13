@@ -1,4 +1,6 @@
 "use client";
+import { CardStage } from "./CardStage";
+import { sfx } from "@/lib/sfx";
 import { useEffect, useRef, useState } from "react";
 import { PICKER_TASKS } from "@/lib/content";
 import { ALL_DATE_DECKS } from "@/lib/games";
@@ -101,24 +103,22 @@ export function Deck({ id, onExit }: { id: string; onExit: () => void }) {
       </>
     );
 
+  const next = () => (sfx.tap(), setI(i + 1));
   return (
     <>
       <div>
         <h2 className="g-h">{L(deck.t)}</h2>
         <p className="g-sub">{L(deck.s)}</p>
       </div>
-      <div className="prompt date">
-        <span className="count">
-          {tr("card")} {i + 1} / {order.length}
-        </span>
-        <p>{L(order[i])}</p>
-      </div>
+      <CardStage tone="date" index={i} total={order.length} label={tr("card")} onNext={next}>
+        <p className="cs-text">{L(order[i])}</p>
+      </CardStage>
       <div className="g-row">
-        <button className="g-btn alt" onClick={() => setI(i + 1)}>
+        <button className="g-btn alt" onClick={next}>
           {tr("skip")}
         </button>
-        <button className="g-btn" data-act="next" onClick={() => setI(i + 1)}>
-          {tr("reveal")}
+        <button className="g-btn" data-act="next" onClick={next}>
+          {tr("next")} →
         </button>
       </div>
       <button className="g-btn alt" onClick={onExit}>

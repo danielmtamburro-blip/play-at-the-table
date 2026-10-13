@@ -7,8 +7,8 @@ import type { Loc } from "./types";
 export type GameGroup = "kids" | "group" | "date" | "drink";
 export type AgeBand = "2" | "3" | "6" | "12";
 
-export type GameCat = "featured" | "puzzles" | "bar" | "trivia" | "party" | "cards" | "talk";
-export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string };
+export type GameCat = "featured" | "arcade" | "puzzles" | "bar" | "trivia" | "party" | "cards" | "talk";
+export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string; /** Also listed in Kids games, in this age band. */ kidsBand?: AgeBand };
 
 const L = (en: string, ar: string): Loc => ({ en, ar });
 
@@ -39,6 +39,9 @@ export const GAMES: GameInfo[] = [
   { key: "crossword", group: "group", cat: "puzzles", icon: "✏️", title: L("Mini crossword", "كلمات متقاطعة"), sub: L("A fresh crossword every time", "كلمات متقاطعة جديدة في كل مرة") },
   { key: "wordsearch", group: "group", cat: "puzzles", icon: "🔍", title: L("Word search", "البحث عن الكلمات"), sub: L("Find all the hidden words", "اعثر على كل الكلمات المخفية") },
   { key: "wordguess", group: "group", cat: "puzzles", icon: "🟩", title: L("Word guess", "خمّن الكلمة"), sub: L("Guess the 5-letter word in 6 tries", "خمّن الكلمة من 5 أحرف في 6 محاولات") },
+  { key: "runner", group: "group", cat: "arcade", icon: "🏃", kidsBand: "6", ages: "6+", title: L("Desert Dash", "سباق الصحراء"), sub: L("Endless runner: dodge, jump and slide", "جري لا ينتهي: تفادَ واقفز وانزلق") },
+  { key: "bike", group: "group", cat: "arcade", icon: "🏍️", kidsBand: "12", ages: "12+", title: L("Dune Rider", "سائق الكثبان"), sub: L("Dirt-bike hill climb with flips", "دراجة على الكثبان مع دورات بهلوانية") },
+  { key: "freekick", group: "group", cat: "arcade", icon: "⚽", kidsBand: "6", ages: "6+", title: L("Free Kick Hero", "بطل الركلات الحرة"), sub: L("Curve it round the wall into the top corner", "لفّ الكرة حول الحائط إلى الزاوية") },
   { key: "spot", group: "group", cat: "puzzles", icon: "🔎", title: L("Spot the difference", "اكتشف الفرق"), sub: L("7 sneaky differences. Can you find them all?", "7 فروق خفية. هل تجدها كلها؟") },
   { key: "darts", group: "group", cat: "bar", icon: "🎯", title: L("Darts scorer", "حاسبة السهام"), sub: L("301 or 501, with checkout tips", "301 أو 501 مع اقتراحات الإنهاء") },
   { key: "pool", group: "group", cat: "bar", icon: "🎱", title: L("Pool scorer", "حاسبة البلياردو"), sub: L("Race to frames or killer pool", "سباق الأشواط أو بلياردو القاتل") },
@@ -53,6 +56,8 @@ export const GAMES: GameInfo[] = [
   { key: "charades", group: "group", cat: "party", icon: "🎭", title: L("Charades", "التمثيل الصامت"), sub: L("Act it out, no talking!", "مثّلها بدون كلام!") },
   { key: "categories", group: "group", cat: "party", icon: "⏱️", title: L("Name five", "اذكر خمسة"), sub: L("Five answers before the timer ends", "خمس إجابات قبل انتهاء الوقت") },
   { key: "picker", group: "group", cat: "party", icon: "🎯", title: L("Party picker", "مختار الحفلة"), sub: L("The phone chooses who goes next", "الهاتف يختار من التالي") },
+  // Date night: the couples quiz, then one deck each
+  { key: "knowme", group: "date", title: L("Couples quiz", "اختبار الثنائي"), sub: L("Guess each other's answers and get your match score", "خمّنا إجابات بعضكما واحصلا على نسبة التوافق") },
   // Date night (one deck each)
   ...ALL_DATE_DECKS.map((d) => ({ key: `deck:${d.id}`, group: "date" as const, title: d.t, sub: d.s })),
   // Drinking games: only if the venue switches them on; guests confirm their age first.
@@ -70,6 +75,7 @@ export const GAMES: GameInfo[] = [
 /** Section headings inside the adult and drinking hubs. */
 export const CATS: Record<GameCat, Loc> = {
   featured: L("Featured", "مميز"),
+  arcade: L("🎮 Arcade · quick thrills", "🎮 ألعاب الأركيد · إثارة سريعة"),
   puzzles: L("🧩 Puzzles · great on your own", "🧩 ألغاز · رائعة بمفردك"),
   bar: L("🎯 Darts & pool scorers", "🎯 حاسبات السهام والبلياردو"),
   trivia: L("🧠 Trivia", "🧠 مسابقات"),

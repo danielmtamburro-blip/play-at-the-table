@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from "@/lib/content";
 import { SHOWCASE_VENUE, showcaseToday } from "@/lib/showcase";
 import TryOnPhone from "@/components/landing/TryOnPhone";
 import VenueGets from "@/components/landing/VenueGets";
-import { WhatsAppButton, WhatsAppFloat } from "@/components/landing/WhatsApp";
+import { WhatsAppButton, WhatsAppFloat, whatsappLink } from "@/components/landing/WhatsApp";
 import YourVenue from "@/components/landing/YourVenue";
 
 export const revalidate = 60;
@@ -113,7 +113,7 @@ export default async function Landing() {
             </div>
             <div className="modules">
               {MODULES.map(([cls, tag, h, p]) => (
-                <article key={cls} className={`module ${cls}`}>
+                <article key={h} className={`module ${cls}`}>
                   <span className="tag">{tag}</span>
                   <h3>{h}</h3>
                   <p>{p}</p>
@@ -193,44 +193,55 @@ export default async function Landing() {
             <div className="section-head">
               <span className="eyebrow">Pricing</span>
               <h2>Simple monthly plans</h2>
-              <p>Prices are per venue, in AED, excluding VAT. You can cancel any month.</p>
+              <p>Prices are per venue, in AED, excluding VAT. Cancel any month. Got several venues? Ask us for a group quote.</p>
             </div>
             <div className="pricing">
               <div className="plan">
-                <h3>Starter</h3>
+                <h3>Basic</h3>
                 <div className="price">
                   249 <small>AED / month</small>
                 </div>
                 <ul>
-                  <li>Menu, drinks, offers and events</li>
-                  <li>Kids, group and date games</li>
+                  <li>Food and drinks menu, offers and what&apos;s on</li>
+                  <li>Games for kids, adults and date nights</li>
                   <li>English and Arabic</li>
                   <li>One venue QR and 20 coasters</li>
                 </ul>
               </div>
               <div className="plan featured">
                 <span className="pill">Most popular</span>
-                <h3>Plus</h3>
+                <h3>Pro</h3>
                 <div className="price">
                   449 <small>AED / month</small>
                 </div>
                 <ul>
-                  <li>Everything in Starter</li>
+                  <li>Everything in Basic</li>
                   <li>A numbered QR for every table</li>
-                  <li>Monthly engagement report</li>
-                  <li>Seasonal themes and custom game decks</li>
+                  <li>Call server, bill and celebration alerts on a live staff screen</li>
+                  <li>Stats, leaderboards and a monthly report</li>
+                  <li>Darts and pool scorers, drinking games and celebrations</li>
                   <li>Up to 60 coasters</li>
                 </ul>
               </div>
               <div className="plan">
-                <h3>Group</h3>
-                <div className="price">Custom</div>
+                <h3>Multi-venue</h3>
+                <div className="price">
+                  Price on quote <small>for 2+ venues</small>
+                </div>
                 <ul>
-                  <li>Several locations from one dashboard</li>
-                  <li>Branded games and mascot colouring sheets</li>
-                  <li>Reward campaigns, with terms reviewed by you</li>
-                  <li>Dedicated account manager</li>
+                  <li>Every location from one login</li>
+                  <li>Stats for each venue and the whole group</li>
+                  <li>Your brand across all sites, with each venue&apos;s own menu</li>
+                  <li>A dedicated account manager</li>
                 </ul>
+                <div className="plan-cta">
+                  <a className="btn btn-primary" href="#pilot">
+                    Request a quote
+                  </a>
+                  <a className="btn btn-wa btn-sm" href={whatsappLink("Hi! I have more than one venue and would like a quote for Play at Your Table.")} target="_blank" rel="noopener noreferrer">
+                    WhatsApp us
+                  </a>
+                </div>
               </div>
             </div>
             <div className="pilot-note">

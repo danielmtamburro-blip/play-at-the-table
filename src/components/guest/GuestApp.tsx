@@ -9,6 +9,7 @@ import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
 import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
 import { setHaptics } from "@/lib/haptics";
+import { setSfx } from "@/lib/sfx";
 import { BackIcon, ICON } from "./icons";
 import { GROUP_Q, THIS_THAT } from "@/lib/content";
 import { ADULT_TRIVIA, ADULT_WYR, CATEGORIES, CHARADES, DRINK_LIKELY, DRINK_NEVER, EMOJI_PUZZLES, MOST_LIKELY, NEVER_HAVE_I, SIP_OR_SHARE, SPORTS_TRIVIA, TABLE_RULES } from "@/lib/gameContent";
@@ -22,6 +23,10 @@ import { Colour, Memory } from "./screens/Kids";
 import { AgeGate, Feedback } from "./screens/Service";
 import { Pour } from "./screens/Pour";
 import { SplitBill } from "./screens/SplitBill";
+import { KnowMe } from "./screens/KnowMe";
+import { Runner } from "./arcade/Runner";
+import { DirtBike } from "./arcade/DirtBike";
+import { FreeKick } from "./arcade/FreeKick";
 import { AnimalSounds, DancingFruit, SleepyLights } from "./screens/Toddler";
 import { KidsLockProvider, KidsPill } from "./KidsLock";
 import { VersusProvider, VersusScreen } from "./screens/Versus";
@@ -48,6 +53,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   const [privacy, setPrivacy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   setHaptics(!embedded);
+  setSfx(!embedded);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   // Language: saved choice, else the phone's language.
@@ -172,6 +178,10 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       case "fruit": return <DancingFruit k="fruit" />;
       case "calm": return <SleepyLights k="calm" />;
       case "split": return <SplitBill k="split" />;
+      case "knowme": return <KnowMe k="knowme" />;
+      case "runner": return <Runner k="runner" />;
+      case "bike": return <DirtBike k="bike" />;
+      case "freekick": return <FreeKick k="freekick" />;
       // Kids: 3+
       case "colour": return <Colour />;
       case "bubbles": return <BubblePop k="bubbles" />;

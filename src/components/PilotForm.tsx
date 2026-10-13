@@ -32,6 +32,7 @@ export default function PilotForm() {
           <option>Casual dining</option>
           <option>Bar or lounge</option>
           <option>Hotel restaurant</option>
+          <option>Group with several venues (quote)</option>
         </select>
       </div>
       <div className="field">

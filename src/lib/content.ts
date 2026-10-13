@@ -775,3 +775,10 @@ export const T: Record<"en" | "ar", Record<TKey, string>> = {
     "home": "الرئيسية"
   },
 };
+
+/* ---------- Extra cards (every deck has at least 20) ---------- */
+import { MORE_DATE_CARDS, MORE_GROUP_Q, MORE_PICKER_TASKS, MORE_THIS_THAT } from "./moreDecks";
+GROUP_Q.push(...MORE_GROUP_Q);
+PICKER_TASKS.push(...MORE_PICKER_TASKS);
+THIS_THAT.push(...MORE_THIS_THAT);
+for (const d of DATE_DECKS) d.cards.push(...(MORE_DATE_CARDS[d.id] ?? []));

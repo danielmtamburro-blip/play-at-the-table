@@ -15,7 +15,7 @@ const KID_ICON: Record<string, string> = {
 export const gameIcon = (g: GameInfo) => g.icon ?? KID_ICON[g.key] ?? (g.group === "date" ? "💞" : "🎲");
 
 /** Rough order of what tables play most; anything not listed follows. */
-const POPULAR = ["penalty", "racer", "keepy", "pour", "bill", "trivia", "wordguess", "hilo", "memory", "bubbles", "charades", "sudoku", "wyr", "reaction", "maths", "sports", "emoji", "likely"];
+const POPULAR = ["runner", "freekick", "bike", "penalty", "racer", "keepy", "pour", "bill", "trivia", "wordguess", "hilo", "memory", "bubbles", "charades", "sudoku", "wyr", "reaction", "maths", "sports", "emoji", "likely"];
 
 const groupOn = (v: Venue, g: GameGroup) => v.modules[g === "drink" ? "drink" : g];
 
