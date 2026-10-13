@@ -25,6 +25,9 @@ export const SCORED: Record<string, { lowerBetter: boolean; unit: Unit }> = {
   wordguess: { lowerBetter: true, unit: { en: (n) => `${n}/6 tries`, ar: (n) => `${n}/6 محاولات` } },
   hilo: { lowerBetter: false, unit: plural("in a row", "متتالية") },
   pour: { lowerBetter: false, unit: plural("pours", "صبّة") },
+  runner: { lowerBetter: false, unit: plural("pts", "نقطة") },
+  bike: { lowerBetter: false, unit: plural("pts", "نقطة") },
+  freekick: { lowerBetter: false, unit: plural("pts", "نقطة") },
 };
 
 export const isScored = (game: string) => game in SCORED;

@@ -164,3 +164,121 @@ export function playFanfare(onEnd: () => void): () => void {
     ctx.ac.close().catch(() => {});
   };
 }
+
+/* ---------- Kids' groove and lullaby (original arrangements; Brahms' lullaby is public domain) ---------- */
+
+function synth({ ac, out }: Ctx, freq: number, t: number, len: number, vol: number, type: OscillatorType = "square", cutoff = 2200) {
+  const o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+  o.type = type;
+  o2.type = type;
+  o.frequency.value = freq;
+  o2.frequency.value = freq * 1.005; // slight detune makes it fuller
+  f.type = "lowpass";
+  f.frequency.setValueAtTime(cutoff, t);
+  f.frequency.exponentialRampToValueAtTime(Math.max(300, cutoff * 0.35), t + len);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0008, t + len + 0.08);
+  o.connect(f);
+  o2.connect(f);
+  f.connect(g).connect(out);
+  o.start(t);
+  o2.start(t);
+  o.stop(t + len + 0.1);
+  o2.stop(t + len + 0.1);
+}
+
+function clap({ ac, out }: Ctx, t: number, vol = 0.12) {
+  const len = 0.12 * ac.sampleRate, b = ac.createBuffer(1, len, ac.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 2;
+  const s = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain();
+  s.buffer = b;
+  bp.type = "bandpass";
+  bp.frequency.value = 1500;
+  g.gain.value = vol;
+  s.connect(bp).connect(g).connect(out);
+  s.start(t);
+}
+
+/** Calls schedule(barStart, barIndex) one bar ahead, forever, until stopped. */
+function loopBars(ctx: Ctx, barLen: number, schedule: (t: number, bar: number) => void) {
+  let bar = 0, next = ctx.ac.currentTime + 0.12, alive = true, timer: ReturnType<typeof setTimeout>;
+  const tick = () => {
+    if (!alive) return;
+    while (next < ctx.ac.currentTime + barLen * 1.5) (schedule(next, bar), (next += barLen), bar++);
+    timer = setTimeout(tick, (barLen * 1000) / 2);
+  };
+  tick();
+  return () => {
+    alive = false;
+    clearTimeout(timer);
+    ctx.ac.close().catch(() => {});
+  };
+}
+
+const GROOVE_CHORDS = [
+  ["C3", "E4", "G4", "C5"],
+  ["G2", "D4", "G4", "B4"],
+  ["A2", "C4", "E4", "A4"],
+  ["F2", "C4", "F4", "A4"],
+];
+// A bouncy, original 2-bar melody (8th-note steps; "" = rest), played over the 4 chords.
+const HOOK: string[][] = [
+  ["E5", "", "G5", "E5", "D5", "", "C5", ""],
+  ["D5", "", "G5", "", "B4", "D5", "", ""],
+  ["C5", "", "E5", "C5", "A4", "", "C5", "E5"],
+  ["F5", "", "E5", "", "C5", "", "", ""],
+];
+
+/** Upbeat dance track for the dancing fruit. onBeat(n) fires on every beat so the characters can dance in time. */
+export function playGroove(onBeat: (beat: number) => void, bpm = 118): () => void {
+  const ctx = makeCtx();
+  if (!ctx) return () => {};
+  const beat = 60 / bpm, eighth = beat / 2;
+  const timers: ReturnType<typeof setTimeout>[] = [];
+  const stop = loopBars(ctx, beat * 4, (t, bar) => {
+    const ch = GROOVE_CHORDS[bar % 4], mel = HOOK[bar % 4], second = Math.floor(bar / 4) % 2 === 1;
+    for (let b = 0; b < 4; b++) {
+      const at = t + b * beat;
+      kick(ctx, at);
+      if (b % 2) clap(ctx, at);
+      shaker(ctx, at + eighth, 0.05);
+      shaker(ctx, at, 0.03);
+      // Bass: root on the beat, octave on the off-beat
+      synth(ctx, F[ch[0]], at, eighth * 0.9, 0.11, "sawtooth", 900);
+      synth(ctx, F[ch[0]] * 2, at + eighth, eighth * 0.8, 0.06, "sawtooth", 900);
+      // Chord stabs on the off-beat
+      ch.slice(1).forEach((n) => piano(ctx, F[n], at + eighth, eighth, 0.035));
+      const ms = (at - ctx.ac.currentTime) * 1000;
+      timers.push(setTimeout(() => onBeat(bar * 4 + b), Math.max(0, ms)));
+    }
+    // Melody (every other time round it goes up an octave for a lift)
+    mel.forEach((n, i) => n && synth(ctx, F[n] * (second ? 2 : 1), t + i * eighth, eighth * 0.85, 0.05, "square", 3200));
+  });
+  return () => (timers.forEach(clearTimeout), stop());
+}
+
+const BRAHMS: [string, number][] = [
+  ["E4", 1], ["E4", 1], ["G4", 3], ["E4", 1], ["E4", 1], ["G4", 3],
+  ["E4", 1], ["G4", 1], ["C5", 2], ["B4", 2], ["A4", 2], ["A4", 1], ["G4", 3],
+  ["D4", 1], ["E4", 1], ["F4", 2], ["D4", 2], ["D4", 1], ["E4", 1], ["F4", 3],
+  ["D4", 1], ["F4", 1], ["B4", 1], ["A4", 1], ["G4", 2], ["B4", 2], ["C5", 6],
+];
+const LULLABY_BASS = ["C3", "C3", "C3", "G2", "G2", "G2", "G2", "C3"];
+
+/** Soft piano lullaby with gentle chords, on repeat. */
+export function playLullaby(bpm = 72): () => void {
+  const ctx = makeCtx();
+  if (!ctx) return () => {};
+  ctx.out.gain.value = 0.7;
+  const beat = 60 / bpm, total = BRAHMS.reduce((a, [, b]) => a + b, 0);
+  return loopBars(ctx, total * beat, (t) => {
+    let at = t;
+    for (const [n, b] of BRAHMS) (piano(ctx, F[n], at, b * beat, 0.16), (at += b * beat));
+    LULLABY_BASS.forEach((n, i) => {
+      const bt = t + i * (total / 8) * beat;
+      piano(ctx, F[n], bt, (total / 8) * beat, 0.08);
+      piano(ctx, F[n] * 2.5, bt + beat, beat * 2, 0.03);
+    });
+  });
+}

@@ -5,6 +5,7 @@ import { buzz, HAPTIC } from "@/lib/haptics";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
+import { playGroove, playLullaby } from "@/lib/partyMusic";
 
 /* ---------- Speech and music helpers ---------- */
 
@@ -25,20 +26,6 @@ const NOTE: Record<string, number> = {
   C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.0, A4: 440.0, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
   F5: 698.46, G5: 783.99, A5: 880.0, C6: 1046.5,
 };
-// Public-domain tunes: [note, beats]
-const TWINKLE: [string, number][] = [
-  ["C4", 1], ["C4", 1], ["G4", 1], ["G4", 1], ["A4", 1], ["A4", 1], ["G4", 2],
-  ["F4", 1], ["F4", 1], ["E4", 1], ["E4", 1], ["D4", 1], ["D4", 1], ["C4", 2],
-  ["G4", 1], ["G4", 1], ["F4", 1], ["F4", 1], ["E4", 1], ["E4", 1], ["D4", 2],
-  ["G4", 1], ["G4", 1], ["F4", 1], ["F4", 1], ["E4", 1], ["E4", 1], ["D4", 2],
-];
-const LULLABY: [string, number][] = [
-  ["E4", 1], ["E4", 1], ["G4", 3], ["E4", 1], ["E4", 1], ["G4", 3],
-  ["E4", 1], ["G4", 1], ["C5", 2], ["B4", 2], ["A4", 2], ["A4", 1], ["G4", 3],
-  ["D4", 1], ["E4", 1], ["F4", 2], ["D4", 2], ["D4", 1], ["E4", 1], ["F4", 3],
-  ["D4", 1], ["F4", 1], ["B4", 1], ["A4", 1], ["G4", 2], ["B4", 2], ["C5", 4],
-];
-
 /** Loops a soft music-box tune until stopped. */
 export function useMusicBox(tune: [string, number][], bpm: number, loop = true) {
   const ctx = useRef<AudioContext | null>(null);
@@ -195,40 +182,173 @@ export function AnimalSounds({ k }: { k: string }) {
 
 /* ---------- Dancing fruit (babies and toddlers) ---------- */
 
-const FRUIT = ["🍓", "🍌", "🍉", "🍍", "🥝", "🍊", "🍇"];
+type FruitKind = "strawberry" | "banana" | "orange" | "melon" | "pineapple";
+
+/** The body of each fruit character, drawn on a 100×100 grid (face and limbs are shared). */
+function FruitBody({ kind, id }: { kind: FruitKind; id: string }) {
+  switch (kind) {
+    case "strawberry":
+      return (
+        <>
+          <defs>
+            <radialGradient id={`${id}g`} cx=".35" cy=".3" r=".8">
+              <stop offset="0" stopColor="#FF7A85" />
+              <stop offset="1" stopColor="#D7193A" />
+            </radialGradient>
+          </defs>
+          <path d="M50 96C24 82 12 56 18 38c6-16 22-18 32-12 10-6 26-4 32 12 6 18-6 44-32 58z" fill={`url(#${id}g)`} />
+          {[[34, 46], [52, 40], [66, 50], [42, 62], [60, 66], [50, 80], [30, 58], [70, 36]].map(([x, y], i) => (
+            <ellipse key={i} cx={x} cy={y} rx="1.6" ry="2.6" fill="#FFE27A" />
+          ))}
+          <path d="M50 28c-8-10-20-8-24-4 8 0 12 4 14 8-6-2-14 0-16 4 10-2 18 0 26-2 8 2 16 0 26 2-2-4-10-6-16-4 2-4 6-8 14-8-4-4-16-6-24 4z" fill="#2FA552" />
+        </>
+      );
+    case "banana":
+      return (
+        <>
+          <defs>
+            <linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#FFF08A" />
+              <stop offset="1" stopColor="#F5C400" />
+            </linearGradient>
+          </defs>
+          <path d="M26 14c-6 30 0 60 22 76 14 10 30 8 34 4-22-6-40-30-42-78z" fill={`url(#${id}g)`} />
+          <path d="M26 14l-2-8 6 2z" fill="#7A5A1E" />
+          <path d="M82 94l6 2-4-6z" fill="#7A5A1E" />
+        </>
+      );
+    case "orange":
+      return (
+        <>
+          <defs>
+            <radialGradient id={`${id}g`} cx=".35" cy=".3" r=".8">
+              <stop offset="0" stopColor="#FFC56E" />
+              <stop offset="1" stopColor="#F07A12" />
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="56" r="38" fill={`url(#${id}g)`} />
+          {Array.from({ length: 14 }, (_, i) => (
+            <circle key={i} cx={30 + ((i * 17) % 42)} cy={34 + ((i * 23) % 46)} r="1.1" fill="#E06A0A" opacity=".6" />
+          ))}
+          <path d="M50 18c6-8 16-8 20-4-6 4-12 6-20 4z" fill="#2FA552" />
+          <path d="M50 18v-6" stroke="#6B4A2A" strokeWidth="3" strokeLinecap="round" />
+        </>
+      );
+    case "melon":
+      return (
+        <>
+          <path d="M8 34h84a42 42 0 0 1-84 0z" fill="#2E9E55" />
+          <path d="M14 34h72a36 36 0 0 1-72 0z" fill="#FFFFFF" opacity=".9" />
+          <path d="M18 34h64a32 32 0 0 1-64 0z" fill="#FF5A78" />
+          {[[34, 44], [50, 48], [66, 44], [42, 56], [58, 56]].map(([x, y], i) => (
+            <ellipse key={i} cx={x} cy={y} rx="2" ry="3.2" fill="#2B1B1B" />
+          ))}
+        </>
+      );
+    case "pineapple":
+      return (
+        <>
+          <defs>
+            <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#FFD84D" />
+              <stop offset="1" stopColor="#E89A1A" />
+            </linearGradient>
+          </defs>
+          <path d="M50 0l6 16 10-12-2 18 14-6-10 14H32L22 16l14 6-2-18 10 12z" fill="#2FA552" />
+          <ellipse cx="50" cy="60" rx="30" ry="36" fill={`url(#${id}g)`} />
+          <path d="M28 40l44 44M24 56l34 34M36 30l40 40M72 40L28 84M76 56L42 90M64 30L24 70" stroke="#C47A12" strokeWidth="1.6" opacity=".55" />
+        </>
+      );
+  }
+}
+
+const FRUITS: { kind: FruitKind; face: [number, number] }[] = [
+  { kind: "strawberry", face: [50, 56] },
+  { kind: "banana", face: [44, 54] },
+  { kind: "orange", face: [50, 58] },
+  { kind: "melon", face: [50, 42] },
+  { kind: "pineapple", face: [50, 62] },
+];
+const MOVES = ["bounce", "wave", "twist", "jump"] as const;
+
+function FruitCharacter({ kind, face, move, idx, onTap }: { kind: FruitKind; face: [number, number]; move: string; idx: number; onTap: () => void }) {
+  const id = `fr${idx}`;
+  const [fx, fy] = face;
+  return (
+    <button className={`fc fc-${move}`} style={{ animationDelay: `${idx * 0.06}s` }} onClick={onTap} aria-label={kind}>
+      <svg viewBox="0 -6 100 130" aria-hidden="true">
+        {/* legs and shoes */}
+        <g className="fc-legs">
+          <path className="fc-leg l" d="M40 88v22" />
+          <path className="fc-leg r" d="M60 88v22" />
+          <ellipse cx="37" cy="112" rx="7" ry="4" fill="#3B2F7A" />
+          <ellipse cx="63" cy="112" rx="7" ry="4" fill="#3B2F7A" />
+        </g>
+        {/* arms */}
+        <path className="fc-arm l" d="M22 58q-12 4-16-8" />
+        <path className="fc-arm r" d="M78 58q12 4 16-8" />
+        <g className="fc-body">
+          <FruitBody kind={kind} id={id} />
+          {/* face */}
+          <g className="fc-eyes">
+            <ellipse cx={fx - 9} cy={fy - 6} rx="6" ry="7" fill="#fff" />
+            <ellipse cx={fx + 9} cy={fy - 6} rx="6" ry="7" fill="#fff" />
+            <circle className="fc-pupil" cx={fx - 8} cy={fy - 5} r="3.4" fill="#1B1740" />
+            <circle className="fc-pupil" cx={fx + 10} cy={fy - 5} r="3.4" fill="#1B1740" />
+            <circle cx={fx - 7} cy={fy - 7} r="1.2" fill="#fff" />
+            <circle cx={fx + 11} cy={fy - 7} r="1.2" fill="#fff" />
+          </g>
+          <ellipse cx={fx - 16} cy={fy + 4} rx="4" ry="2.5" fill="#FF8FB1" opacity=".7" />
+          <ellipse cx={fx + 16} cy={fy + 4} rx="4" ry="2.5" fill="#FF8FB1" opacity=".7" />
+          <path className="fc-mouth" d={`M${fx - 8} ${fy + 4}q8 9 16 0`} fill="#7A1F2B" />
+        </g>
+      </svg>
+    </button>
+  );
+}
 
 export function DancingFruit({ k }: { k: string }) {
   const { lang } = useGuest();
   const ui = UI[lang];
-  const music = useMusicBox(TWINKLE, 108);
-  const [jump, setJump] = useState<Record<number, number>>({});
+  const [beat, setBeat] = useState(-1);
+  const [spin, setSpin] = useState<Record<number, number>>({});
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
+  const playing = beat >= 0;
+  const toggle = () => {
+    if (playing) return stopRef.current(), setBeat(-1);
+    setBeat(0);
+    stopRef.current = playGroove(setBeat);
+  };
+  // Change dance move every two beats; everyone dances together, with a small ripple.
+  const move = playing ? MOVES[Math.floor(beat / 2) % MOVES.length] : "idle";
   return (
     <>
       <GameHead k={k} />
-      <div className={`fruit-stage${music.on ? " playing" : ""}`}>
-        <span className="fruit-sparkles" aria-hidden="true" />
-        {FRUIT.map((f, i) => (
-          <button
-            key={`${i}-${jump[i] ?? 0}`}
-            className={`fruit${jump[i] ? " jump" : ""}`}
-            style={{ animationDelay: `${(i * 0.17).toFixed(2)}s` }}
-            onClick={() => (boing(), buzz(HAPTIC.tap), setJump((j) => ({ ...j, [i]: (j[i] ?? 0) + 1 })))}
-            aria-label={f}
-          >
-            <span className="fruit-body">{f}</span>
-            <span className="fruit-face" aria-hidden="true">
-              <i />
-              <i />
-              <em />
-            </span>
-          </button>
-        ))}
+      <div className={`fruit-party${playing ? " on" : ""}`} data-beat={beat % 2}>
+        <span className="fp-lights" aria-hidden="true" />
+        <span className="fp-stars" aria-hidden="true" />
+        <div className="fp-row">
+          {FRUITS.map((f, i) => (
+            <div key={i} className="fp-slot" style={{ ["--d" as string]: `${i * 0.05}s` }}>
+              <FruitCharacter
+                key={`${i}-${spin[i] ?? 0}`}
+                kind={f.kind}
+                face={f.face}
+                idx={i}
+                move={spin[i] ? "spin" : move}
+                onTap={() => (boing(), buzz(HAPTIC.tap), setSpin((s) => ({ ...s, [i]: (s[i] ?? 0) + 1 })), setTimeout(() => setSpin((s) => ({ ...s, [i]: 0 })), 700))}
+              />
+              <span className="fp-floor" aria-hidden="true" />
+            </div>
+          ))}
+        </div>
       </div>
       <p className="g-sub" style={{ textAlign: "center" }}>
         {ui.tapFruit}
       </p>
-      <button className="g-btn" onClick={music.toggle}>
-        {music.on ? `⏸ ${ui.stop}` : `🎵 ${ui.music}`}
+      <button className="g-btn" onClick={toggle}>
+        {playing ? `⏸ ${ui.stop}` : `🎵 ${ui.music}`}
       </button>
     </>
   );
@@ -239,7 +359,10 @@ export function DancingFruit({ k }: { k: string }) {
 export function SleepyLights({ k }: { k: string }) {
   const { lang } = useGuest();
   const ui = UI[lang];
-  const music = useMusicBox(LULLABY, 66);
+  const [lull, setLull] = useState(false);
+  const lullStop = useRef<() => void>(() => {});
+  useEffect(() => () => lullStop.current(), []);
+  const music = { on: lull, toggle: () => (lull ? (lullStop.current(), setLull(false)) : ((lullStop.current = playLullaby()), setLull(true))) };
   const noise = useRef<{ ac: AudioContext } | null>(null);
   const [shh, setShh] = useState(false);
 

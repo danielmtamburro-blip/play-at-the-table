@@ -10,7 +10,8 @@ import { shuffle, useGuest } from "../context";
 import { ParentBar } from "../KidsLock";
 import { useScores } from "../Leaderboard";
 
-type Tone = "kids" | "group" | "date";
+import { CardStage, type Tone } from "./CardStage";
+import { sfx } from "@/lib/sfx";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -46,7 +47,9 @@ export function GameHead({ k }: { k: string }) {
 export function GameHub({ group, title, sub, note }: { group: GameGroup; title: string; sub: string; note?: string }) {
   const { venue, go, L, tr } = useGuest();
   const cls = group === "kids" ? "bg-kids" : group === "group" ? "bg-group" : "bg-date";
-  const list = GAMES.filter((g) => g.group === group && g.cat !== "featured" && gameOn(venue.games as Record<string, boolean>, g.key));
+  const list = GAMES.filter(
+    (g) => (g.group === group || (group === "kids" && g.kidsBand)) && g.cat !== "featured" && gameOn(venue.games as Record<string, boolean>, g.key),
+  );
   const card = (g: GameInfo) => (
     <button key={g.key} className={`g-pick ${cls}`} data-game={g.key} onClick={() => go(g.key)}>
       {g.group !== "kids" && (
@@ -72,7 +75,7 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
       {group === "kids" && <ParentBar />}
       {group === "kids" ? (
         KIDS_BANDS.map(({ band, label }) => {
-          const inBand = list.filter((g) => g.band === band);
+          const inBand = list.filter((g) => (g.band ?? g.kidsBand) === band);
           if (!inBand.length) return null;
           return (
             <section key={band} className="g-band">
@@ -127,26 +130,27 @@ function FeatureBanner({ k }: { k: string }) {
 
 /* ---------- Prompt cards (Quick questions, Most likely to, Never have I ever) ---------- */
 
-export function PromptCards({ k, items, tone, note }: { k: string; items: Loc[]; tone: Tone; note?: string }) {
-  const { tr, L } = useGuest();
-  const [order] = useState(() => shuffle(items));
+export function PromptCards({ k, items, tone, note }: { k: string; items: Loc[]; tone: Tone | "drink"; note?: string }) {
+  const { tr, L, lang } = useGuest();
+  const [order, setOrder] = useState(() => shuffle(items));
   const [i, setI] = useState(0);
-  const n = i % order.length;
+  const next = () => {
+    sfx.tap();
+    if (i + 1 >= order.length) (setOrder(shuffle(items)), setI(0));
+    else setI(i + 1);
+  };
   return (
     <>
       <GameHead k={k} />
-      <div className={`prompt ${tone}`}>
-        <span className="count">
-          {n + 1} / {order.length}
-        </span>
-        <p>{L(order[n])}</p>
-      </div>
+      <CardStage tone={tone} index={i} total={order.length} label={MODERN_UI[lang].swipe} onNext={next}>
+        <p className="cs-text">{L(order[i])}</p>
+      </CardStage>
       <div className="g-row">
-        <button className="g-btn alt" onClick={() => setI(i + 1)}>
+        <button className="g-btn alt" onClick={next}>
           {tr("skip")}
         </button>
-        <button className="g-btn" onClick={() => setI(i + 1)}>
-          {tr("next")}
+        <button className="g-btn" onClick={next}>
+          {tr("next")} →
         </button>
       </div>
       {note && <p className="g-note">{note}</p>}
@@ -165,21 +169,35 @@ export function Pairs({ k, pairs }: { k: string; pairs: [Loc, Loc][] }) {
   return (
     <>
       <GameHead k={k} />
-      <div className="tot">
+      <div className="vs-pair" key={i}>
         {pair.map((o, n) => (
-          <button key={n} aria-pressed={pick === n} onClick={() => setPick(n)}>
-            {L(o)}
+          <button
+            key={n}
+            className={`vs-opt o${n}${pick === n ? " on" : pick != null ? " off" : ""}`}
+            onClick={() => (sfx.tap(), buzz(HAPTIC.tap), setPick(n))}
+          >
+            <span>{L(o)}</span>
           </button>
         ))}
+        <span className="vs-badge" aria-hidden="true">
+          VS
+        </span>
+      </div>
+      <div className="cs-meta">
+        <span />
+        <span>
+          {(i % order.length) + 1} / {order.length}
+        </span>
       </div>
       <button
         className="g-btn"
         onClick={() => {
+          sfx.swipe();
           setI(i + 1);
           setPick(null);
         }}
       >
-        {tr("next")}
+        {tr("next")} →
       </button>
     </>
   );
@@ -187,75 +205,148 @@ export function Pairs({ k, pairs }: { k: string; pairs: [Loc, Loc][] }) {
 
 /* ---------- Multiple-choice quiz ---------- */
 
-type Q = { q: Loc; o: Loc[]; a: number };
+type Q = { q: Loc; o: Loc[]; a: number; lvl?: 1 | 2 | 3 };
+type Level = 0 | 1 | 2 | 3; // 0 = mixed
+const SECS = 20;
 
-export function QuizGame({ k, questions, tone, rounds = 5 }: { k: string; questions: Q[]; tone: Tone; rounds?: number }) {
-  const { tr, L, log, demo } = useGuest();
-  const fresh = () => ({ order: shuffle(questions).slice(0, rounds), i: 0, score: 0, ans: null as number | null });
-  const [z, setZ] = useState(fresh);
+export function QuizGame({ k, questions, tone, rounds = 10 }: { k: string; questions: Q[]; tone: Tone; rounds?: number }) {
+  const { tr, L, log, demo, lang } = useGuest();
+  const ui = MODERN_UI[lang];
+  const [level, setLevel] = useState<Level | null>(demo ? 0 : null);
+  const pool = (lv: Level) => (lv === 0 ? questions : questions.filter((q) => (q.lvl ?? 1) === lv));
+  const fresh = (lv: Level) => ({ order: shuffle(pool(lv)).slice(0, rounds), i: 0, score: 0, streak: 0, best: 0, ans: null as number | null });
+  const [z, setZ] = useState(() => fresh(0));
+  const [left, setLeft] = useState(SECS);
   const over = z.i >= z.order.length;
-  useEffect(() => {
-    if (over) log("game_finish", { item: k, value: z.score });
-  }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (over)
+  useEffect(() => {
+    if (over) (log("game_finish", { item: k, value: z.score }), sfx.win());
+  }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Countdown for each question (paused once answered, and in the demo phone).
+  useEffect(() => {
+    if (level == null || over || z.ans != null || demo) return;
+    setLeft(SECS);
+    const t = setInterval(() => setLeft((s) => (s <= 1 ? (clearInterval(t), 0) : s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [z.i, z.ans, level, over, demo]);
+  useEffect(() => {
+    if (left === 0 && z.ans == null && !over && level != null) answer(-1);
+  }, [left]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function answer(i: number) {
+    const q = z.order[z.i];
+    const ok = i === q.a;
+    ok ? sfx.correct() : sfx.wrong();
+    buzz(ok ? HAPTIC.good : HAPTIC.bad);
+    const streak = ok ? z.streak + 1 : 0;
+    setZ({ ...z, ans: i, score: z.score + (ok ? 1 : 0), streak, best: Math.max(z.best, streak) });
+  }
+
+  if (level == null)
     return (
       <>
         <GameHead k={k} />
-        <div className={`prompt ${tone}`}>
-          <p>
-            {tr("score")} {z.score} {tr("of")} {z.order.length}!
-          </p>
+        <div className="quiz-levels">
+          {([0, 1, 2, 3] as Level[]).map((lv) => (
+            <button
+              key={lv}
+              className={`quiz-level lv${lv}`}
+              disabled={lv !== 0 && pool(lv).length < 5}
+              onClick={() => (sfx.tap(), setLevel(lv), setZ(fresh(lv)))}
+            >
+              <b>{ui.levels[lv]}</b>
+              <small>{lv === 0 ? ui.mixedS : `${pool(lv).length} ${ui.questions}`}</small>
+            </button>
+          ))}
         </div>
-        <button
-          className="g-btn"
-          onClick={() => {
-            setZ(fresh());
-            log("game_start", { item: k });
-          }}
-        >
-          {tr("playAgain")}
-        </button>
       </>
     );
+
+  if (over) {
+    const stars = z.score >= z.order.length * 0.8 ? 3 : z.score >= z.order.length * 0.5 ? 2 : 1;
+    return (
+      <>
+        <GameHead k={k} />
+        <div className={`quiz-done cs-${tone}`}>
+          <span className="quiz-stars" aria-label={`${stars}/3`}>
+            {[1, 2, 3].map((s) => (
+              <i key={s} className={s <= stars ? "on" : ""} style={{ animationDelay: `${s * 0.15}s` }}>
+                ★
+              </i>
+            ))}
+          </span>
+          <b>
+            {z.score} / {z.order.length}
+          </b>
+          <span>{stars === 3 ? ui.genius : stars === 2 ? ui.nice : ui.tryAgain}</span>
+          {z.best > 1 && <small>🔥 {ui.bestStreak}: {z.best}</small>}
+        </div>
+        <div className="g-row">
+          <button className="g-btn alt" onClick={() => setLevel(null)}>
+            {ui.changeLevel}
+          </button>
+          <button className="g-btn" onClick={() => (setZ(fresh(level)), log("game_start", { item: k }))}>
+            {tr("playAgain")}
+          </button>
+        </div>
+      </>
+    );
+  }
 
   const q = z.order[z.i];
   return (
     <>
       <GameHead k={k} />
-      <div className={`prompt ${tone}`}>
-        <span className="count">
-          {z.i + 1} / {z.order.length}
+      <div className="quiz-hud">
+        <span className="quiz-chip">{ui.levels[(q.lvl ?? 1) as Level]}</span>
+        <span className="quiz-chip">
+          ✓ {z.score}
         </span>
-        <p>{L(q.q)}</p>
+        {z.streak > 1 && <span className="quiz-chip hot">🔥 {z.streak}</span>}
+        {!demo && (
+          <span className={`quiz-timer${left <= 5 ? " low" : ""}`} aria-label={`${left}s`}>
+            <i style={{ width: `${(left / SECS) * 100}%` }} />
+          </span>
+        )}
       </div>
-      <div className="quiz-opts">
+      <CardStage tone={tone} index={z.i} total={z.order.length} label={ui.question}>
+        <p className="cs-text">{L(q.q)}</p>
+      </CardStage>
+      <div className="quiz-opts modern">
         {q.o.map((o, i) => {
-          const cls = z.ans == null ? "" : i === q.a ? "right" : i === z.ans ? "wrong" : "";
+          const cls = z.ans == null ? "" : i === q.a ? "right" : i === z.ans ? "wrong" : "dim";
           return (
-            <button
-              key={i}
-              className={cls}
-              disabled={z.ans != null}
-              data-right={demo && i === q.a ? "" : undefined}
-              onClick={() => (buzz(i === q.a ? HAPTIC.good : HAPTIC.bad), setZ({ ...z, ans: i, score: z.score + (i === q.a ? 1 : 0) }))}
-            >
+            <button key={`${z.i}-${i}`} className={cls} disabled={z.ans != null} data-right={demo && i === q.a ? "" : undefined} onClick={() => answer(i)}>
+              <em>{"ABCD"[i]}</em>
               {L(o)}
             </button>
           );
         })}
       </div>
-      <p className="feedback" aria-live="polite">
-        {z.ans == null ? "" : z.ans === q.a ? tr("correct") : `${tr("notQuite")} ${L(q.o[q.a])}.`}
-      </p>
       {z.ans != null && (
-        <button className="g-btn" data-act="next" onClick={() => setZ({ ...z, i: z.i + 1, ans: null })}>
-          {tr("next")}
-        </button>
+        <>
+          <p className={`quiz-feedback${z.ans === q.a ? " ok" : ""}`} aria-live="polite">
+            {z.ans === q.a ? tr("correct") : z.ans === -1 ? `${ui.timeUp} ${L(q.o[q.a])}.` : `${tr("notQuite")} ${L(q.o[q.a])}.`}
+          </p>
+          <button className="g-btn" data-act="next" onClick={() => (sfx.swipe(), setZ({ ...z, i: z.i + 1, ans: null }))}>
+            {tr("next")} →
+          </button>
+        </>
       )}
     </>
   );
 }
+
+const MODERN_UI = {
+  en: {
+    swipe: "Swipe or tap next", question: "Question", levels: ["Mixed", "Easy", "Medium", "Hard"], mixedS: "A bit of everything", questions: "questions",
+    genius: "Genius! 🧠", nice: "Nice one!", tryAgain: "Have another go!", bestStreak: "Best streak", changeLevel: "Change level", timeUp: "Time's up! It was",
+  },
+  ar: {
+    swipe: "اسحب أو اضغط التالي", question: "السؤال", levels: ["منوع", "سهل", "متوسط", "صعب"], mixedS: "قليل من كل شيء", questions: "سؤالاً",
+    genius: "عبقري! 🧠", nice: "أحسنت!", tryAgain: "حاول مرة أخرى!", bestStreak: "أفضل سلسلة", changeLevel: "تغيير المستوى", timeUp: "انتهى الوقت! الجواب",
+  },
+};
 
 /* ---------- Reveal the answer (Riddles, Emoji films) ---------- */
 
