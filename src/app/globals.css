@@ -1546,10 +1546,10 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .mx-card .glass-ico{--c1:color-mix(in srgb,var(--g-accent,#6E4BFF) 70%,#fff);--c2:var(--g-accent,#6E4BFF)}
 
 /* ===== Cover greeting: left side of the cover, balancing the logo artwork on the right ===== */
-.g-cover-hello{position:absolute;z-index:2;inset-inline-start:16px;bottom:38px;max-width:52%;display:flex;flex-direction:column;gap:4px;color:#fff;opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease}
-.g-cover-hello.on{opacity:1;transform:none}
+.g-cover-hello{position:absolute;z-index:2;inset-inline-start:16px;top:50%;max-width:52%;display:flex;flex-direction:column;gap:4px;color:#fff;opacity:0;transform:translateY(calc(-50% + 6px));transition:opacity .5s ease,transform .5s ease}
+.g-cover-hello.on{opacity:1;transform:translateY(-50%)}
 .g-cover-hello b{font-family:var(--display);font-size:1.45rem;font-weight:800;line-height:1.05;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
 .g-cover-hello span{font-size:.78rem;line-height:1.3;opacity:.88;text-shadow:0 1px 8px rgba(0,0,0,.4)}
-.phone .g-cover-hello{bottom:44px}
+.phone .g-cover-hello{top:calc(50% + 14px)}
 .phone .g-cover-hello b{font-size:1.25rem}
 @media (prefers-reduced-motion:reduce){.g-cover-hello{transition:none}}
