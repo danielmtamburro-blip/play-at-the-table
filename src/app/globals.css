@@ -1593,3 +1593,130 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 /* ===== Slimmer "Challenge another table" banner ===== */
 .g-ex.t-versus{min-height:52px;padding:8px 12px}
 .g-ex.t-versus .glass-ico{width:36px;height:36px;border-radius:12px}
+
+/* ===== Landing page on phones only (desktop is unchanged) ===== */
+.swipe-hint{display:none}
+@media (max-width:640px){
+  /* Hero: centred, full-width buttons; no "scan this" box, they're already on their phone */
+  .hero .wrap{padding-block:28px 40px;gap:32px}
+  .hero-copy{align-items:center;text-align:center;gap:18px}
+  .hero h1{font-size:clamp(2.3rem,11vw,3rem)}
+  .hero-copy .lede{font-size:1.02rem}
+  .hero-ctas{flex-direction:column;align-self:stretch}
+  .hero-ctas .btn{width:100%;justify-content:center}
+  .try-phone{display:none}
+  .hero-meta{justify-content:center}
+  /* Compact top bar: name on one line, smaller button */
+  .nav .wrap{padding-block:10px;gap:10px}
+  .nav .logo{font-size:1.05rem;white-space:nowrap}
+  .nav .logo-mark{width:30px;height:30px}
+  .nav .btn{padding:7px 13px;min-height:36px;font-size:.85rem;white-space:nowrap}
+  /* Section headings centred */
+  .section-head{align-items:center;text-align:center;margin-inline:auto;margin-bottom:22px}
+  .section-head h2{font-size:clamp(1.7rem,7.5vw,2.1rem)}
+  .section-head p{font-size:.98rem}
+  section.block{padding-block:52px}
+  /* Long card lists become one swipeable row */
+  .swipe-hint{display:block;margin:-8px 0 12px;text-align:center;font-size:.82rem;font-weight:600;opacity:.6}
+  .modules,.benefits{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:2px 16px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .modules::-webkit-scrollbar,.benefits::-webkit-scrollbar{display:none}
+  .module,.benefit{flex:0 0 82%;scroll-snap-align:center}
+  .module{padding:20px}
+  .module h3{font-size:1.25rem}
+  .benefit{padding:16px;border:2px solid color-mix(in srgb,var(--bg) 25%,var(--ink));border-radius:var(--r-lg)}
+  /* What you get: lighter visuals */
+  .vg-charts{display:none}
+  .vg-table{height:230px}
+  .vg-coaster{width:140px;height:140px}
+  .vg-coaster.c1{left:calc(50% - 70px)}
+}
+
+/* ===== Landing page on phones: purple throughout, matching the hero (desktop keeps its light sections) ===== */
+@media (max-width:640px){
+  html:has(#landing){
+    --bg:#1E1948; --surface:#2A2461; --surface-2:#332C70; --line:#463E88;
+    --ink:#F4F1FF; --muted:#C4BDEA;
+    --coral-soft:#4A2240; --sun-soft:#4A3A1C; --teal-soft:#173F48; --violet-soft:#352B7A; --rose-soft:#4D1F45;
+    --on-accent:#140F2E;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+  /* The band that was dark on light stays a deeper purple so it still stands apart */
+  #landing .venue-band{background:#141036;color:#F4F1FF}
+  #landing .venue-band .section-head p{color:#C4BDEA}
+  #landing .benefit{border-color:#3A3277}
+  #landing .benefit p{color:#C4BDEA}
+  #landing .vg-band{background:linear-gradient(180deg,#1E1948,#272063)}
+}
+
+/* ===== Phones: the three steps and the price plans slide across too ===== */
+@media (max-width:640px){
+  .steps,.pricing{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:4px 16px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:stretch}
+  .steps::-webkit-scrollbar,.pricing::-webkit-scrollbar{display:none}
+  .step{flex:0 0 78%;scroll-snap-align:center;padding:22px}
+  .plan{flex:0 0 86%;scroll-snap-align:center;padding:22px}
+}
+
+/* ===== Phones: purple page, but every card keeps its desktop colours ===== */
+@media (max-width:640px){
+  #landing :is(.module,.step,.plan,.vg-card,.yv-form,.pilot form,.faq details,.pilot-note){
+    --bg:#F6F4FF; --surface:#FFFFFF; --surface-2:#EFEBFF; --line:#E1DBF5;
+    --ink:#1B1740; --muted:#5D5880;
+    --coral-soft:#FFE3E0; --sun-soft:#FFF1CF; --teal-soft:#D5F4EF; --violet-soft:#E6E0FF; --rose-soft:#FFDFEA;
+    --on-accent:#FFFFFF;
+    --shadow:0 1px 2px rgba(27,23,64,.06),0 8px 24px rgba(27,23,64,.08);
+    color:var(--ink); color-scheme:light;
+  }
+  #landing .pilot form{background:#FFFFFF}
+}
+
+/* ===== Phones: no white boxes. Each card gets a pastel; panels inside take on its tint ===== */
+@media (max-width:640px){
+  #landing :is(.module,.step,.plan,.vg-card,.yv-form,.pilot form,.faq details,.pilot-note){
+    --surface:rgba(255,255,255,.45); --surface-2:rgba(255,255,255,.32); --line:rgba(27,23,64,.12);
+    --coral-soft:#FFB3AA; --sun-soft:#FFD97A; --teal-soft:#8FE0D2; --violet-soft:#BDB0FF; --rose-soft:#FFADC8;
+    --muted:#3D3766;
+    border-color:transparent;
+  }
+  #landing .step:nth-child(1){background:#FFD97A}
+  #landing .step:nth-child(2){background:#8FE0D2}
+  #landing .step:nth-child(3){background:#FFADC8}
+  #landing .plan:nth-child(1){background:#8FE0D2}
+  #landing .plan:nth-child(2){background:#BDB0FF}
+  #landing .plan:nth-child(3){background:#FFB3AA}
+  #landing .vg-card:nth-child(1){background:#FFD97A}
+  #landing .vg-card:nth-child(2){background:#BDB0FF}
+  #landing .vg-card:nth-child(3){background:#8FE0D2}
+  #landing .yv-form{background:#BDB0FF}
+  #landing .pilot form{background:#8FE0D2}
+  #landing .faq details:nth-child(4n+1){background:#FFB3AA}
+  #landing .faq details:nth-child(4n+2){background:#FFD97A}
+  #landing .faq details:nth-child(4n+3){background:#8FE0D2}
+  #landing .faq details:nth-child(4n+4){background:#BDB0FF}
+  #landing .module.m-info{background:#BDB0FF}
+  #landing .vg-window{background:rgba(255,255,255,.45);border-color:rgba(27,23,64,.1)}
+  #landing .nav .btn-primary{background:#FFB51F;color:#1B1740}
+  #landing :is(.yv-form,.pilot form) :is(input,select,textarea){background:rgba(255,255,255,.7);border-color:rgba(27,23,64,.14)}
+}
+
+/* ===== Phones: "Keep tables happy" cards in the same colours as the others ===== */
+@media (max-width:640px){
+  #landing .venue-band .benefit{border:0;color:#1B1740}
+  #landing .venue-band .benefit p{color:#3D3766}
+  #landing .venue-band .benefit:nth-child(5n+1){background:#FFD97A}
+  #landing .venue-band .benefit:nth-child(5n+2){background:#8FE0D2}
+  #landing .venue-band .benefit:nth-child(5n+3){background:#FFADC8}
+  #landing .venue-band .benefit:nth-child(5n+4){background:#BDB0FF}
+  #landing .venue-band .benefit:nth-child(5n+5){background:#FFB3AA}
+}
+
+/* ===== Phones: calmer, deeper colour for the "Picture it in your place" form ===== */
+@media (max-width:640px){
+  #landing .yv-form{background:#8F82C9;--muted:#2A2550}
+  #landing .yv-form :is(input,select,textarea){background:rgba(255,255,255,.78)}
+}
+
+/* ===== Phones: the same tick circle on every plan (Basic's card matched the old circle colour) ===== */
+@media (max-width:640px){
+  #landing .plan li::before{background-color:rgba(255,255,255,.75)}
+}
