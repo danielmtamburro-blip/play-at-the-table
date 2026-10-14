@@ -99,13 +99,152 @@ function CoverHello() {
   );
 }
 
-/** Cover with the table and language on it, and the logo card overlapping. Our ring artwork in the venue's colours. */
+const LIVE: Record<Lang, { now: string; until: string; tonight: string; starts: string; tomorrow: string }> = {
+  en: { now: "On now", until: "until", tonight: "Tonight", starts: "Starts", tomorrow: "Tomorrow" },
+  ar: { now: "يحدث الآن", until: "حتى", tonight: "الليلة", starts: "يبدأ", tomorrow: "غداً" },
+};
+
+/** Today's and tomorrow's events: whatever is on right now first, then in the order they start. */
+function upcoming(events: VenueEvent[]) {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return events
+    .map((ev) => ({ ev, occ: nextOccurrence(ev) }))
+    .filter((x): x is { ev: VenueEvent; occ: { date: Date; add: number } } => x.occ !== null && x.occ.add <= 1)
+    .map((x) => ({ ...x, live: x.occ.add === 0 && toMin(x.ev.start) <= nowMin && nowMin <= toMin(x.ev.end) }))
+    .sort((a, b) => Number(b.live) - Number(a.live) || a.occ.add - b.occ.add || toMin(a.ev.start) - toMin(b.ev.start));
+}
+
+/** Music notes with sound rings, for the "what's on" slide. */
+const EventArt = () => (
+  <svg className="g-slide-art" viewBox="0 0 200 200" aria-hidden="true">
+    <g fill="none" stroke="#fff" strokeWidth="3">
+      <circle cx="120" cy="100" r="46" strokeOpacity=".35" />
+      <circle cx="120" cy="100" r="66" strokeOpacity=".22" />
+      <circle cx="120" cy="100" r="86" strokeOpacity=".12" />
+    </g>
+    <circle cx="120" cy="100" r="30" fill="#fff" fillOpacity=".18" />
+    <path d="M112 116V84l22-4v28" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="106" cy="116" r="7" fill="#fff" />
+    <circle cx="128" cy="108" r="7" fill="#fff" />
+  </svg>
+);
+
+/** A cocktail and a long drink, for the offer slide. */
+const DrinksArt = () => (
+  <svg className="g-slide-art" viewBox="0 0 200 200" aria-hidden="true">
+    <defs>
+      <linearGradient id="gdk1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#FFB86B" />
+        <stop offset="1" stopColor="#E0566B" />
+      </linearGradient>
+      <linearGradient id="gdk2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#FFE29A" />
+        <stop offset="1" stopColor="#F2A21B" />
+      </linearGradient>
+    </defs>
+    <path d="M92 70h58l-29 34z" fill="url(#gdk1)" stroke="rgba(255,255,255,.7)" strokeWidth="2.5" strokeLinejoin="round" />
+    <path d="M121 104v40M106 146h30" stroke="rgba(255,255,255,.8)" strokeWidth="3" strokeLinecap="round" />
+    <circle cx="146" cy="68" r="11" fill="#7FD36B" />
+    <circle cx="146" cy="68" r="7" fill="#B9F09A" />
+    <rect x="150" y="96" width="34" height="58" rx="5" fill="url(#gdk2)" stroke="rgba(255,255,255,.7)" strokeWidth="2.5" />
+    <path d="M172 96l8-26" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+    <circle cx="160" cy="118" r="3" fill="#fff" fillOpacity=".7" />
+    <circle cx="172" cy="132" r="2.5" fill="#fff" fillOpacity=".7" />
+    <path d="M70 52l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#FFE7B0" />
+  </svg>
+);
+
+type Slide = { k: string; node: React.ReactNode };
+
+/** The cover slides: our artwork with the greeting, then what's on now, a featured offer and the venue's own photo. */
+function useCoverSlides(): Slide[] {
+  const { venue, L, lang } = useGuest();
+  const t = LIVE[lang];
+  const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
+  const m = venue.modules;
+  const out: Slide[] = [
+    {
+      k: "brand",
+      node: (
+        <>
+          <BrandCover accent={venue.theme ? accent : undefined} mode={venue.theme ? venue.theme.cover : "brand"} />
+          <CoverHello />
+        </>
+      ),
+    },
+  ];
+  const ev = m.events ? upcoming(venue.events).find((x) => x.occ.add === 0) : undefined;
+  if (ev)
+    out.push({
+      k: "event",
+      node: (
+        <div className="g-slide-bg sl-event">
+          <EventArt />
+          <div className="g-cover-hello g-cover-cap">
+            <b>{L(ev.ev.title)}</b>
+            <span>
+              {ev.live ? (
+                <>
+                  <i className="g-live-dot" aria-hidden="true" />
+                  {t.now} · {t.until} {ev.ev.end}
+                </>
+              ) : (
+                `${t.tonight} · ${ev.ev.start}–${ev.ev.end}`
+              )}
+            </span>
+          </div>
+        </div>
+      ),
+    });
+  const offer = m.offers ? [...venue.offers].sort((a, b) => Number(b.featured) - Number(a.featured))[0] : undefined;
+  if (offer)
+    out.push({
+      k: "offer",
+      node: (
+        <div className="g-slide-bg sl-offer">
+          <DrinksArt />
+          <div className="g-cover-hello g-cover-cap">
+            <b>{L(offer.title)}</b>
+            {L(offer.desc) && <span>{L(offer.desc)}</span>}
+          </div>
+        </div>
+      ),
+    });
+  if (venue.coverUrl)
+    out.push({
+      k: "photo",
+      node: (
+        <div className="g-slide-bg sl-photo">
+          <span className="g-slide-photo" style={{ backgroundImage: `url("${venue.coverUrl}")` }} />
+          {/* The name already sits under the cover, so this slide names the place instead. */}
+          {L(venue.area) && (
+            <div className="g-cover-hello g-cover-cap">
+              <b>{L(venue.area)}</b>
+              {L(venue.address) && <span>{L(venue.address)}</span>}
+            </div>
+          )}
+        </div>
+      ),
+    });
+  return out;
+}
+
+/** Cover with the table and language on it, and the logo card overlapping. Slides through our artwork, what's on, an offer and the venue's photo. */
 function Cover() {
-  const { venue, table, tr, L, lang, toggleLang } = useGuest();
+  const { venue, table, tr, L, lang, toggleLang, demo } = useGuest();
   const name = L(venue.name);
   const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
-  // Only the showroom venue has a custom cover picture; every venue gets the Play at Your Table cover.
-  const img = venue.coverUrl;
+  const slides = useCoverSlides();
+  const [at, setAt] = useState(0);
+  const [tick, setTick] = useState(0);
+  // A new slide every 4.5 seconds; tapping a dot restarts the timer. Holds still for reduced motion.
+  useEffect(() => {
+    if (slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setAt((i) => (i + 1) % slides.length), demo ? 3500 : 4500);
+    return () => clearInterval(t);
+  }, [slides.length, tick, demo]);
+  const cur = at % Math.max(1, slides.length);
   const initials = venue.name.en
     .split(/[\s&]+/)
     .filter(Boolean)
@@ -115,11 +254,19 @@ function Cover() {
     .toUpperCase();
   return (
     <div className="g-cover-wrap">
-      <div
-        className="g-cover"
-        style={img ? { backgroundImage: `linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,0) 40%, rgba(0,0,0,.15)), url("${img}")` } : undefined}
-      >
-        {!img && <BrandCover accent={venue.theme ? accent : undefined} mode={venue.theme ? venue.theme.cover : "brand"} />}
+      <div className="g-cover">
+        {slides.map((s, i) => (
+          <div key={s.k} className={`g-slide${i === cur ? " on" : ""}`} aria-hidden={i !== cur}>
+            {s.node}
+          </div>
+        ))}
+        {slides.length > 1 && (
+          <div className="g-slide-dots">
+            {slides.map((s, i) => (
+              <button key={s.k} className={i === cur ? "on" : ""} aria-label={`${i + 1} / ${slides.length}`} onClick={() => (setAt(i), setTick((n) => n + 1))} />
+            ))}
+          </div>
+        )}
         <div className="g-cover-bar">
           {table ? (
             <span className="g-cover-chip">
@@ -132,7 +279,6 @@ function Cover() {
             {tr("lang")}
           </button>
         </div>
-        {!img && <CoverHello />}
       </div>
       <div className="g-id">
         {venue.logoUrl ? (
@@ -167,8 +313,7 @@ function QuickActions() {
     items.push({ k: "server", label: x.callServer, icon: <Glyph k="bell" />, on: () => svc.call("server"), act: "call", off: svc.cool.server });
     items.push({ k: "bill", label: x.billPlease, icon: <Glyph k="receipt" />, on: () => svc.call("bill"), off: svc.cool.bill });
   }
-  if (m.offers || m.events) items.push({ k: "offers", label: x.qOffers, icon: <Glyph k="tag" />, on: () => go(m.events ? "events" : "offers") });
-  if (m.feedback && items.length < 4) items.push({ k: "feedback", label: x.feedback, icon: <Glyph k="chat" />, on: () => go("feedback") });
+  // Offers and feedback live in the tab bar and the Explore list, so only the two service buttons sit here.
   return (
     <>
       {menus.length > 0 && (
@@ -190,8 +335,8 @@ function QuickActions() {
         </div>
       )}
       {items.length > 0 && (
-        <div className="g-quick">
-          {items.slice(0, 4).map((it) => (
+        <div className="g-quick g-quick-svc">
+          {items.map((it) => (
             <button key={it.k} className={`g-q q-${it.k}`} data-act={it.act} data-q={it.k} onClick={it.on} disabled={it.off}>
               <span className="glass-ico" aria-hidden="true">
                 {it.icon}
@@ -210,23 +355,33 @@ function QuickActions() {
   );
 }
 
-/** Offers and today's events as swipeable cards. */
+/** What's on (now first, then tonight, then tomorrow) and offers, as swipeable cards. */
 function Tonight() {
   const { venue, lang, L, go, log } = useGuest();
   const x = EXTRA[lang];
+  const t = LIVE[lang];
   const m = venue.modules;
   const offers = m.offers ? [...venue.offers].sort((a, b) => Number(b.featured) - Number(a.featured)) : [];
-  const events = m.events ? venue.events.filter((ev) => nextOccurrence(ev)?.add === 0) : [];
+  const events = m.events ? upcoming(venue.events) : [];
   if (!offers.length && !events.length) return null;
   return (
     <Scroller title={x.tonight} more={() => go(m.events ? "events" : "offers")}>
-      {events.map((ev) => (
-        <button key={ev.id} data-tcard="event" className="g-tcard" style={{ background: "linear-gradient(135deg, #7A3D8C, #3B2360)" }} onClick={() => go("events")}>
-          <small>
-            {x.eventToday} · {ev.start}–{ev.end}
-          </small>
+      {events.map(({ ev, occ, live }) => (
+        <button
+          key={ev.id}
+          data-tcard="event"
+          className="g-tcard"
+          style={{ background: occ.add === 0 ? "linear-gradient(135deg, #7A3D8C, #3B2360)" : "linear-gradient(135deg, #1F6A60, #10332E)" }}
+          onClick={() => go("events")}
+        >
+          <span className={`g-tpill${live ? " live" : ""}`}>
+            {live ? t.now : occ.add === 0 ? `${t.starts} ${ev.start}` : `${t.tomorrow} ${ev.start}`}
+          </span>
           <b>{L(ev.title)}</b>
-          {L(ev.desc) && <span>{L(ev.desc)}</span>}
+          <small>
+            {ev.start}–{ev.end}
+            {L(ev.desc) ? ` · ${L(ev.desc)}` : ""}
+          </small>
         </button>
       ))}
       {offers.map((o) => (

@@ -1553,3 +1553,43 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .phone .g-cover-hello{top:calc(50% + 14px)}
 .phone .g-cover-hello b{font-size:1.25rem}
 @media (prefers-reduced-motion:reduce){.g-cover-hello{transition:none}}
+
+/* ===== Cover slideshow: artwork + greeting, what's on now, an offer, the venue's photo ===== */
+.g-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;pointer-events:none}
+.g-slide.on{opacity:1;pointer-events:auto}
+.g-slide .brand-cover,.g-slide-photo{transform-origin:60% 50%}
+.g-slide.on .brand-cover,.g-slide.on .g-slide-photo,.g-slide.on .g-slide-art{animation:gKen 6s ease-out forwards}
+@keyframes gKen{from{transform:scale(1)}to{transform:scale(1.07)}}
+.g-slide-bg{position:absolute;inset:0;overflow:hidden}
+.g-slide-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,0) 62%);pointer-events:none}
+.sl-event{background:radial-gradient(90% 80% at 85% 20%,rgba(255,170,90,.45),transparent 60%),linear-gradient(160deg,#6A2E86,#241238)}
+.sl-offer{background:radial-gradient(70% 90% at 80% 30%,rgba(255,190,110,.55),transparent 65%),linear-gradient(160deg,#7A3A2A,#24120E 80%)}
+.sl-photo{background:#111}
+.g-slide-photo{position:absolute;inset:0;background:center/cover no-repeat}
+.g-slide-art{position:absolute;right:-8px;top:50%;width:190px;height:190px;margin-top:-95px}
+.phone .g-slide-art{margin-top:-80px}
+.g-cover-hello{z-index:2}
+.g-cover-cap{max-width:58%}
+.g-cover-cap b{font-size:1.15rem;line-height:1.12}
+.g-slide .g-cover-cap{opacity:0;transition:opacity .6s ease .35s,transform .6s ease .35s}
+.g-slide.on .g-cover-cap{opacity:1;transform:translateY(-50%)}
+.phone .g-cover-cap b{font-size:1.02rem}
+.g-live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3DDC84;margin-inline-end:6px;vertical-align:1px;box-shadow:0 0 0 3px rgba(61,220,132,.25)}
+.g-slide-dots{position:absolute;z-index:3;inset-inline-end:14px;bottom:12px;display:flex;gap:5px}
+.g-slide-dots button{border:0;padding:0;width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.5);cursor:pointer;transition:width .3s,background .3s}
+.g-slide-dots button.on{width:16px;background:#fff}
+@media (prefers-reduced-motion:reduce){.g-slide,.g-slide .g-cover-cap{transition:none}.g-slide.on .brand-cover,.g-slide.on .g-slide-photo,.g-slide.on .g-slide-art{animation:none}}
+
+/* ===== Two service buttons (Call server, Bill please) side by side ===== */
+.g-quick.g-quick-svc{grid-template-columns:1fr 1fr;gap:10px}
+.g-quick-svc .g-q{flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-size:.85rem;font-weight:700;font-family:var(--display)}
+.g-quick-svc .glass-ico{width:36px;height:36px;border-radius:12px}
+
+/* ===== What's on cards: On now / Starts / Tomorrow pill ===== */
+.g-tpill{align-self:flex-start;font-size:.64rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.18)}
+.g-tpill.live{background:#2BB673;color:#08240F}
+.g-tcard small{text-transform:none;letter-spacing:0;font-weight:500;opacity:.85}
+
+/* ===== Slimmer "Challenge another table" banner ===== */
+.g-ex.t-versus{min-height:52px;padding:8px 12px}
+.g-ex.t-versus .glass-ico{width:36px;height:36px;border-radius:12px}
