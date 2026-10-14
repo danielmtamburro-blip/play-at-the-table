@@ -10,7 +10,7 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.URL ?? "https://playatthetable.netlify.app"),
+  metadataBase: new URL(process.env.URL ?? "https://playatyourtable.com"),
   title: "Play at Your Table",
   description:
     "Play at Your Table: one QR coaster for menus, offers and games for kids, friends and couples. Built for Dubai restaurants and cafés.",

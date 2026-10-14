@@ -2,7 +2,7 @@
 // Everything here is an illustration with example numbers.
 import { coasterSvg, DEFAULT_DESIGN, inkOn } from "@/lib/coaster";
 
-const URL = "https://playatthetable.netlify.app/v/saffron-terrace/12";
+const URL = "https://playatyourtable.com/v/saffron-terrace/12";
 
 type Example = { base: string; icons: [string, string][]; iconColour: string; words: string; table: string; logo?: string; venueName?: string };
 const ICON_SPOTS: [number, number][] = [[210, 380], [790, 380], [225, 575], [775, 575]];

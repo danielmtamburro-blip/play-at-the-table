@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 
-const DEMO_URL = "https://playatthetable.netlify.app/v/saffron-terrace/12";
+const DEMO_URL = "https://playatyourtable.com/v/saffron-terrace/12";
 
 /** QR next to the demo phone: venues scan it and try the real thing on their own phone. */
 export default async function TryOnPhone() {

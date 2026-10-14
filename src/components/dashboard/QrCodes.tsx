@@ -1,6 +1,7 @@
 "use client";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
+import { qrOrigin } from "@/lib/site";
 
 /** Venue + per-table QR codes. High error correction leaves room for a centre logo on coasters. */
 export default function QrCodes({ slug, name }: { slug: string; name: string }) {
@@ -8,7 +9,7 @@ export default function QrCodes({ slug, name }: { slug: string; name: string }) 
   const [origin, setOrigin] = useState("");
   const [codes, setCodes] = useState<{ label: string; url: string; img: string }[]>([]);
 
-  useEffect(() => setOrigin(location.origin), []);
+  useEffect(() => setOrigin(qrOrigin()), []);
 
   useEffect(() => {
     if (!origin) return;
@@ -55,7 +56,7 @@ export default function QrCodes({ slug, name }: { slug: string; name: string }) 
           </div>
         ))}
       </div>
-      <p className="muted small">QR codes for {name} point at {origin || "this site"}. If you move to a custom domain, download them again.</p>
+      <p className="muted small">QR codes for {name} point at {origin || "playatyourtable.com"}.</p>
     </section>
   );
 }
