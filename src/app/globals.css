@@ -1593,3 +1593,40 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 /* ===== Slimmer "Challenge another table" banner ===== */
 .g-ex.t-versus{min-height:52px;padding:8px 12px}
 .g-ex.t-versus .glass-ico{width:36px;height:36px;border-radius:12px}
+
+/* ===== Landing page on phones only (desktop is unchanged) ===== */
+.swipe-hint{display:none}
+@media (max-width:640px){
+  /* Hero: centred, full-width buttons; no "scan this" box, they're already on their phone */
+  .hero .wrap{padding-block:28px 40px;gap:32px}
+  .hero-copy{align-items:center;text-align:center;gap:18px}
+  .hero h1{font-size:clamp(2.3rem,11vw,3rem)}
+  .hero-copy .lede{font-size:1.02rem}
+  .hero-ctas{flex-direction:column;align-self:stretch}
+  .hero-ctas .btn{width:100%;justify-content:center}
+  .try-phone{display:none}
+  .hero-meta{justify-content:center}
+  /* Compact top bar: name on one line, smaller button */
+  .nav .wrap{padding-block:10px;gap:10px}
+  .nav .logo{font-size:1.05rem;white-space:nowrap}
+  .nav .logo-mark{width:30px;height:30px}
+  .nav .btn{padding:7px 13px;min-height:36px;font-size:.85rem;white-space:nowrap}
+  /* Section headings centred */
+  .section-head{align-items:center;text-align:center;margin-inline:auto;margin-bottom:22px}
+  .section-head h2{font-size:clamp(1.7rem,7.5vw,2.1rem)}
+  .section-head p{font-size:.98rem}
+  section.block{padding-block:52px}
+  /* Long card lists become one swipeable row */
+  .swipe-hint{display:block;margin:-8px 0 12px;text-align:center;font-size:.82rem;font-weight:600;opacity:.6}
+  .modules,.benefits{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:2px 16px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .modules::-webkit-scrollbar,.benefits::-webkit-scrollbar{display:none}
+  .module,.benefit{flex:0 0 82%;scroll-snap-align:center}
+  .module{padding:20px}
+  .module h3{font-size:1.25rem}
+  .benefit{padding:16px;border:2px solid color-mix(in srgb,var(--bg) 25%,var(--ink));border-radius:var(--r-lg)}
+  /* What you get: lighter visuals */
+  .vg-charts{display:none}
+  .vg-table{height:230px}
+  .vg-coaster{width:140px;height:140px}
+  .vg-coaster.c1{left:calc(50% - 70px)}
+}

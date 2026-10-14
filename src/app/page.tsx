@@ -111,6 +111,7 @@ export default async function Landing() {
               <h2>Something for everyone at the table</h2>
               <p>Guests open the sections your venue switches on. The menu is never more than one tap away.</p>
             </div>
+            <p className="swipe-hint" aria-hidden="true">Swipe to see all 8 →</p>
             <div className="modules">
               {MODULES.map(([cls, tag, h, p]) => (
                 <article key={h} className={`module ${cls}`}>
@@ -132,6 +133,7 @@ export default async function Landing() {
               <h2>Keep tables happy while the kitchen does its thing</h2>
               <p>Families stay longer and calmer, groups order another round, and couples come back. You stay in control of every word on the page.</p>
             </div>
+            <p className="swipe-hint" aria-hidden="true">Swipe for more →</p>
             <div className="benefits">
               {BENEFITS.map(([h, p]) => (
                 <div key={h} className="benefit">
