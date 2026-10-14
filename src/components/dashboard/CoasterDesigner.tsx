@@ -22,6 +22,7 @@ import {
 import { getBrowserClient } from "@/lib/supabase/client";
 import { pdfToPng, removeVenueFile, uploadVenueFile } from "@/lib/upload";
 import type { Row } from "./CrudList";
+import { qrOrigin, SITE_URL } from "@/lib/site";
 
 
 const blobToDataUrl = (b: Blob) =>
@@ -78,7 +79,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
   const [d, setD] = useState<CoasterDesign>(saved);
   const [logoUrl, setLogoUrl] = useState<string>(venue.logo_url ?? "");
   const [logoData, setLogoData] = useState<string | null>(null);
-  const [origin, setOrigin] = useState("https://playatthetable.netlify.app");
+  const [origin, setOrigin] = useState(SITE_URL);
   const [tables, setTables] = useState(12);
   const [preview, setPreview] = useState<string | null>("1"); // table shown in the preview; null = whole venue
   const [withVenue, setWithVenue] = useState(true);
@@ -92,7 +93,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
   const set = <K extends keyof CoasterDesign>(k: K, v: CoasterDesign[K]) => setD((x) => ({ ...x, [k]: v }));
   const dirty = JSON.stringify(d) !== JSON.stringify(saved) || logoUrl !== (venue.logo_url ?? "");
 
-  useEffect(() => setOrigin(location.origin), []);
+  useEffect(() => setOrigin(qrOrigin()), []);
   useEffect(() => {
     if (venue.logo_url) toDataUrl(venue.logo_url).then(setLogoData, () => setLogoData(null));
   }, [venue.logo_url]);

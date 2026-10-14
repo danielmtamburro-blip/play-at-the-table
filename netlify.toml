@@ -5,3 +5,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# The old address forwards to the new domain, keeping the rest of the link (e.g. /v/saffron-terrace/12).
+[[redirects]]
+  from = "https://playatthetable.netlify.app/*"
+  to = "https://playatyourtable.com/:splat"
+  status = 301
+  force = true
