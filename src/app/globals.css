@@ -1669,3 +1669,30 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   }
   #landing .pilot form{background:#FFFFFF}
 }
+
+/* ===== Phones: no white boxes. Each card gets a pastel; panels inside take on its tint ===== */
+@media (max-width:640px){
+  #landing :is(.module,.step,.plan,.vg-card,.yv-form,.pilot form,.faq details,.pilot-note){
+    --surface:rgba(255,255,255,.55); --surface-2:rgba(255,255,255,.4); --line:rgba(27,23,64,.1);
+    border-color:transparent;
+  }
+  #landing .step:nth-child(1){background:#FFF1CF}
+  #landing .step:nth-child(2){background:#D5F4EF}
+  #landing .step:nth-child(3){background:#FFDFEA}
+  #landing .plan:nth-child(1){background:#D5F4EF}
+  #landing .plan:nth-child(2){background:#E6E0FF}
+  #landing .plan:nth-child(3){background:#FFE3E0}
+  #landing .vg-card:nth-child(1){background:#FFF1CF}
+  #landing .vg-card:nth-child(2){background:#E6E0FF}
+  #landing .vg-card:nth-child(3){background:#D5F4EF}
+  #landing .yv-form{background:#E6E0FF}
+  #landing .pilot form{background:#D5F4EF}
+  #landing .faq details:nth-child(4n+1){background:#FFE3E0}
+  #landing .faq details:nth-child(4n+2){background:#FFF1CF}
+  #landing .faq details:nth-child(4n+3){background:#D5F4EF}
+  #landing .faq details:nth-child(4n+4){background:#E6E0FF}
+  #landing .module.m-info{background:#E6E0FF}
+  #landing .vg-window{background:rgba(255,255,255,.45);border-color:rgba(27,23,64,.1)}
+  #landing .nav .btn-primary{background:#FFB51F;color:#1B1740}
+  #landing :is(.yv-form,.pilot form) :is(input,select,textarea){background:rgba(255,255,255,.7);border-color:rgba(27,23,64,.14)}
+}
