@@ -1647,8 +1647,6 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .benefit{border-color:#3A3277}
   #landing .benefit p{color:#C4BDEA}
   #landing .vg-band{background:linear-gradient(180deg,#1E1948,#272063)}
-  #landing .module .tag{background:rgba(255,255,255,.12);color:#F4F1FF}
-  #landing .module p{color:#E6E1FF;opacity:1}
 }
 
 /* ===== Phones: the three steps and the price plans slide across too ===== */
@@ -1657,4 +1655,17 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   .steps::-webkit-scrollbar,.pricing::-webkit-scrollbar{display:none}
   .step{flex:0 0 78%;scroll-snap-align:center;padding:22px}
   .plan{flex:0 0 86%;scroll-snap-align:center;padding:22px}
+}
+
+/* ===== Phones: purple page, but every card keeps its desktop colours ===== */
+@media (max-width:640px){
+  #landing :is(.module,.step,.plan,.vg-card,.yv-form,.pilot form,.faq details,.pilot-note){
+    --bg:#F6F4FF; --surface:#FFFFFF; --surface-2:#EFEBFF; --line:#E1DBF5;
+    --ink:#1B1740; --muted:#5D5880;
+    --coral-soft:#FFE3E0; --sun-soft:#FFF1CF; --teal-soft:#D5F4EF; --violet-soft:#E6E0FF; --rose-soft:#FFDFEA;
+    --on-accent:#FFFFFF;
+    --shadow:0 1px 2px rgba(27,23,64,.06),0 8px 24px rgba(27,23,64,.08);
+    color:var(--ink); color-scheme:light;
+  }
+  #landing .pilot form{background:#FFFFFF}
 }
