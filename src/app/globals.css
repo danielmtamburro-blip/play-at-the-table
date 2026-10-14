@@ -1715,3 +1715,8 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .yv-form{background:#8F82C9;--muted:#2A2550}
   #landing .yv-form :is(input,select,textarea){background:rgba(255,255,255,.78)}
 }
+
+/* ===== Phones: the same tick circle on every plan (Basic's card matched the old circle colour) ===== */
+@media (max-width:640px){
+  #landing .plan li::before{background-color:rgba(255,255,255,.75)}
+}
