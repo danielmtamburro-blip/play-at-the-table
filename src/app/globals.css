@@ -1630,3 +1630,23 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   .vg-coaster{width:140px;height:140px}
   .vg-coaster.c1{left:calc(50% - 70px)}
 }
+
+/* ===== Landing page on phones: purple throughout, matching the hero (desktop keeps its light sections) ===== */
+@media (max-width:640px){
+  html:has(#landing){
+    --bg:#1E1948; --surface:#2A2461; --surface-2:#332C70; --line:#463E88;
+    --ink:#F4F1FF; --muted:#C4BDEA;
+    --coral-soft:#4A2240; --sun-soft:#4A3A1C; --teal-soft:#173F48; --violet-soft:#352B7A; --rose-soft:#4D1F45;
+    --on-accent:#140F2E;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+  /* The band that was dark on light stays a deeper purple so it still stands apart */
+  #landing .venue-band{background:#141036;color:#F4F1FF}
+  #landing .venue-band .section-head p{color:#C4BDEA}
+  #landing .benefit{border-color:#3A3277}
+  #landing .benefit p{color:#C4BDEA}
+  #landing .vg-band{background:linear-gradient(180deg,#1E1948,#272063)}
+  #landing .module .tag{background:rgba(255,255,255,.12);color:#F4F1FF}
+  #landing .module p{color:#E6E1FF;opacity:1}
+}
