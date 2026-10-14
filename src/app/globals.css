@@ -1650,3 +1650,11 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .module .tag{background:rgba(255,255,255,.12);color:#F4F1FF}
   #landing .module p{color:#E6E1FF;opacity:1}
 }
+
+/* ===== Phones: the three steps and the price plans slide across too ===== */
+@media (max-width:640px){
+  .steps,.pricing{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:4px 16px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:stretch}
+  .steps::-webkit-scrollbar,.pricing::-webkit-scrollbar{display:none}
+  .step{flex:0 0 78%;scroll-snap-align:center;padding:22px}
+  .plan{flex:0 0 86%;scroll-snap-align:center;padding:22px}
+}

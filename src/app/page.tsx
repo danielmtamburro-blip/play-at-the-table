@@ -173,6 +173,7 @@ export default async function Landing() {
               <span className="eyebrow">How it works</span>
               <h2>Live on your tables in a week</h2>
             </div>
+            <p className="swipe-hint" aria-hidden="true">Swipe through the 3 steps →</p>
             <div className="steps">
               <div className="step">
                 <h3>You build your page</h3>
@@ -197,6 +198,7 @@ export default async function Landing() {
               <h2>Simple monthly plans</h2>
               <p>Prices are per venue, in AED, excluding VAT. Cancel any month. Got several venues? Ask us for a group quote.</p>
             </div>
+            <p className="swipe-hint" aria-hidden="true">Swipe to compare plans →</p>
             <div className="pricing">
               <div className="plan">
                 <h3>Basic</h3>
