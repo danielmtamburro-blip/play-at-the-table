@@ -2,6 +2,7 @@
 // Spot the difference: a fresh picture every round. Kids get 5 bigger differences, adults 7 sneaky ones.
 import { useEffect, useMemo, useState } from "react";
 import { buzz, HAPTIC } from "@/lib/haptics";
+import { sfx } from "@/lib/sfx";
 import type { Lang } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { GameHead } from "./Engines";
@@ -174,17 +175,18 @@ export function SpotDiff({ k, level }: { k: string; level: Level }) {
     return () => clearInterval(t);
   }, [done, p]);
   useEffect(() => {
-    if (done) (log("game_finish", { item: k, value: secs }), buzz(HAPTIC.win));
+    if (done) (log("game_finish", { item: k, value: secs }), (buzz(HAPTIC.win), sfx.win()));
   }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function tap(x: number, y: number) {
     if (done) return;
     const hit = p.diffs.find((d) => !found.includes(d) && Math.hypot(d.x - x, d.y - y) < p.radius);
-    if (hit) return setFound((f) => [...f, hit]), buzz();
+    if (hit) return setFound((f) => [...f, hit]), buzz(), sfx.correct();
     const id = Date.now();
     setMisses((m) => [...m, { x, y, id }]);
     setMissCount((n) => n + 1);
     buzz(HAPTIC.tap);
+    sfx.wrong();
     setTimeout(() => setMisses((m) => m.filter((z) => z.id !== id)), 600);
   }
 

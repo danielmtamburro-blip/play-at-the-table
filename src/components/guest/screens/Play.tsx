@@ -8,7 +8,7 @@ import { EXTRA, useGuest } from "../context";
 import { LeaderboardTeaser } from "../Leaderboard";
 
 /** Rough order of what tables play most; anything not listed follows. */
-const POPULAR = ["runner", "freekick", "bike", "penalty", "racer", "keepy", "pour", "bill", "trivia", "wordguess", "hilo", "memory", "bubbles", "charades", "sudoku", "wyr", "reaction", "maths", "sports", "emoji", "likely"];
+const POPULAR = ["slice", "runner", "hoops", "stack", "falcon", "freekick", "bike", "penalty", "racer", "keepy", "pour", "bill", "trivia", "wordguess", "hilo", "memory", "bubbles", "charades", "sudoku", "wyr", "reaction", "maths", "sports", "emoji", "likely"];
 
 const groupOn = (v: Venue, g: GameGroup) => v.modules[g === "drink" ? "drink" : g];
 

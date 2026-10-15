@@ -396,6 +396,7 @@ export function FreeKick({ k }: { k: string }) {
     <>
       <GameHead k={k} />
       <ArcadeShell
+        song="sunny"
         title={ui.title}
         how={[ui.h1, ui.h2, ui.h3, ui.h4]}
         state={state}

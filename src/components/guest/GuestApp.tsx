@@ -27,6 +27,10 @@ import { KnowMe } from "./screens/KnowMe";
 import { Runner } from "./arcade/Runner";
 import { DirtBike } from "./arcade/DirtBike";
 import { FreeKick } from "./arcade/FreeKick";
+import { FruitSlash } from "./arcade/FruitSlash";
+import { SkyTower } from "./arcade/SkyTower";
+import { FalconFlight } from "./arcade/FalconFlight";
+import { HoopShot } from "./arcade/HoopShot";
 import { AnimalSounds, DancingFruit, SleepyLights } from "./screens/Toddler";
 import { KidsLockProvider, KidsPill } from "./KidsLock";
 import { VersusProvider, VersusScreen } from "./screens/Versus";
@@ -182,6 +186,10 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
       case "runner": return <Runner k="runner" />;
       case "bike": return <DirtBike k="bike" />;
       case "freekick": return <FreeKick k="freekick" />;
+      case "slice": return <FruitSlash k="slice" />;
+      case "stack": return <SkyTower k="stack" />;
+      case "falcon": return <FalconFlight k="falcon" />;
+      case "hoops": return <HoopShot k="hoops" />;
       // Kids: 3+
       case "colour": return <Colour />;
       case "bubbles": return <BubblePop k="bubbles" />;

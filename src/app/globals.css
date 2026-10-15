@@ -1750,3 +1750,5 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .col-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .col-actions .g-btn{padding:12px 6px;font-size:.9rem;white-space:nowrap;min-width:0}
 .col-actions .g-btn[disabled]{opacity:.45}
+.ax-mute{position:absolute;right:10px;bottom:10px;z-index:3;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(10,10,30,.5);backdrop-filter:blur(8px);font-size:1rem;display:grid;place-items:center;padding:0}
+.ax-pixelated{image-rendering:pixelated;image-rendering:crisp-edges}
