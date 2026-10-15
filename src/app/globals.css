@@ -1829,3 +1829,22 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .plan:nth-child(2){background:#E6E0FF;box-shadow:0 0 0 2px #6E4BFF}
   #landing .plan:nth-child(3){background:#FFE3E0}
 }
+
+/* ===== Landing (desktop and tablet): sections alternate light purple and dark purple, no plain white ===== */
+@media (min-width:641px){
+  #landing{--lp:#EEEAFF;--dp:#2A2068}
+  #landing :is(#guests,#your-venue,#how,#pilot){background:var(--lp)}
+  #landing :is(#venues,#what-you-get,#pricing,#faq){background:var(--dp);color:#1B1740}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .section-head{color:#F4F1FF}
+  #landing :is(#pricing,#pilot,#faq){padding-top:72px!important}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .section-head p{color:#CFC8F2}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .eyebrow{color:#BDB0FF}
+  /* Questions: pastel boxes on the dark band */
+  #landing .faq details{border:0;color:#1B1740}
+  #landing .faq details:nth-child(4n+1){background:#FFD97A}
+  #landing .faq details:nth-child(4n+2){background:#8FE0D2}
+  #landing .faq details:nth-child(4n+3){background:#FFADC8}
+  #landing .faq details:nth-child(4n+4){background:#BDB0FF}
+  #landing .faq details p{color:#3D3766}
+  html:has(#landing) footer.site{background:var(--lp, #EEEAFF);border-top:0}
+}
