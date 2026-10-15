@@ -1753,3 +1753,27 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .ax-mute{position:absolute;right:10px;bottom:10px;z-index:3;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(10,10,30,.5);backdrop-filter:blur(8px);font-size:1rem;display:grid;place-items:center;padding:0}
 .ax-pixelated{image-rendering:pixelated;image-rendering:crisp-edges}
 .g-gcard.mx-card{min-height:142px;padding-top:68px}
+
+/* ===== Marketing kit ===== */
+.mk-pieces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 18px}
+@media (max-width:640px){.mk-pieces{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mk-piece{border:2px solid var(--line);background:var(--surface);border-radius:var(--r-md);padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;color:var(--ink);min-width:0}
+.mk-piece[aria-pressed="true"]{border-color:var(--violet);background:var(--violet-soft)}
+.mk-thumb{display:block;height:96px;width:100%;margin-bottom:6px}
+.mk-thumb svg{height:100%;width:100%;display:block;filter:drop-shadow(0 4px 8px rgba(27,23,64,.2))}
+.mk-stage{display:grid;place-items:center;padding:20px}
+.mk-preview{width:100%;display:block}
+.mk-preview svg{width:100%;height:auto;display:block;filter:drop-shadow(0 16px 28px rgba(27,23,64,.28))}
+.mk-preview-poster svg,.mk-preview-card svg{border-radius:4px}
+.mk-preview-sticker svg{border-radius:50%}
+.mk-preview-card{max-width:320px;margin:auto}
+.mk-dl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mk-swatches{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mk-swatches > button{width:34px;height:34px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--line);padding:0}
+.mk-swatches > button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.mk-own{position:relative;display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;cursor:pointer}
+.mk-own span{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.mk-own input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mk-check{display:flex;gap:8px;align-items:center;font-size:.9rem;font-weight:500}
+.mk-point{display:grid;grid-template-columns:140px 1fr;gap:8px}
+.mk-point select,.mk-point input{min-width:0}
