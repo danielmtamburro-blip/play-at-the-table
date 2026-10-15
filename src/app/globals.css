@@ -182,7 +182,8 @@ footer.site .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:spac
 .g-item p{font-size:.86rem;color:var(--muted)}
 .g-chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink)}
-.chip.diet{background:var(--teal-soft)}
+/* Fixed colours: a venue's own theme can't make the diet labels unreadable */
+.chip.diet{background:#D5F4EF;color:#0B5E52;font-weight:700}
 .chip.out{background:var(--coral-soft);color:var(--coral)}
 .g-note{font-size:.8rem;color:var(--muted);background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px}
 .g-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:8px}
