@@ -1790,3 +1790,5 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .cd-shape b{font-size:.9rem}
 .cd-shape-note{font-size:.72rem;line-height:1.3}
 .cd-canvas.sq{border-radius:9%}
+.cd-shape-row{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.cd-canvas.corner{border-radius:0 100% 0 0}

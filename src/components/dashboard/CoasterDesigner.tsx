@@ -14,6 +14,7 @@ import {
   nextIconSpot,
   normaliseDesign,
   shapeOf,
+  isMini,
   SHAPES,
   svgToPng,
   tableHeight,
@@ -300,14 +301,18 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
         <div className="cd-shape-row" role="group">
           {SHAPES.map((sh) => (
             <button key={sh.k} type="button" className="cd-shape" aria-pressed={d.shape === sh.k} onClick={() => chooseShape(sh.k)}>
-              <span className={`cd-shape-art${sh.form === "square" ? " sq" : ""}`} style={{ width: `${40 + sh.mm * 0.42}px` }} dangerouslySetInnerHTML={{ __html: shapeThumbs[sh.k] }} />
+              <span className={`cd-shape-art${sh.form === "square" ? " sq" : sh.form === "corner" ? " corner" : ""}`} style={{ width: `${40 + sh.mm * 0.42}px` }} dangerouslySetInnerHTML={{ __html: shapeThumbs[sh.k] }} />
               <b>{sh.label}</b>
               <span className="small muted">{sh.size}</span>
               <span className="small muted cd-shape-note">{sh.note}</span>
             </button>
           ))}
         </div>
-        <p className="small muted">Then design it below: your colours, logo, words and icons carry over if you change shape later.</p>
+        <p className="small muted">
+          {isMini(d.shape) || shape.form === "corner"
+            ? "Tiny stickers keep it simple so the QR stays big enough to scan: the rim, your QR and the table number" + (shape.form === "corner" ? ", plus your logo." : ". Your icons, words and logo stay saved for the bigger shapes.")
+            : "Then design it below: your colours, logo, words and icons carry over if you change shape later."}
+        </p>
       </section>
 
       <div className="cd-layout">
@@ -315,7 +320,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
           <div className="cd-stage-inner">
             <div
               ref={canvasRef}
-              className={`cd-canvas${shape.form === "square" ? " sq" : ""}`}
+              className={`cd-canvas${shape.form === "square" ? " sq" : shape.form === "corner" ? " corner" : ""}`}
               tabIndex={0}
               role="application"
               aria-label="Coaster editor. Select an element, then drag it or use the arrow keys."
