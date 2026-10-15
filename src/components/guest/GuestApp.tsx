@@ -5,7 +5,7 @@ import { T, type TKey } from "@/lib/content";
 import { GAMES } from "@/lib/games";
 import { track, trackTimeOnPage, type TrackEvent, type TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Venue } from "@/lib/types";
-import { EXTRA, GuestContext, useGuest, type GuestCtx } from "./context";
+import { EXTRA, GuestContext, useCalmFocus, useGuest, type GuestCtx } from "./context";
 import { themeStyle } from "@/lib/theme";
 import DemoTour from "./DemoTour";
 import { setHaptics } from "@/lib/haptics";
@@ -59,6 +59,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
   setHaptics(!embedded);
   setSfx(!embedded);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const closeRef = useCalmFocus<HTMLButtonElement>(embedded || !privacy);
 
   // Language: saved choice, else the phone's language.
   useEffect(() => {
@@ -297,7 +298,7 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
           <div className="sheet" role="dialog" aria-label={tr("privacyTitle")}>
             <h3>{tr("privacyTitle")}</h3>
             <p>{tr("privacyText")}</p>
-            <button className="g-btn" onClick={() => setPrivacy(false)} autoFocus>
+            <button className="g-btn" onClick={() => setPrivacy(false)} ref={closeRef}>
               {tr("close")}
             </button>
           </div>

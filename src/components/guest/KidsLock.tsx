@@ -4,7 +4,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { buzz, HAPTIC } from "@/lib/haptics";
 import type { Lang } from "@/lib/types";
-import { useGuest } from "./context";
+import { useCalmFocus, useGuest } from "./context";
 
 const UI: Record<Lang, Record<string, string>> = {
   en: {
@@ -166,9 +166,10 @@ function TimerSheet({ onClose }: { onClose: () => void }) {
 }
 
 function LockScreen({ reason, onUnlock }: { reason: "dinner" | "time"; onUnlock: () => void }) {
-  const { lang } = useGuest();
+  const { lang, demo } = useGuest();
   const u = UI[lang];
   const [gate, setGate] = useState(false);
+  const ansRef = useCalmFocus<HTMLInputElement>(demo || !gate);
   const [q] = useState(() => ({ a: 3 + Math.floor(Math.random() * 7), b: 3 + Math.floor(Math.random() * 7) }));
   const [ans, setAns] = useState("");
   const [bad, setBad] = useState(false);
@@ -204,7 +205,7 @@ function LockScreen({ reason, onUnlock }: { reason: "dinner" | "time"; onUnlock:
           >
             <label htmlFor="kl-ans">{u.gateQ.replace("{a}", String(q.a)).replace("{b}", String(q.b))}</label>
             <div className="g-row">
-              <input id="kl-ans" inputMode="numeric" value={ans} onChange={(e) => (setAns(e.target.value.replace(/\D/g, "").slice(0, 3)), setBad(false))} autoFocus />
+              <input id="kl-ans" inputMode="numeric" value={ans} onChange={(e) => (setAns(e.target.value.replace(/\D/g, "").slice(0, 3)), setBad(false))} ref={ansRef} />
               <button className="g-btn">{u.ok}</button>
             </div>
             {bad && <span className="kl-bad">{u.wrong}</span>}

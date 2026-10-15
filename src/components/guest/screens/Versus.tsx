@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { ADULT_TRIVIA, SPORTS_TRIVIA, TABLE_TASKS } from "@/lib/gameContent";
 import { getBrowserClient } from "@/lib/supabase/client";
 import type { Lang, Loc } from "@/lib/types";
-import { shuffle, useGuest } from "../context";
+import { shuffle, useCalmFocus, useGuest } from "../context";
 
 /* ---------- strings ---------- */
 
@@ -204,7 +204,8 @@ export function VersusProvider({ children }: { children: React.ReactNode }) {
 
 function IncomingSheet() {
   const v = useVersus();
-  const { lang } = useGuest();
+  const { lang, demo } = useGuest();
+  const acceptRef = useCalmFocus<HTMLButtonElement>(demo || !v?.incoming);
   if (!v?.incoming) return null;
   const u = VUI[lang];
   return (
@@ -218,7 +219,7 @@ function IncomingSheet() {
         <button className="g-btn alt" onClick={v.decline}>
           {u.decline}
         </button>
-        <button className="g-btn" onClick={v.accept} autoFocus>
+        <button className="g-btn" onClick={v.accept} ref={acceptRef}>
           {u.accept}
         </button>
       </div>

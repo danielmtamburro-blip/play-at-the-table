@@ -1832,3 +1832,7 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .faq details p{color:#3D3766}
   html:has(#landing) footer.site{background:var(--lp, #EEEAFF);border-top:0}
 }
+
+/* Landing: a thick line in the five brand colours under the top bar */
+#landing .nav{border-bottom:0}
+#landing .nav::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}

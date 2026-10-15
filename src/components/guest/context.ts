@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import type { TKey } from "@/lib/content";
 import type { TrackEvent, TrackOpts } from "@/lib/track";
 import type { Lang, Loc, Venue } from "@/lib/types";
@@ -166,4 +166,16 @@ export function shuffle<T>(a: readonly T[]): T[] {
     [b[i], b[j]] = [b[j], b[i]];
   }
   return b;
+}
+
+/**
+ * Focus an element when it appears, without scrolling the page to it.
+ * Skipped in the sales-page demo, where grabbing focus made phones jump back to the top of the website.
+ */
+export function useCalmFocus<T extends HTMLElement>(skip: boolean) {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    if (!skip) ref.current?.focus({ preventScroll: true });
+  }, [skip]);
+  return ref;
 }

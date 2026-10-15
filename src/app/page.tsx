@@ -250,7 +250,7 @@ export default async function Landing() {
             </div>
             <div className="pilot-note">
               <strong>Founding venues:</strong>
-              <span>The first 10 Dubai venues get a four-week pilot free, coasters included.</span>
+              <span>The first 3 Dubai venues get a four-week pilot free, coasters included.</span>
             </div>
           </div>
         </section>
