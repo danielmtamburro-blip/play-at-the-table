@@ -8,15 +8,19 @@ import {
   DEFAULT_DESIGN,
   ICONS,
   inkOn,
-  insideCentre,
+  insideArea,
   logoHeight,
   MAX_ICONS,
   nextIconSpot,
   normaliseDesign,
+  shapeOf,
+  isMini,
+  SHAPES,
   svgToPng,
   tableHeight,
   toDataUrl,
   type CoasterDesign,
+  type CoasterShape,
   type Placed,
 } from "@/lib/coaster";
 import { getBrowserClient } from "@/lib/supabase/client";
@@ -105,6 +109,13 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
       logo: logoData,
       venueName: venue.name_en,
     });
+  const shape = shapeOf(d.shape);
+  /** New shape: keep everything the venue designed, nudged inside the new outline. */
+  const chooseShape = (k: CoasterShape) => (setD((x) => normaliseDesign({ ...x, shape: k })), setSel(null));
+  const shapeThumbs = useMemo(
+    () => Object.fromEntries(SHAPES.map((sh) => [sh.k, svgFor({ ...d, shape: sh.k }, null).replace(/(arcTop|arcBottom|disc|qrShadow)/g, `t-${sh.k}-$1`)])),
+    [d, logoData, origin], // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const mainSvg = useMemo(() => svgFor(d, preview), [d, logoData, origin, preview]); // eslint-disable-line react-hooks/exhaustive-deps
   const wordsOk = contrast(d.taglineColor, d.base) >= 3;
   /** New background: keep words readable on it. */
@@ -121,7 +132,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
       const fix = (p: Placed, lo: number, hi: number, share = 0.5): Placed => {
         const n = { ...p, ...patch };
         const s2 = clamp(n.s, lo, hi);
-        const [cx, cy] = insideCentre(n.x, n.y, s2 * share);
+        const [cx, cy] = insideArea(shapeOf(x.shape).form, n.x, n.y, s2 * share);
         return { x: cx, y: cy, s: s2 };
       };
       if (id === "text") return { ...x, textBox: fix(x.textBox, 200, 640, 0.08) };
@@ -218,14 +229,16 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
     setMsg(null);
     try {
       const { jsPDF } = await import("jspdf");
-      const pdf = new jsPDF({ unit: "mm", format: [100, 100] });
+      const mm = shape.mm;
+      const pdf = new jsPDF({ unit: "mm", format: [mm, mm] });
       const pages = [...(withVenue ? [null] : []), ...Array.from({ length: tables }, (_, i) => String(i + 1))];
       for (let i = 0; i < pages.length; i++) {
-        if (i > 0) pdf.addPage([100, 100]);
-        pdf.addImage(await svgToPng(svgFor(d, pages[i]), 1200), "PNG", 0, 0, 100, 100, undefined, "FAST");
+        if (i > 0) pdf.addPage([mm, mm]);
+        pdf.addImage(await svgToPng(svgFor(d, pages[i]), 1200), "PNG", 0, 0, mm, mm, undefined, "FAST");
       }
-      pdf.save(`${venue.slug}-coasters-100mm.pdf`);
-      setMsg({ ok: true, text: `Downloaded ${pages.length} coasters (100 mm, ~300 dpi). Order 5 test prints first.` });
+      pdf.save(`${venue.slug}-${shape.k}-${mm}mm.pdf`);
+      const what = shape.k.includes("sticker") ? "stickers" : "coasters";
+      setMsg({ ok: true, text: `Downloaded ${pages.length} ${what} (${shape.size}, 300+ dpi). Order a few test prints first.` });
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : "Could not make the PDF." });
     } finally {
@@ -269,7 +282,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
         </div>
         <div className="cd-actions">
           {dirty && <span className="badge off">Unsaved changes</span>}
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => (setD({ ...DEFAULT_DESIGN }), setSel(null))}>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => (setD({ ...DEFAULT_DESIGN, shape: d.shape }), setSel(null))}>
             Reset
           </button>
           <button type="button" className="btn btn-primary" onClick={save} disabled={busy !== null || !dirty}>
@@ -283,12 +296,31 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
         </p>
       )}
 
+      <section className="cd-shapes" aria-label="Choose what to print">
+        <h3>1. Choose your shape</h3>
+        <div className="cd-shape-row" role="group">
+          {SHAPES.map((sh) => (
+            <button key={sh.k} type="button" className="cd-shape" aria-pressed={d.shape === sh.k} onClick={() => chooseShape(sh.k)}>
+              <span className={`cd-shape-art${sh.form === "square" ? " sq" : sh.form === "corner" ? " corner" : ""}`} style={{ width: `${40 + sh.mm * 0.42}px` }} dangerouslySetInnerHTML={{ __html: shapeThumbs[sh.k] }} />
+              <b>{sh.label}</b>
+              <span className="small muted">{sh.size}</span>
+              <span className="small muted cd-shape-note">{sh.note}</span>
+            </button>
+          ))}
+        </div>
+        <p className="small muted">
+          {isMini(d.shape) || shape.form === "corner"
+            ? "Tiny stickers keep it simple so the QR stays big enough to scan: the rim, your QR and the table number" + (shape.form === "corner" ? ", plus your logo." : ". Your icons, words and logo stay saved for the bigger shapes.")
+            : "Then design it below: your colours, logo, words and icons carry over if you change shape later."}
+        </p>
+      </section>
+
       <div className="cd-layout">
         <aside className="cd-stage">
           <div className="cd-stage-inner">
             <div
               ref={canvasRef}
-              className="cd-canvas"
+              className={`cd-canvas${shape.form === "square" ? " sq" : shape.form === "corner" ? " corner" : ""}`}
               tabIndex={0}
               role="application"
               aria-label="Coaster editor. Select an element, then drag it or use the arrow keys."
@@ -349,7 +381,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
         </aside>
 
         <div className="cd-steps">
-          <Step n={1} title="Background colour" hint="The middle of the coaster. The colourful rim stays the same on every coaster.">
+          <Step n={2} title="Background colour" hint="The middle of the coaster. The colourful rim stays the same on every coaster.">
             <div className="cd-bgs">
               {BACKGROUNDS.map((b) => (
                 <button key={b.base} type="button" className="cd-bg" aria-pressed={d.base === b.base} onClick={() => setBase(b.base)}>
@@ -369,7 +401,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             </div>
           </Step>
 
-          <Step n={2} title="Your logo" hint="PDF, PNG, JPG or WEBP up to 10 MB. Then drag it anywhere on the coaster.">
+          <Step n={3} title="Your logo" hint="PDF, PNG, JPG or WEBP up to 10 MB. Then drag it anywhere on the coaster.">
             <div
               className={`cd-drop${drag ? " over" : ""}${logoData ? " has" : ""}`}
               onDragOver={(e) => (e.preventDefault(), setDrag(true))}
@@ -406,7 +438,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             </div>
           </Step>
 
-          <Step n={3} title={`Icons (${d.icons.length}/${MAX_ICONS})`} hint="Tap to add. Then drag them where you like, or select one to resize, recolour or delete it.">
+          <Step n={4} title={`Icons (${d.icons.length}/${MAX_ICONS})`} hint="Tap to add. Then drag them where you like, or select one to resize, recolour or delete it.">
             <div className="icon-grid">
               {Object.entries(ICONS).map(([k, ic]) => {
                 const count = d.icons.filter((i) => i.k === k).length;
@@ -438,7 +470,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             )}
           </Step>
 
-          <Step n={4} title="Words" hint="Add your own line, like a welcome or your Instagram. Tap it on the coaster to move it.">
+          <Step n={5} title="Words" hint="Add your own line, like a welcome or your Instagram. Tap it on the coaster to move it.">
             <div className="grid2">
               <div className="field">
                 <label htmlFor="cd-tag">Your words</label>
@@ -461,7 +493,7 @@ export default function CoasterDesigner({ venue }: { venue: Row }) {
             </div>
           </Step>
 
-          <Step n={5} title="Print" hint="One page per coaster, 100 mm round, about 300 dpi. Each table gets its own QR.">
+          <Step n={6} title="Print" hint={`One page per ${shape.k.includes("sticker") ? "sticker" : "coaster"}, ${shape.label.toLowerCase()} ${shape.size}, 300+ dpi. Each table gets its own QR.`}>
             <div className="cd-print">
               <div className="field" style={{ maxWidth: 160 }}>
                 <label htmlFor="cd-n">Tables</label>

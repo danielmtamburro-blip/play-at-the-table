@@ -4,8 +4,25 @@ import QRCode from "qrcode";
 export type Placed = { x: number; y: number; s: number };
 export type PlacedIcon = Placed & { k: string; c: string };
 
+/** Shapes too small for icons, words and a logo: just the rim, a big QR and the table number. */
+export const isMini = (k: CoasterShape) => k === "minicircle" || k === "minisquare";
+
+/** What gets printed: coasters and stickers, round or square. The artwork is the same 1000×1000 design scaled to size. */
+export type CoasterShape = "round100" | "square" | "sticker" | "squaresticker" | "minicircle" | "minisquare" | "corner";
+export const SHAPES: { k: CoasterShape; label: string; size: string; mm: number; form: "round" | "square" | "corner"; note: string }[] = [
+  { k: "round100", label: "Round acrylic coaster", size: "100 mm", mm: 100, form: "round", note: "The classic coaster for drinks" },
+  { k: "square", label: "Square acrylic coaster", size: "95 × 95 mm", mm: 95, form: "square", note: "Rounded corners" },
+  { k: "sticker", label: "Round sticker", size: "60 mm", mm: 60, form: "round", note: "Stick on tables, menus or the bar" },
+  { k: "squaresticker", label: "Square sticker", size: "60 × 60 mm", mm: 60, form: "square", note: "Tables, menu covers, the till" },
+  { k: "minicircle", label: "Mini circle sticker", size: "40 mm", mm: 40, form: "round", note: "Tiny, for the corner of a table" },
+  { k: "minisquare", label: "Mini square sticker", size: "40 × 40 mm", mm: 40, form: "square", note: "Tiny, for the corner of a table" },
+  { k: "corner", label: "Quarter-circle sticker", size: "50 × 50 mm", mm: 50, form: "corner", note: "Fits right into a table corner" },
+];
+export const shapeOf = (k: CoasterShape | undefined) => SHAPES.find((x) => x.k === k) ?? SHAPES[0];
+
 /** A venue's coaster design, stored in venues.coaster. Every element can be moved and recoloured. */
 export type CoasterDesign = {
+  shape: CoasterShape;
   base: string; // coaster background
   rim: string; // outer ring
   titleColor: string; // "PLAY AT YOUR TABLE"
@@ -39,6 +56,15 @@ const RIM_COLOURS = ["#FFB51F", "#12A594", "#6E4BFF", "#F0457F", "#FF5A4E"];
 /** The QR's fixed place in the design, so every coaster scans the same way. */
 export const QR_FIXED: Placed = { x: 500, y: 385, s: 340 };
 
+/** Keep an element (centre x,y with half-size r) inside the design area: the centre circle, or the inner square. */
+export function insideArea(form: "round" | "square" | "corner", x: number, y: number, r: number): [number, number] {
+  if (form !== "square") return insideCentre(x, y, r);
+  // The square rim is the same width as the round one; corners give extra room.
+  const lo = 500 - RIM_IN + 18 + r, hi = 500 + RIM_IN - 18 - r;
+  const c = (v: number) => (lo > hi ? 500 : Math.round(Math.min(hi, Math.max(lo, v))));
+  return [c(x), c(y)];
+}
+
 /** Keep an element (centre x,y with half-size r) inside the centre circle. */
 export function insideCentre(x: number, y: number, r: number): [number, number] {
   const max = Math.max(0, RIM_IN - 18 - r), dx = x - 500, dy = y - 500, dist = Math.hypot(dx, dy);
@@ -47,6 +73,7 @@ export function insideCentre(x: number, y: number, r: number): [number, number] 
 }
 
 export const DEFAULT_DESIGN: CoasterDesign = {
+  shape: "round100",
   base: "#1B1740",
   rim: "#FFB51F",
   titleColor: "#FFFFFF",
@@ -164,13 +191,16 @@ export const tableHeight = (w: number) => Math.round(w * 0.25);
  * Movable parts carry data-el="…" so the editor can pick them up.
  */
 export function coasterSvg(d: CoasterDesign, opts: { url: string; table?: string | null; logo?: string | null; venueName?: string }): string {
-  const q = QR_FIXED;
+  if (shapeOf(d.shape).form === "corner") return cornerSvg(d, opts);
+  const mini = isMini(d.shape);
+  // Tiny stickers get a much bigger QR so phones can still read it.
+  const q = mini ? { x: 500, y: 540, s: 500 } : QR_FIXED;
   const pad = Math.round(q.s * 0.065);
   const qx = q.x - q.s / 2, qy = q.y - q.s / 2;
   const qrColour = qrInk(d.base);
   const words = d.taglineColor;
 
-  const icons = d.icons
+  const icons = (mini ? [] : d.icons)
     .map((ic, i) => {
       const def = ICONS[ic.k];
       if (!def) return "";
@@ -180,18 +210,21 @@ export function coasterSvg(d: CoasterDesign, opts: { url: string; table?: string
     .join("");
 
   const L = d.logoBox, lh = logoHeight(L.s);
-  const logoBlock = opts.logo
+  const logoBlock = mini
+    ? ""
+    : opts.logo
     ? `<g data-el="logo"><rect x="${L.x - L.s / 2}" y="${L.y - lh / 2}" width="${L.s}" height="${lh}" fill="transparent"/><image href="${opts.logo}" x="${L.x - L.s / 2}" y="${L.y - lh / 2}" width="${L.s}" height="${lh}" preserveAspectRatio="xMidYMid meet"/></g>`
     : opts.venueName
       ? `<g data-el="logo"><rect x="${L.x - L.s / 2}" y="${L.y - lh / 2}" width="${L.s}" height="${lh}" fill="transparent"/><text x="${L.x}" y="${L.y + L.s * 0.05}" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="${Math.round(L.s * 0.15)}" fill="${words}">${esc(opts.venueName.slice(0, 28))}</text></g>`
       : "";
 
   const X = d.textBox;
-  const textBlock = d.tagline.trim()
+  const textBlock = !mini && d.tagline.trim()
     ? `<g data-el="text"><rect x="${X.x - X.s / 2}" y="${X.y - d.taglineSize * 0.8}" width="${X.s}" height="${d.taglineSize * 1.2}" fill="transparent"/><text x="${X.x}" y="${X.y}" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="${d.taglineSize}" fill="${words}">${esc(d.tagline.slice(0, 40))}</text></g>`
     : "";
 
-  const T = d.tableBox, th = tableHeight(T.s);
+  // On mini stickers the table number has a fixed spot above the QR.
+  const T = mini ? { x: 500, y: 222, s: 200 } : d.tableBox, th = tableHeight(T.s);
   const table = d.showTable && opts.table
     ? `<g data-el="table"><rect x="${T.x - T.s / 2}" y="${T.y - th / 2}" width="${T.s}" height="${th}" rx="${th / 2}" fill="#FFFFFF"/><text x="${T.x}" y="${T.y + th * 0.22}" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="${Math.round(th * 0.56)}" letter-spacing="3" fill="${qrColour}">TABLE ${esc(opts.table)}</text></g>`
     : "";
@@ -201,20 +234,26 @@ export function coasterSvg(d: CoasterDesign, opts: { url: string; table?: string
     const p = (r: number, a: number) => `${(500 + r * Math.cos((a * Math.PI) / 180)).toFixed(2)} ${(500 + r * Math.sin((a * Math.PI) / 180)).toFixed(2)}`;
     return `<path d="M${p(r1, a0)}A${r1} ${r1} 0 0 1 ${p(r1, a1)}L${p(r2, a1)}A${r2} ${r2} 0 0 0 ${p(r2, a0)}z" fill="${c}"/>`;
   };
-  const rim = RIM_COLOURS.map((c, i) => seg(500, RIM_IN - 1, -90 + i * 72, -18 + i * 72, c)).join("");
+  const square = shapeOf(d.shape).form === "square";
+  const rim = RIM_COLOURS.map((c, i) => seg(square ? 760 : 500, RIM_IN - 1, -90 + i * 72, -18 + i * 72, c)).join("");
+  const band = 500 - RIM_IN; // rim width
+  const lettering = square
+    ? `<text x="500" y="${band / 2}" text-anchor="middle" font-family="${FONT}" font-weight="800" font-size="46" letter-spacing="6" fill="#FFFFFF" dominant-baseline="central">PLAY AT YOUR TABLE</text>
+    <text x="500" y="${1000 - band / 2}" text-anchor="middle" font-family="${FONT}" font-weight="800" font-size="38" letter-spacing="8" fill="#FFFFFF" dominant-baseline="central">SCAN TO PLAY</text>`
+    : `<text font-family="${FONT}" font-weight="800" font-size="46" letter-spacing="6" fill="#FFFFFF" dominant-baseline="middle"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">PLAY AT YOUR TABLE</textPath></text>
+    <text font-family="${FONT}" font-weight="800" font-size="38" letter-spacing="8" fill="#FFFFFF" dominant-baseline="middle"><textPath href="#arcBottom" startOffset="50%" text-anchor="middle">SCAN TO PLAY</textPath></text>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
   <defs>
     <path id="arcTop" d="M 40 500 A 460 460 0 0 1 960 500"/>
     <path id="arcBottom" d="M 40 500 A 460 460 0 0 0 960 500"/>
-    <clipPath id="disc"><circle cx="500" cy="500" r="500"/></clipPath>
+    <clipPath id="disc">${square ? `<rect width="1000" height="1000" rx="90"/>` : `<circle cx="500" cy="500" r="500"/>`}</clipPath>
     <filter id="qrShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-opacity=".28"/></filter>
   </defs>
   <g clip-path="url(#disc)">
     ${rim}
-    <circle cx="500" cy="500" r="${RIM_IN}" fill="${d.base}"/>
-    <text font-family="${FONT}" font-weight="800" font-size="46" letter-spacing="6" fill="#FFFFFF" dominant-baseline="middle"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">PLAY AT YOUR TABLE</textPath></text>
-    <text font-family="${FONT}" font-weight="800" font-size="38" letter-spacing="8" fill="#FFFFFF" dominant-baseline="middle"><textPath href="#arcBottom" startOffset="50%" text-anchor="middle">SCAN TO PLAY</textPath></text>
+    ${square ? `<rect x="${band}" y="${band}" width="${1000 - 2 * band}" height="${1000 - 2 * band}" rx="44" fill="${d.base}"/>` : `<circle cx="500" cy="500" r="${RIM_IN}" fill="${d.base}"/>`}
+    ${lettering}
     ${icons}
     ${logoBlock}
     ${textBlock}
@@ -224,6 +263,46 @@ export function coasterSvg(d: CoasterDesign, opts: { url: string; table?: string
       <path transform="translate(${qx + pad} ${qy + pad})" d="${qrPath(opts.url, q.s - 2 * pad)}" fill="${qrColour}"/>
       ${mark(q.x, q.y, Math.round(q.s * 0.1), "colour", qrColour)}
     </g>
+  </g>
+</svg>`;
+}
+
+/**
+ * Table corner sticker: a quarter circle whose square corner (bottom left) sits in the corner of the table.
+ * Small, so the layout is fixed: colour rim with "SCAN TO PLAY" on the curve, the QR, the table number and the logo.
+ */
+function cornerSvg(d: CoasterDesign, opts: { url: string; table?: string | null; logo?: string | null; venueName?: string }): string {
+  const R = 1000, band = 110, inner = R - band;
+  const qrColour = qrInk(d.base);
+  const pt = (r: number, a: number) => `${(r * Math.cos(a)).toFixed(1)} ${(R - r * Math.sin(a)).toFixed(1)}`; // angle 0 = along the bottom edge
+  const seg = (a0: number, a1: number, c: string) => `<path d="M${pt(R, a0)}A${R} ${R} 0 0 0 ${pt(R, a1)}L${pt(inner, a1)}A${inner} ${inner} 0 0 1 ${pt(inner, a0)}z" fill="${c}"/>`;
+  const step = Math.PI / 2 / RIM_COLOURS.length;
+  const rim = RIM_COLOURS.map((c, i) => seg(i * step, (i + 1) * step + 0.002, c)).join("");
+  const q = { x: 330, y: 610, s: 330 }, pad = Math.round(q.s * 0.065), qx = q.x - q.s / 2, qy = q.y - q.s / 2;
+  const arcR = R - band / 2;
+  const tableBadge = d.showTable && opts.table
+    ? `<rect x="${q.x - 95}" y="${qy - 82}" width="190" height="56" rx="28" fill="#FFFFFF"/><text x="${q.x}" y="${qy - 43}" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="32" letter-spacing="3" fill="${qrColour}">TABLE ${esc(opts.table)}</text>`
+    : "";
+  const logo = opts.logo
+    ? `<image href="${opts.logo}" x="560" y="790" width="210" height="130" preserveAspectRatio="xMidYMid meet"/>`
+    : opts.venueName
+      ? `<text x="665" y="870" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="40" fill="${d.taglineColor}">${esc(opts.venueName.slice(0, 16))}</text>`
+      : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <defs>
+    <path id="arcTop" d="M ${pt(arcR, Math.PI / 2 - 0.02)} A ${arcR} ${arcR} 0 0 1 ${pt(arcR, 0.02)}"/>
+    <clipPath id="disc"><path d="M0 0A${R} ${R} 0 0 1 ${R} ${R}L0 ${R}z"/></clipPath>
+    <filter id="qrShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-opacity=".28"/></filter>
+  </defs>
+  <g clip-path="url(#disc)">
+    <rect width="1000" height="1000" fill="${d.base}"/>
+    ${rim}
+    <text font-family="${FONT}" font-weight="800" font-size="50" letter-spacing="7" fill="#FFFFFF" dominant-baseline="middle"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">PLAY AT YOUR TABLE · SCAN TO PLAY</textPath></text>
+    ${tableBadge}
+    ${logo}
+    <rect x="${qx}" y="${qy}" width="${q.s}" height="${q.s}" rx="${Math.round(q.s * 0.09)}" fill="#FFFFFF" filter="url(#qrShadow)"/>
+    <path transform="translate(${qx + pad} ${qy + pad})" d="${qrPath(opts.url, q.s - 2 * pad)}" fill="${qrColour}"/>
+    ${mark(q.x, q.y, Math.round(q.s * 0.1), "colour", qrColour)}
   </g>
 </svg>`;
 }
@@ -270,8 +349,8 @@ const place = (v: unknown, f: Placed, sLo: number, sHi: number): Placed => {
 };
 
 /** Read a stored design, upgrading designs saved by the first version (fixed icon slots, one text colour). */
-const inside = (p: Placed, share: number): Placed => {
-  const [x, y] = insideCentre(p.x, p.y, p.s * share);
+const inside = (p: Placed, share: number, form: "round" | "square" | "corner" = "round"): Placed => {
+  const [x, y] = insideArea(form, p.x, p.y, p.s * share);
   return { ...p, x, y };
 };
 
@@ -280,18 +359,21 @@ export function normaliseDesign(raw: unknown): CoasterDesign {
   const D = DEFAULT_DESIGN;
   const hex = (v: unknown, f: string) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : f);
   const legacyText = hex(r.text, D.titleColor);
+  const shape: CoasterShape = SHAPES.some((x) => x.k === r.shape) ? r.shape : D.shape;
+  const form = shapeOf(shape).form;
   const legacyIcon = hex(r.icon, "#FFB51F");
   const icons: PlacedIcon[] = Array.isArray(r.icons)
     ? r.icons
         .map((ic: any, i: number) =>
           typeof ic === "string"
             ? ICONS[ic] && { k: ic, x: SLOTS[i % SLOTS.length][0], y: SLOTS[i % SLOTS.length][1], s: 84, c: legacyIcon }
-            : ic && ICONS[ic.k] && { k: ic.k, ...inside(place(ic, { x: 500, y: 500, s: 84 }, 30, 200), 0.5), c: hex(ic.c, legacyIcon) },
+            : ic && ICONS[ic.k] && { k: ic.k, ...inside(place(ic, { x: 500, y: 500, s: 84 }, 30, 200), 0.5, form), c: hex(ic.c, legacyIcon) },
         )
         .filter(Boolean)
         .slice(0, MAX_ICONS)
     : D.icons;
   return {
+    shape,
     base: hex(r.base, D.base),
     rim: hex(r.rim, D.rim),
     titleColor: hex(r.titleColor, legacyText),
@@ -303,9 +385,9 @@ export function normaliseDesign(raw: unknown): CoasterDesign {
     qr: hex(r.qr, D.qr),
     mark: r.mark === "mono" ? "mono" : "colour",
     qrBox: QR_FIXED,
-    logoBox: inside(place(r.logoBox, D.logoBox, 120, 460), 0.5),
-    tableBox: inside(place(r.tableBox, D.tableBox, 120, 260), 0.5),
-    textBox: inside(place(r.textBox, D.textBox, 200, 640), 0.08),
+    logoBox: inside(place(r.logoBox, D.logoBox, 120, 460), 0.5, form),
+    tableBox: inside(place(r.tableBox, D.tableBox, 120, 260), 0.5, form),
+    textBox: inside(place(r.textBox, D.textBox, 200, 640), 0.08, form),
     showTable: typeof r.showTable === "boolean" ? r.showTable : true,
     icons,
   };
