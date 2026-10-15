@@ -28,6 +28,18 @@
   --on-accent:#140F2E; --ok:#4FD1A0; --warn:#FFB066;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
 
+/* The landing page always keeps its bright colours, even when the visitor's computer is in dark mode.
+   (Phones get their own purple layout further down, which comes later and wins.) */
+html:has(#landing){
+  --bg:#F6F4FF; --surface:#FFFFFF; --surface-2:#EFEBFF; --line:#E1DBF5;
+  --ink:#1B1740; --muted:#5D5880;
+  --coral:#FF5A4E; --sun:#FFB51F; --teal:#12A594; --violet:#6E4BFF; --rose:#F0457F;
+  --coral-soft:#FFE3E0; --sun-soft:#FFF1CF; --teal-soft:#D5F4EF; --violet-soft:#E6E0FF; --rose-soft:#FFDFEA;
+  --on-accent:#FFFFFF; --ok:#12805C; --warn:#B4500D;
+  --shadow:0 1px 2px rgba(27,23,64,.06),0 8px 24px rgba(27,23,64,.08);
+  color-scheme:light;
+}
+
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink)}
 body{font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -1793,3 +1805,27 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .cd-canvas.sq{border-radius:9%}
 .cd-shape-row{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
 .cd-canvas.corner{border-radius:0 100% 0 0}
+
+/* ===== Landing (desktop and tablet): every box its own colour ===== */
+@media (min-width:641px){
+  /* Venue info stands apart from "What's on" next to it */
+  #landing .m-info{background:#DCEEFF}
+  /* "Keep tables happy": pastel boxes on the dark band, like the phone layout */
+  #landing .venue-band .benefit{border:0;border-radius:var(--r-lg);padding:20px 22px;color:#1B1740}
+  #landing .venue-band .benefit p{color:#3D3766}
+  #landing .venue-band .benefit:nth-child(6n+1){background:#FFD97A}
+  #landing .venue-band .benefit:nth-child(6n+2){background:#8FE0D2}
+  #landing .venue-band .benefit:nth-child(6n+3){background:#FFADC8}
+  #landing .venue-band .benefit:nth-child(6n+4){background:#BDB0FF}
+  #landing .venue-band .benefit:nth-child(6n+5){background:#FFB3AA}
+  #landing .venue-band .benefit:nth-child(6n+6){background:#A9DBFF}
+  /* How it works and the plans */
+  #landing .step{border:0}
+  #landing .step:nth-child(1){background:#FFF1CF}
+  #landing .step:nth-child(2){background:#D5F4EF}
+  #landing .step:nth-child(3){background:#FFDFEA}
+  #landing .plan{border:0}
+  #landing .plan:nth-child(1){background:#D5F4EF}
+  #landing .plan:nth-child(2){background:#E6E0FF;box-shadow:0 0 0 2px #6E4BFF}
+  #landing .plan:nth-child(3){background:#FFE3E0}
+}
