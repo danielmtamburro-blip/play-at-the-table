@@ -122,7 +122,7 @@ export const contrast = (a: string, b: string) => {
 
 // QR patterns are cached (drawn at 0,0) so dragging on the canvas stays smooth.
 const qrCache = new Map<string, string>();
-function qrPath(url: string, size: number): string {
+export function qrPath(url: string, size: number): string {
   const key = `${url}|${size}`;
   const hit = qrCache.get(key);
   if (hit) return hit;
@@ -140,7 +140,7 @@ function qrPath(url: string, size: number): string {
 }
 
 /** The Play at Your Table mark for the QR centre (H error correction leaves room for it). */
-function mark(cx: number, cy: number, r: number, style: "colour" | "mono", mono: string) {
+export function mark(cx: number, cy: number, r: number, style: "colour" | "mono", mono: string) {
   const [a, b, c, dd, e] = style === "mono" ? [mono, mono, mono, mono, mono] : ["#FF5A4E", "#FFB51F", "#12A594", "#6E4BFF", "#F0457F"];
   return `<g transform="translate(${cx - r} ${cy - r}) scale(${(2 * r) / 40})">
     <circle cx="20" cy="20" r="20" fill="#fff"/>

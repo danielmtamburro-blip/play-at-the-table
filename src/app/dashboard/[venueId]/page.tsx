@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DashHeader from "@/components/dashboard/DashHeader";
 import CoasterDesigner from "@/components/dashboard/CoasterDesigner";
+import MarketingKit from "@/components/dashboard/MarketingKit";
 import { EventsEditor, MenuEditor, NearbyEditor, OffersEditor } from "@/components/dashboard/editors";
 import FeedbackTab from "@/components/dashboard/FeedbackTab";
 import ScoresTab from "@/components/dashboard/ScoresTab";
@@ -29,6 +30,7 @@ const TABS = [
   ["nearby", "Nearby", "📍"],
   ["look", "Guest page look", "🖌️"],
   ["coaster", "Coaster studio", "🎨"],
+  ["marketing", "Marketing kit", "📣"],
   ["requests", "Live requests", "🙋"],
   ["feedback", "Feedback", "💬"],
   ["scores", "Leaderboards", "🏆"],
@@ -103,6 +105,7 @@ export default async function VenueDashboard({
         )}
         {tab === "games" && <GamesEditor venue={venue} />}
         {tab === "coaster" && <CoasterDesigner venue={venue} />}
+        {tab === "marketing" && <MarketingKit venue={venue} />}
         {tab === "look" && <ThemeEditor venueId={venue.id} saved={venue.theme} preview={rowToVenue(venue)} logoUrl={venue.logo_url ?? ""} />}
         {tab === "events" && <EventsEditor venueId={venue.id} events={venue.events ?? []} />}
         {tab === "offers" && <OffersEditor venueId={venue.id} offers={venue.offers ?? []} />}
