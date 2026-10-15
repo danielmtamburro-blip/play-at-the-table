@@ -1,18 +1,11 @@
 "use client";
-import { Glyph, gameGlyph } from "../glyphs";
+import { Glyph } from "../glyphs";
 // The Play tab: every switched-on game, filtered by who's playing, with today's leaderboard on top.
 import { useState } from "react";
-import { drinkAge, GAMES, gameOn, type GameGroup, type GameInfo } from "@/lib/games";
+import { DATE_STAGES, drinkAge, GAMES, gameOn, KIDS_BANDS, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Venue } from "@/lib/types";
 import { EXTRA, useGuest } from "../context";
 import { LeaderboardTeaser } from "../Leaderboard";
-
-const KID_ICON: Record<string, string> = {
-  animals: "🐮", fruit: "🍓", calm: "🌙", spotkids: "🔍",
-  colour: "🎨", bubbles: "🫧", oddone: "🔎", count: "🔢", penalty: "⚽", racer: "🏎️",
-  memory: "🐪", tictactoe: "❌", keepy: "🦶", reaction: "⚡", maths: "➗", scramble: "🔤",
-};
-export const gameIcon = (g: GameInfo) => g.icon ?? KID_ICON[g.key] ?? (g.group === "date" ? "💞" : "🎲");
 
 /** Rough order of what tables play most; anything not listed follows. */
 const POPULAR = ["runner", "freekick", "bike", "penalty", "racer", "keepy", "pour", "bill", "trivia", "wordguess", "hilo", "memory", "bubbles", "charades", "sudoku", "wyr", "reaction", "maths", "sports", "emoji", "likely"];
@@ -26,7 +19,7 @@ export function venueGames(v: Venue): GameInfo[] {
   return list.sort((a, b) => rank(a.key) - rank(b.key));
 }
 
-/** A colourful square game card: big emoji, title and a small tag. */
+/** A colourful square game card: title and a small tag, the same for every game. */
 export function GameCard({ g, wide }: { g: GameInfo; wide?: boolean }) {
   const { venue, lang, L, go } = useGuest();
   const x = EXTRA[lang];
@@ -34,15 +27,6 @@ export function GameCard({ g, wide }: { g: GameInfo; wide?: boolean }) {
     g.group === "kids" ? `${x.kidsTag}${g.ages ? ` ${g.ages}` : ""}` : g.group === "group" ? x.adultsTag : g.group === "date" ? x.dateTag : `${x.drinkTag} ${drinkAge(venue.games)}+`;
   return (
     <button className={`g-gcard gc-${g.group}${wide ? " wide" : ""}`} data-card={g.key} onClick={() => go(g.key)}>
-      {g.group === "kids" ? (
-        <span className="g-gcard-ico" aria-hidden="true">
-          {gameIcon(g)}
-        </span>
-      ) : (
-        <span className={`glass-ico gl-${g.group}`} aria-hidden="true">
-          <Glyph k={gameGlyph(g)} />
-        </span>
-      )}
       <b>{L(g.title)}</b>
       <small>{tag}</small>
     </button>
@@ -69,7 +53,7 @@ export function ChallengeBanner() {
 type Chip = "all" | GameGroup;
 
 export function PlayTab() {
-  const { venue, lang } = useGuest();
+  const { venue, lang, L } = useGuest();
   const x = EXTRA[lang];
   const all = venueGames(venue);
   const chips: [Chip, string][] = (
@@ -99,12 +83,32 @@ export function PlayTab() {
       </div>
       <LeaderboardTeaser />
       {venue.modules.versus && chip === "all" && <ChallengeBanner />}
-      <h3 className="g-sec">{x.popular}</h3>
-      <div className="g-ggrid">
-        {shown.map((g) => (
-          <GameCard key={g.key} g={g} />
-        ))}
-      </div>
+      {chip === "kids" || chip === "date" ? (
+        // Kids by age, date night by relationship stage.
+        (chip === "kids" ? KIDS_BANDS.map((b) => ({ id: b.band, label: b.label, list: shown.filter((g) => g.band === b.band) }))
+          : DATE_STAGES.map((d) => ({ id: d.stage, label: d.label, list: shown.filter((g) => (g.stage ?? "year") === d.stage) }))
+        )
+          .filter((sec) => sec.list.length)
+          .map((sec) => (
+            <section key={sec.id} className="g-band">
+              <h3 className="g-sec">{L(sec.label)}</h3>
+              <div className="g-ggrid">
+                {sec.list.map((g) => (
+                  <GameCard key={g.key} g={g} />
+                ))}
+              </div>
+            </section>
+          ))
+      ) : (
+        <>
+          <h3 className="g-sec">{x.popular}</h3>
+          <div className="g-ggrid">
+            {shown.map((g) => (
+              <GameCard key={g.key} g={g} />
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }

@@ -4,7 +4,7 @@ import { buzz, HAPTIC } from "@/lib/haptics";
 // Reusable game engines + the newer one-off games. Nothing a guest does here is saved.
 import { useEffect, useRef, useState } from "react";
 import { COUNT_ITEMS, ODD_SETS } from "@/lib/gameContent";
-import { CATS, GAMES, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
+import { CATS, DATE_STAGES, GAMES, gameOn, KIDS_BANDS, type GameCat, type GameGroup, type GameInfo } from "@/lib/games";
 import type { Lang, Loc } from "@/lib/types";
 import { shuffle, useGuest } from "../context";
 import { ParentBar } from "../KidsLock";
@@ -52,11 +52,6 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
   );
   const card = (g: GameInfo) => (
     <button key={g.key} className={`g-pick ${cls}`} data-game={g.key} onClick={() => go(g.key)}>
-      {g.group !== "kids" && (
-        <span className={`glass-ico gl-${g.group}`} aria-hidden="true">
-          <Glyph k={gameGlyph(g)} />
-        </span>
-      )}
       <b>{L(g.title)}</b>
       <span>{L(g.sub)}</span>
       {g.ages && (
@@ -102,6 +97,17 @@ export function GameHub({ group, title, sub, note }: { group: GameGroup; title: 
               );
             })}
         </>
+      ) : group === "date" ? (
+        DATE_STAGES.map(({ stage, label }) => {
+          const inStage = list.filter((g) => (g.stage ?? "year") === stage);
+          if (!inStage.length) return null;
+          return (
+            <section key={stage} className="g-band">
+              <h3 className="g-band-h">{L(label)}</h3>
+              <div className="g-list g-list-2">{inStage.map(card)}</div>
+            </section>
+          );
+        })
       ) : (
         <div className="g-list">{list.map(card)}</div>
       )}

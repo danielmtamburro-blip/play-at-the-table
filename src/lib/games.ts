@@ -1,4 +1,4 @@
-// Every game a venue can switch on or off: 10 for kids, 10 for groups, 10 for date night.
+// Every game a venue can switch on or off, for kids, groups, date night and drinking.
 // Keys are stored in venues.games ({ key: false } = hidden). Date-night games are question decks ("deck:<id>").
 import { DATE_DECKS } from "./content";
 import { EXTRA_DATE_DECKS } from "./gameContent";
@@ -6,20 +6,29 @@ import type { Loc } from "./types";
 
 export type GameGroup = "kids" | "group" | "date" | "drink";
 export type AgeBand = "2" | "3" | "6" | "12";
+export type DateStage = "first" | "year" | "married" | "reconnect";
 
 export type GameCat = "featured" | "arcade" | "puzzles" | "bar" | "trivia" | "party" | "cards" | "talk";
-export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string; /** Also listed in Kids games, in this age band. */ kidsBand?: AgeBand };
+export type GameInfo = { key: string; group: GameGroup; title: Loc; sub: Loc; ages?: string; band?: AgeBand; cat?: GameCat; icon?: string; /** Also listed in Kids games, in this age band. */ kidsBand?: AgeBand; /** Date night: which stage of a relationship it suits. */ stage?: DateStage };
 
 const L = (en: string, ar: string): Loc => ({ en, ar });
 
 export const ALL_DATE_DECKS = [...DATE_DECKS, ...EXTRA_DATE_DECKS];
+
+/** Which relationship stage each date-night deck is listed under. */
+const DECK_STAGE: Record<string, DateStage> = {
+  first: "first", rapid: "first", foodie: "first", playful: "first",
+  year: "year", couples: "year", travel: "year",
+  married: "married", memory: "married", appreciate: "married", dreams: "married",
+  reconnect: "reconnect", deep: "reconnect",
+};
 
 export const GAMES: GameInfo[] = [
   // Kids: babies and toddlers, then 4 for ages 3+, 4 for 6+, 4 for teens
   { key: "animals", group: "kids", band: "2", title: L("Animal sounds", "أصوات الحيوانات"), sub: L("Who says moo? Huge buttons for little hands", "من يقول مووو؟ أزرار كبيرة للأيدي الصغيرة"), ages: "2+" },
   { key: "fruit", group: "kids", band: "2", title: L("Dancing fruit", "الفواكه الراقصة"), sub: L("Happy fruit dancing to music", "فواكه سعيدة ترقص على الموسيقى"), ages: "0+" },
   { key: "calm", group: "kids", band: "2", title: L("Sleepy lights", "أضواء النوم"), sub: L("Soft lights and a lullaby for babies", "أضواء هادئة وتهويدة للرضّع"), ages: "0+" },
-  { key: "colour", group: "kids", band: "3", title: L("Colouring", "التلوين"), sub: L("Tap a colour, then tap a shape", "اختر لوناً ثم اضغط على شكل"), ages: "3+" },
+  { key: "colour", group: "kids", band: "3", title: L("Colouring", "التلوين"), sub: L("12 pictures: fill them in or draw with the pen", "12 صورة: لوّنها أو ارسم بالقلم"), ages: "3+" },
   { key: "bubbles", group: "kids", band: "3", title: L("Bubble pop", "فقاعات"), sub: L("Pop as many bubbles as you can!", "افقع أكبر عدد من الفقاعات!"), ages: "3+" },
   { key: "oddone", group: "kids", band: "3", title: L("Odd one out", "الشكل المختلف"), sub: L("Spot the picture that's different", "اعثر على الصورة المختلفة"), ages: "3+" },
   { key: "count", group: "kids", band: "3", title: L("Count it!", "عُدّها!"), sub: L("How many can you count?", "كم واحدة تستطيع أن تعد؟"), ages: "3+" },
@@ -57,9 +66,9 @@ export const GAMES: GameInfo[] = [
   { key: "categories", group: "group", cat: "party", icon: "⏱️", title: L("Name five", "اذكر خمسة"), sub: L("Five answers before the timer ends", "خمس إجابات قبل انتهاء الوقت") },
   { key: "picker", group: "group", cat: "party", icon: "🎯", title: L("Party picker", "مختار الحفلة"), sub: L("The phone chooses who goes next", "الهاتف يختار من التالي") },
   // Date night: the couples quiz, then one deck each
-  { key: "knowme", group: "date", title: L("Couples quiz", "اختبار الثنائي"), sub: L("Guess each other's answers and get your match score", "خمّنا إجابات بعضكما واحصلا على نسبة التوافق") },
+  { key: "knowme", group: "date", stage: "year", title: L("Couples quiz", "اختبار الثنائي"), sub: L("Guess each other's answers and get your match score", "خمّنا إجابات بعضكما واحصلا على نسبة التوافق") },
   // Date night (one deck each)
-  ...ALL_DATE_DECKS.map((d) => ({ key: `deck:${d.id}`, group: "date" as const, title: d.t, sub: d.s })),
+  ...ALL_DATE_DECKS.map((d) => ({ key: `deck:${d.id}`, group: "date" as const, stage: DECK_STAGE[d.id] ?? "year", title: d.t, sub: d.s })),
   // Drinking games: only if the venue switches them on; guests confirm their age first.
   { key: "hilo", group: "drink", cat: "cards", icon: "🃏", title: L("Higher or lower", "أعلى أم أقل"), sub: L("Guess the next card. Wrong? Take a sip", "خمّن البطاقة التالية. أخطأت؟ خذ رشفة") },
   { key: "kings", group: "drink", cat: "cards", icon: "👑", title: L("Card rules", "قواعد البطاقات"), sub: L("Draw a card, every card has a rule", "اسحب بطاقة، لكل بطاقة قاعدة") },
@@ -89,6 +98,13 @@ export const KIDS_BANDS: { band: AgeBand; label: Loc }[] = [
   { band: "3", label: L("Little ones · ages 3+", "للصغار · من 3 سنوات") },
   { band: "6", label: L("Big kids · ages 6+", "للأطفال · من 6 سنوات") },
   { band: "12", label: L("Teens · ages 12+", "لليافعين · من 12 سنة") },
+];
+
+export const DATE_STAGES: { stage: DateStage; label: Loc }[] = [
+  { stage: "first", label: L("💫 First dates · getting to know you", "💫 المواعيد الأولى · نتعرف على بعض") },
+  { stage: "year", label: L("💞 Together a while · a year or so", "💞 معاً منذ فترة · سنة تقريباً") },
+  { stage: "married", label: L("💍 Married", "💍 متزوجون") },
+  { stage: "reconnect", label: L("🌱 Reconnecting · back on the same page", "🌱 إعادة التواصل · نعود لنفس الصفحة") },
 ];
 
 export const GROUP_LABEL: Record<GameGroup, string> = { kids: "Kids' corner", group: "Adult games", date: "Date night", drink: "Drinking games" };

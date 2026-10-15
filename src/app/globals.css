@@ -1720,3 +1720,33 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 @media (max-width:640px){
   #landing .plan li::before{background-color:rgba(255,255,255,.75)}
 }
+
+/* Game tiles: the same look for every game, no icon square */
+.g-gcard{justify-content:flex-end;min-height:112px}
+.g-pick{justify-content:flex-end}
+
+/* Colouring v2: picture picker, tools, and the outline layer above the paint */
+.col-pick{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 2px 6px;margin-inline:-2px;scrollbar-width:none}
+.col-pick::-webkit-scrollbar{display:none}
+.col-pick button{flex:0 0 76px;scroll-snap-align:start;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:6px 4px 5px;display:grid;justify-items:center;gap:3px;font-size:.7rem;font-weight:700;transition:transform .12s ease}
+.col-pick button:active{transform:scale(.95)}
+.col-pick button[aria-pressed="true"]{border-color:var(--g-accent,#6E4BFF);box-shadow:0 0 0 2px var(--g-accent,#6E4BFF)}
+.col-pick img,.col-pick i{width:56px;height:56px;border-radius:10px;background:#fff;display:block}
+.col-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.col-tools button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 13px;font-weight:700;font-size:.85rem;display:flex;gap:5px;align-items:center}
+.col-tools button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.col-tools .col-size{width:38px;height:38px;padding:0;justify-content:center}
+.col-tools .col-size i{border-radius:50%;display:block}
+.col-tools .col-size[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.col-wrap{position:relative}
+.color-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:var(--r-md)}
+.color-canvas.col-pen,.color-canvas.col-rubber{cursor:crosshair}
+.g-row .g-btn[disabled]{opacity:.45}
+.g-gcard.gc-kids{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.g-gcard.gc-kids small{background:var(--surface-2)}
+.col-tools{flex-wrap:nowrap;gap:5px}
+.col-tools button{padding:7px 10px;font-size:.8rem;gap:4px;white-space:nowrap}
+.col-tools .col-size{width:32px;height:32px;flex:0 0 32px}
+.col-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.col-actions .g-btn{padding:12px 6px;font-size:.9rem;white-space:nowrap;min-width:0}
+.col-actions .g-btn[disabled]{opacity:.45}
