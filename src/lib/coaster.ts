@@ -8,16 +8,15 @@ export type PlacedIcon = Placed & { k: string; c: string };
 export const isMini = (k: CoasterShape) => k === "minicircle" || k === "minisquare";
 
 /** What gets printed: coasters and stickers, round or square. The artwork is the same 1000×1000 design scaled to size. */
-export type CoasterShape = "round100" | "round90" | "square" | "sticker" | "squaresticker" | "minicircle" | "minisquare" | "corner";
+export type CoasterShape = "round100" | "square" | "sticker" | "squaresticker" | "minicircle" | "minisquare" | "corner";
 export const SHAPES: { k: CoasterShape; label: string; size: string; mm: number; form: "round" | "square" | "corner"; note: string }[] = [
-  { k: "round100", label: "Round coaster", size: "100 mm", mm: 100, form: "round", note: "The classic size for drinks" },
-  { k: "round90", label: "Small round coaster", size: "90 mm", mm: 90, form: "round", note: "Cafés and smaller tables" },
-  { k: "square", label: "Square coaster", size: "95 × 95 mm", mm: 95, form: "square", note: "Rounded corners" },
+  { k: "round100", label: "Round acrylic coaster", size: "100 mm", mm: 100, form: "round", note: "The classic coaster for drinks" },
+  { k: "square", label: "Square acrylic coaster", size: "95 × 95 mm", mm: 95, form: "square", note: "Rounded corners" },
   { k: "sticker", label: "Round sticker", size: "60 mm", mm: 60, form: "round", note: "Stick on tables, menus or the bar" },
   { k: "squaresticker", label: "Square sticker", size: "60 × 60 mm", mm: 60, form: "square", note: "Tables, menu covers, the till" },
   { k: "minicircle", label: "Mini circle sticker", size: "40 mm", mm: 40, form: "round", note: "Tiny, for the corner of a table" },
   { k: "minisquare", label: "Mini square sticker", size: "40 × 40 mm", mm: 40, form: "square", note: "Tiny, for the corner of a table" },
-  { k: "corner", label: "Quarter-circle corner", size: "50 × 50 mm", mm: 50, form: "corner", note: "Fits right into a table corner" },
+  { k: "corner", label: "Quarter-circle sticker", size: "50 × 50 mm", mm: 50, form: "corner", note: "Fits right into a table corner" },
 ];
 export const shapeOf = (k: CoasterShape | undefined) => SHAPES.find((x) => x.k === k) ?? SHAPES[0];
 
