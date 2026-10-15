@@ -355,6 +355,15 @@ function QuickActions() {
   );
 }
 
+/** Each event card gets its own colour, so cards side by side never match. */
+const EVENT_TONES = [
+  "linear-gradient(135deg, #7A3D8C, #3B2360)",
+  "linear-gradient(135deg, #1F8A7A, #10443C)",
+  "linear-gradient(135deg, #D2504A, #7A2230)",
+  "linear-gradient(135deg, #2F6FD0, #1B2F78)",
+  "linear-gradient(135deg, #C98A1E, #7A4A10)",
+];
+
 /** What's on (now first, then tonight, then tomorrow) and offers, as swipeable cards. */
 function Tonight() {
   const { venue, lang, L, go, log } = useGuest();
@@ -366,12 +375,12 @@ function Tonight() {
   if (!offers.length && !events.length) return null;
   return (
     <Scroller title={x.tonight} more={() => go(m.events ? "events" : "offers")}>
-      {events.map(({ ev, occ, live }) => (
+      {events.map(({ ev, occ, live }, i) => (
         <button
           key={ev.id}
           data-tcard="event"
           className="g-tcard"
-          style={{ background: occ.add === 0 ? "linear-gradient(135deg, #7A3D8C, #3B2360)" : "linear-gradient(135deg, #1F6A60, #10332E)" }}
+          style={{ background: EVENT_TONES[i % EVENT_TONES.length] }}
           onClick={() => go("events")}
         >
           <span className={`g-tpill${live ? " live" : ""}`}>

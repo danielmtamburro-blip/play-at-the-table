@@ -28,6 +28,18 @@
   --on-accent:#140F2E; --ok:#4FD1A0; --warn:#FFB066;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
 
+/* The landing page always keeps its bright colours, even when the visitor's computer is in dark mode.
+   (Phones get their own purple layout further down, which comes later and wins.) */
+html:has(#landing){
+  --bg:#F6F4FF; --surface:#FFFFFF; --surface-2:#EFEBFF; --line:#E1DBF5;
+  --ink:#1B1740; --muted:#5D5880;
+  --coral:#FF5A4E; --sun:#FFB51F; --teal:#12A594; --violet:#6E4BFF; --rose:#F0457F;
+  --coral-soft:#FFE3E0; --sun-soft:#FFF1CF; --teal-soft:#D5F4EF; --violet-soft:#E6E0FF; --rose-soft:#FFDFEA;
+  --on-accent:#FFFFFF; --ok:#12805C; --warn:#B4500D;
+  --shadow:0 1px 2px rgba(27,23,64,.06),0 8px 24px rgba(27,23,64,.08);
+  color-scheme:light;
+}
+
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink)}
 body{font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -182,7 +194,8 @@ footer.site .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:spac
 .g-item p{font-size:.86rem;color:var(--muted)}
 .g-chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink)}
-.chip.diet{background:var(--teal-soft)}
+/* Fixed colours: a venue's own theme can't make the diet labels unreadable */
+.chip.diet{background:#D5F4EF;color:#0B5E52;font-weight:700}
 .chip.out{background:var(--coral-soft);color:var(--coral)}
 .g-note{font-size:.8rem;color:var(--muted);background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px}
 .g-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:8px}
@@ -1631,24 +1644,6 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   .vg-coaster.c1{left:calc(50% - 70px)}
 }
 
-/* ===== Landing page on phones: purple throughout, matching the hero (desktop keeps its light sections) ===== */
-@media (max-width:640px){
-  html:has(#landing){
-    --bg:#1E1948; --surface:#2A2461; --surface-2:#332C70; --line:#463E88;
-    --ink:#F4F1FF; --muted:#C4BDEA;
-    --coral-soft:#4A2240; --sun-soft:#4A3A1C; --teal-soft:#173F48; --violet-soft:#352B7A; --rose-soft:#4D1F45;
-    --on-accent:#140F2E;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
-    color-scheme:dark;
-  }
-  /* The band that was dark on light stays a deeper purple so it still stands apart */
-  #landing .venue-band{background:#141036;color:#F4F1FF}
-  #landing .venue-band .section-head p{color:#C4BDEA}
-  #landing .benefit{border-color:#3A3277}
-  #landing .benefit p{color:#C4BDEA}
-  #landing .vg-band{background:linear-gradient(180deg,#1E1948,#272063)}
-}
-
 /* ===== Phones: the three steps and the price plans slide across too ===== */
 @media (max-width:640px){
   .steps,.pricing{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:4px 16px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:stretch}
@@ -1792,3 +1787,52 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .cd-canvas.sq{border-radius:9%}
 .cd-shape-row{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
 .cd-canvas.corner{border-radius:0 100% 0 0}
+
+/* ===== Landing (desktop and tablet): every box its own colour ===== */
+@media (min-width:641px){
+  /* Venue info stands apart from "What's on" next to it */
+  #landing .m-info{background:#DCEEFF}
+  /* "Keep tables happy": pastel boxes on the dark band, like the phone layout */
+  #landing .venue-band .benefit{border:0;border-radius:var(--r-lg);padding:20px 22px;color:#1B1740}
+  #landing .venue-band .benefit p{color:#3D3766}
+  #landing .venue-band .benefit:nth-child(6n+1){background:#FFD97A}
+  #landing .venue-band .benefit:nth-child(6n+2){background:#8FE0D2}
+  #landing .venue-band .benefit:nth-child(6n+3){background:#FFADC8}
+  #landing .venue-band .benefit:nth-child(6n+4){background:#BDB0FF}
+  #landing .venue-band .benefit:nth-child(6n+5){background:#FFB3AA}
+  #landing .venue-band .benefit:nth-child(6n+6){background:#A9DBFF}
+  /* How it works and the plans */
+  #landing .step{border:0}
+  #landing .step:nth-child(1){background:#FFF1CF}
+  #landing .step:nth-child(2){background:#D5F4EF}
+  #landing .step:nth-child(3){background:#FFDFEA}
+  #landing .plan{border:0}
+  #landing .plan:nth-child(1){background:#D5F4EF}
+  #landing .plan:nth-child(2){background:#E6E0FF;box-shadow:0 0 0 2px #6E4BFF}
+  #landing .plan:nth-child(3){background:#FFE3E0}
+}
+
+/* ===== Landing (phones and desktop): sections alternate light purple and dark purple, no plain white ===== */
+@media all{
+  #landing{--lp:#EEEAFF;--dp:#2A2068}
+  #landing :is(#guests,#your-venue,#how,#pilot){background:var(--lp)}
+  #landing :is(#venues,#what-you-get,#pricing,#faq){background:var(--dp);color:#1B1740}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .section-head{color:#F4F1FF}
+  #landing :is(#pricing,#pilot,#faq){padding-top:72px!important}
+  @media (max-width:640px){#landing :is(#pricing,#pilot,#faq){padding-top:52px!important}}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .section-head p{color:#CFC8F2}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .eyebrow{color:#BDB0FF}
+  #landing :is(#venues,#what-you-get,#pricing,#faq) .swipe-hint{color:#BDB0FF}
+  /* Questions: pastel boxes on the dark band */
+  #landing .faq details{border:0;color:#1B1740}
+  #landing .faq details:nth-child(4n+1){background:#FFD97A}
+  #landing .faq details:nth-child(4n+2){background:#8FE0D2}
+  #landing .faq details:nth-child(4n+3){background:#FFADC8}
+  #landing .faq details:nth-child(4n+4){background:#BDB0FF}
+  #landing .faq details p{color:#3D3766}
+  html:has(#landing) footer.site{background:var(--lp, #EEEAFF);border-top:0}
+}
+
+/* Landing: a thick line in the five brand colours under the top bar */
+#landing .nav{border-bottom:0}
+#landing .nav::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}

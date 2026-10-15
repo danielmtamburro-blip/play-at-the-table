@@ -10,7 +10,7 @@ export default function PilotForm() {
     return (
       <div className="pilot-form-done form-result" role="status">
         <strong>Thanks! Your request is in.</strong>
-        <p>We&apos;ll be in touch within two working days to set up your free sample page.</p>
+        <p>We&apos;ll be in touch within two working days to set up your free four-week pilot.</p>
       </div>
     );
 

@@ -5,7 +5,7 @@ import { GAMES } from "@/lib/games";
 import { fetchBoard, fetchHot, qualifies, SCORED, submitScore, type Board } from "@/lib/leaderboard";
 import type { Lang } from "@/lib/types";
 import { SHOWCASE_SCORES } from "@/lib/showcase";
-import { useGuest } from "./context";
+import { useCalmFocus, useGuest } from "./context";
 
 /** Sales-page demo: example scores instead of a real board. */
 const demoBoard = (game: string): Board => {
@@ -58,8 +58,9 @@ export function LeaderboardProvider({ children }: { children: React.ReactNode })
 }
 
 function HighScoreSheet({ p, onClose }: { p: NonNullable<Pending>; onClose: () => void }) {
-  const { venue, table, lang, L, go } = useGuest();
+  const { venue, table, lang, L, go, demo } = useGuest();
   const u = LUI[lang];
+  const nickRef = useCalmFocus<HTMLInputElement>(demo);
   const [nick, setNick] = useState(() => {
     try {
       return localStorage.getItem("patt-nick") ?? "";
@@ -105,7 +106,7 @@ function HighScoreSheet({ p, onClose }: { p: NonNullable<Pending>; onClose: () =
           <label htmlFor="lb-nick" className="small">
             {u.nick}
           </label>
-          <input id="lb-nick" maxLength={16} value={nick} onChange={(e) => setNick(e.target.value)} autoComplete="nickname" autoFocus />
+          <input id="lb-nick" maxLength={16} value={nick} onChange={(e) => setNick(e.target.value)} autoComplete="nickname" ref={nickRef} />
           <span className="lb-hint">{u.nickHint}</span>
           {err && <span className="lb-err">{err}</span>}
           <div className="g-row">

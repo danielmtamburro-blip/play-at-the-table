@@ -250,7 +250,7 @@ export default async function Landing() {
             </div>
             <div className="pilot-note">
               <strong>Founding venues:</strong>
-              <span>The first 10 Dubai venues get a four-week pilot free, coasters included.</span>
+              <span>The first 3 Dubai venues get a four-week pilot free, coasters included.</span>
             </div>
           </div>
         </section>
@@ -260,7 +260,7 @@ export default async function Landing() {
             <div className="section-head">
               <span className="eyebrow">Free pilot</span>
               <h2>Bring Play at Your Table to your venue</h2>
-              <p>Tell us a little about your place. We&apos;ll build a sample page with your real menu before you commit to anything.</p>
+              <p>Tell us a little about your place. We&apos;ll set up your page with your menu, games and offers, and you try it free for four weeks before you commit to anything.</p>
               <div className="pilot-wa">
                 <p>Prefer to talk? Message us and we&apos;ll set up a demo at your venue.</p>
                 <WhatsAppButton />
