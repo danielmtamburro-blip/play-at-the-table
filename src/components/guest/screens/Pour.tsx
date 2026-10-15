@@ -1,5 +1,6 @@
 "use client";
 import { buzz, HAPTIC } from "@/lib/haptics";
+import { sfx } from "@/lib/sfx";
 // "Pour it right": hold to pour, let go on the line. Each good pour makes the next one harder.
 // Pass the phone round the table; a spill or a short pour means a sip.
 import { useEffect, useRef, useState } from "react";
@@ -61,6 +62,7 @@ export function Pour({ k }: { k: string }) {
     setPhase("over");
     setMsg(why === "spill" ? ui.spill : ui.short);
     buzz(HAPTIC.bad);
+    sfx.splat();
     log("game_finish", { item: k, value: score });
     if (score > 0) submit(score); // also offers a leaderboard spot
   }
@@ -93,6 +95,7 @@ export function Pour({ k }: { k: string }) {
       setMsg(Math.abs(level - mid) < (target.hi - target.lo) / 4 ? ui.perfect : ui.good);
       setScore((s) => s + 1);
       buzz();
+      sfx.correct();
       setPhase("ok");
     }, 450);
   }

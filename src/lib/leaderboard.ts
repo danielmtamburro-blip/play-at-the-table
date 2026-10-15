@@ -28,6 +28,10 @@ export const SCORED: Record<string, { lowerBetter: boolean; unit: Unit }> = {
   runner: { lowerBetter: false, unit: plural("pts", "نقطة") },
   bike: { lowerBetter: false, unit: plural("pts", "نقطة") },
   freekick: { lowerBetter: false, unit: plural("pts", "نقطة") },
+  slice: { lowerBetter: false, unit: plural("pts", "نقطة") },
+  stack: { lowerBetter: false, unit: plural("floors", "طابق") },
+  falcon: { lowerBetter: false, unit: plural("towers", "برج") },
+  hoops: { lowerBetter: false, unit: plural("baskets", "سلة") },
 };
 
 export const isScored = (game: string) => game in SCORED;

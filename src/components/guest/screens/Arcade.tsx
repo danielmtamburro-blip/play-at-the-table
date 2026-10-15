@@ -1,5 +1,6 @@
 "use client";
 import { buzz, HAPTIC } from "@/lib/haptics";
+import { sfx } from "@/lib/sfx";
 // Action games for kids and teens. Everything runs on the phone; nothing is saved or sent except anonymous start/finish counts.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SCRAMBLE_WORDS } from "@/lib/gameContent";
@@ -145,6 +146,7 @@ export function BubblePop({ k }: { k: string }) {
               if (state !== "play" || b.popped) return;
               setScore((s) => s + 1);
               buzz(HAPTIC.tap);
+              sfx.pop();
               setBubbles((bs) => bs.map((x) => (x.id === b.id ? { ...x, popped: true } : x)));
               setTimeout(() => setBubbles((bs) => bs.filter((x) => x.id !== b.id)), 180);
             }}
@@ -196,10 +198,13 @@ export function Penalty({ k }: { k: string }) {
     const guess = [18, 50, 82][Math.floor(Math.random() * 3)];
     setKeeper(guess);
     setPhase("fly");
+    sfx.kick();
     setTimeout(() => {
       const r: "goal" | "saved" | "missed" = aim < 6 || aim > 94 ? "missed" : Math.abs(aim - guess) < 17 ? "saved" : "goal";
       setResult(r);
       buzz(r === "goal" ? HAPTIC.win : HAPTIC.bad);
+      if (r === "goal") sfx.goal();
+      else sfx.wrong();
       const g = goals + (r === "goal" ? 1 : 0);
       setGoals(g);
       setPhase("result");
@@ -300,6 +305,7 @@ export function Racer({ k }: { k: string }) {
         if (free.length > 1) n.push({ id: id.current++, lane: free[Math.floor(Math.random() * free.length)], y: -12, e: TRAFFIC[Math.floor(Math.random() * TRAFFIC.length)] });
       }
       if (n.some((o) => o.lane === laneRef.current && o.y > 72 && o.y < 92)) {
+        sfx.crash();
         setState("done");
         log("game_finish", { item: k, value: Math.floor(d.current) });
         submit(Math.floor(d.current));
@@ -399,6 +405,7 @@ export function KeepyUppy({ k }: { k: string }) {
     }
     setBall({ x: b.x, y: b.y, rot: b.rot });
     if (b.y > 96) {
+      sfx.lose();
       setState("done");
       log("game_finish", { item: k, value: kicksRef.current });
       submit(kicksRef.current);
@@ -415,6 +422,7 @@ export function KeepyUppy({ k }: { k: string }) {
       b.vx = (b.x - px) * 6 + (Math.random() - 0.5) * 20;
       kicksRef.current += 1;
       buzz(HAPTIC.tap);
+      sfx.kick();
       setKicks(kicksRef.current);
     }
   }
@@ -477,10 +485,12 @@ export function Reaction({ k }: { k: string }) {
     if (phase === "idle" || phase === "early") return arm();
     if (phase === "wait") {
       clearTimeout(timer.current);
+      sfx.wrong();
       return setPhase("early");
     }
     if (phase === "go") {
       const ms = Math.round(performance.now() - t0.current);
+      sfx.correct();
       const all = [...times, ms];
       setTimes(all);
       if (all.length >= ROUNDS) {
@@ -600,6 +610,8 @@ export function MathSprint({ k }: { k: string }) {
                   const ok = o === sum.ans;
                   if (ok) scoreRef.current += 1;
                   buzz(ok ? HAPTIC.good : HAPTIC.bad);
+                  if (ok) sfx.correct();
+                  else sfx.wrong();
                   setScore(scoreRef.current);
                   setFlash(ok ? "ok" : "bad");
                   setTimeout(() => setFlash(null), 250);
@@ -656,6 +668,7 @@ export function Scramble({ k }: { k: string }) {
   useEffect(() => {
     if (!right) return;
     buzz();
+    sfx.correct();
     setSolved((s) => s + 1);
     if ((solved + 1) % 5 === 0) log("game_finish", { item: k, value: solved + 1 });
     const t = setTimeout(() => (setI((x) => x + 1), setPicked([]), setHint(false)), 900);
@@ -737,6 +750,8 @@ export function TicTacToe({ k }: { k: string }) {
     next[i] = who;
     setCells(next);
     const r = winnerOf(next);
+    if (r) (r.who === "X" || !vsPhone ? sfx.win() : sfx.lose());
+    else sfx.tap();
     if (r) setTally((t) => ({ ...t, [r.who]: t[r.who] + 1 }));
     if (r || next.every(Boolean)) log("game_finish", { item: k });
     setTurn(who === "X" ? "O" : "X");

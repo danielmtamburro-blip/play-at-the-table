@@ -1,5 +1,6 @@
 "use client";
 import { buzz, HAPTIC } from "@/lib/haptics";
+import { sfx } from "@/lib/sfx";
 // "Who pays the bill?" / Sip wheel, plus card and dice drinking games. Names never leave the phone.
 import { useEffect, useRef, useState } from "react";
 import { CARD_RULES, DICE_RULES } from "@/lib/gameContent";
@@ -223,12 +224,14 @@ export function HigherLower({ k }: { k: string }) {
       setStreak((s) => s + 1);
       setMsg({ t: ui.right, tone: "ok" });
       buzz();
+      sfx.correct();
     } else {
       if (streak >= 3) log("game_finish", { item: k, value: streak });
       if (streak >= 1) report(k, streak);
       setStreak(0);
       setMsg({ t: ui.wrong, tone: "bad" });
       buzz(HAPTIC.bad);
+      sfx.wrong();
     }
     setCur(next);
     setPos(p + 1);

@@ -336,6 +336,7 @@ export function DirtBike({ k }: { k: string }) {
     <>
       <GameHead k={k} />
       <ArcadeShell
+        song="arena"
         title={ui.title}
         how={[ui.h1, ui.h2, ui.h3, ui.h4]}
         state={state}

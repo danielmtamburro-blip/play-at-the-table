@@ -52,7 +52,8 @@ export function gameGlyph(g: GameInfo): string {
   if (g.key === "darts") return "target";
   if (g.key === "pool") return "ball";
   if (g.key === "pour") return "glass";
-  if (g.key === "runner") return "flag";
+  if (g.key === "runner" || g.key === "falcon") return "flag";
+  if (g.key === "hoops") return "ball";
   if (g.key === "bike") return "target";
   if (g.key === "freekick" || g.key === "penalty" || g.key === "keepy") return "ball";
   if (g.key === "racer") return "flag";
