@@ -90,19 +90,32 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
     };
   }, [embedded, venue.id, table, log]);
 
+  // How far down each screen in the stack was scrolled, so Back returns to the same spot.
+  const scrolls = useRef<number[]>([]);
+  const restore = useRef<number | null>(null);
+  const scrollNow = useCallback(() => (embedded ? (bodyRef.current?.scrollTop ?? 0) : window.scrollY), [embedded]);
+
   const go = useCallback(
     (k: string) => {
-      setStack((s) => [...s, k]);
+      const y = scrollNow();
+      setStack((s) => {
+        scrolls.current[s.length - 1] = y;
+        return [...s, k];
+      });
       log("view", { module: k.split(":")[0], item: k.startsWith("deck:") ? k.slice(5) : undefined });
       if (GAMES.some((g) => g.key === k)) log("game_start", { item: k });
     },
-    [log],
+    [log, scrollNow],
   );
 
   const cur = stack[stack.length - 1];
   useEffect(() => {
-    if (embedded) bodyRef.current?.scrollTo({ top: 0 });
-    else window.scrollTo(0, 0);
+    // A new screen opens at the top; going back returns to where you were.
+    const y = restore.current ?? 0;
+    restore.current = null;
+    const to = () => (embedded ? bodyRef.current?.scrollTo({ top: y }) : window.scrollTo(0, y));
+    to();
+    if (y) requestAnimationFrame(to); // again once images and cards have laid out
   }, [cur, stack.length, embedded]);
 
   const ctx: GuestCtx = useMemo(() => {
@@ -131,7 +144,12 @@ export default function GuestApp({ venue, table = null, embedded = false, autopl
     };
   }, [lang, venue, table, go, log, embedded, cur]);
 
-  const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+  const back = () =>
+    setStack((s) => {
+      if (s.length < 2) return s;
+      restore.current = scrolls.current[s.length - 2] ?? 0;
+      return s.slice(0, -1);
+    });
   const { tr, L } = ctx;
   const x = EXTRA[lang];
   const age = drinkAge(venue.games);
