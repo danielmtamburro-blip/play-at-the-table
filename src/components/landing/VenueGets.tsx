@@ -26,14 +26,18 @@ const SAFFRON: Example = { base: "#1A1410", icons: [["cocktail", ""], ["music", 
 const OLIVE: Example = { base: "#0E4D3A", icons: [["coffee", ""], ["food", ""], ["kids", ""], ["heart", ""]], iconColour: "#F7F1E3", words: "Family brunch every Friday", table: "4", venueName: "The Olive Tree" };
 const BEACH: Example = { base: "#F7F1E3", icons: [["palm", ""], ["icecream", ""], ["football", ""], ["smile", ""]], iconColour: "#12A594", words: "Sun, sea and good food", table: "9", venueName: "Beach Shack" };
 
-/** What lies on the table, drawn to scale: [example, shape, size in mm, css class]. */
-const PIECES: [Example, CoasterShape, number, string][] = [
-  [OLIVE, "round100", 100, "p-olive"],
-  [BEACH, "square", 95, "p-beach"],
-  [SAFFRON, "sticker", 60, "p-sticker"],
-  [OLIVE, "minicircle", 40, "p-mini"],
-  [BEACH, "minisquare", 40, "p-minisq"],
-  [SAFFRON, "corner", 50, "p-corner"],
+/** What lies on the table, drawn to scale (size in mm), in two rows: coasters, then stickers. */
+type Piece = { ex: Example; shape: CoasterShape; mm: number; label: string; size: string };
+const COASTERS: Piece[] = [
+  { ex: OLIVE, shape: "round100", mm: 100, label: "Round acrylic coaster", size: "100 mm" },
+  { ex: BEACH, shape: "square", mm: 95, label: "Square acrylic coaster", size: "95 × 95 mm" },
+];
+const STICKERS: Piece[] = [
+  { ex: SAFFRON, shape: "sticker", mm: 60, label: "Round sticker", size: "60 mm" },
+  { ex: BEACH, shape: "squaresticker", mm: 60, label: "Square sticker", size: "60 × 60 mm" },
+  { ex: OLIVE, shape: "minicircle", mm: 40, label: "Mini circle sticker", size: "40 mm" },
+  { ex: SAFFRON, shape: "minisquare", mm: 40, label: "Mini square sticker", size: "40 × 40 mm" },
+  { ex: SAFFRON, shape: "corner", mm: 50, label: "Corner sticker", size: "50 × 50 mm" },
 ];
 
 const DAYS = [["Mon", 142], ["Tue", 168], ["Wed", 155], ["Thu", 214], ["Fri", 296], ["Sat", 318], ["Sun", 241]] as const;
@@ -50,18 +54,35 @@ export default function VenueGets() {
           <span className="vg-tag">Coasters &amp; stickers</span>
           <h3>Your brand on every table</h3>
           <p>
-            Fully editable in your brand colours, with your logo, icons and your own text. Choose round or square acrylic coasters, or stickers in four
-            sizes. Every one keeps the colourful Play at Your Table rim so guests know there&apos;s fun to be had, and each table gets its own QR code.
+            Fully editable in your brand colours, with your logo, icons and your own text. Choose round or square acrylic coasters, or stickers in five
+            shapes and sizes, including one that fits the corner of a table. Every one keeps the colourful Play at Your Table rim so guests know there&apos;s fun to be had, and each table gets its own QR code.
           </p>
         </div>
-        <div className="vg-table" aria-hidden="true">
-          <div className="vg-scene">
-            {PIECES.map(([ex, shape, mm, cls], i) => (
-              <div key={cls} className={`vg-piece ${cls}`} style={{ ["--mm" as string]: mm }} dangerouslySetInnerHTML={{ __html: coaster(ex, `c${i + 1}`, shape) }} />
-            ))}
-            <span className="vg-glass" />
-            <span className="vg-cup">☕</span>
-          </div>
+        <div className="vg-table vg-flat">
+          {[COASTERS, STICKERS].map((row, r) => (
+            <div key={r} className={`vg-row${r ? " stickers" : ""}`}>
+              {row.map((p, i) => (
+                <figure key={p.shape} className="vg-item">
+                  {p.shape === "corner" ? (
+                    // Shown where it goes: tucked into the corner of a table top.
+                    <span className="vg-corner" style={{ ["--mm" as string]: p.mm }}>
+                      <span className="vg-piece p-corner" dangerouslySetInnerHTML={{ __html: coaster(p.ex, `s${r}${i}`, p.shape) }} />
+                    </span>
+                  ) : (
+                    <span
+                      className={`vg-piece${p.shape === "square" || p.shape === "squaresticker" || p.shape === "minisquare" ? " sq" : ""}${r ? " flat" : ""}`}
+                      style={{ ["--mm" as string]: p.mm }}
+                      dangerouslySetInnerHTML={{ __html: coaster(p.ex, `s${r}${i}`, p.shape) }}
+                    />
+                  )}
+                  <figcaption>
+                    <b>{p.label}</b>
+                    <span>{p.size}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ))}
         </div>
       </article>
 
