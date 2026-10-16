@@ -164,7 +164,7 @@ export default async function Landing() {
             <div className="section-head">
               <span className="eyebrow">What venues get</span>
               <h2>Everything you need, ready on day one</h2>
-              <p>Branded coasters for every table, a dashboard that shows what&apos;s working, and a staff screen so no request gets missed.</p>
+              <p>Branded coasters and stickers for every table, a dashboard that shows what&apos;s working, and a staff screen so no request gets missed.</p>
             </div>
             <VenueGets />
           </div>
@@ -184,7 +184,7 @@ export default async function Landing() {
               </div>
               <div className="step">
                 <h3>Coasters go on tables</h3>
-                <p>We supply our round, glazed QR coasters. Each one can carry its own table number.</p>
+                <p>We supply your QR coasters in acrylic, round or square, plus small stickers for table corners and menus. Each one carries its own table number.</p>
               </div>
               <div className="step">
                 <h3>You keep it fresh</h3>
@@ -212,7 +212,7 @@ export default async function Landing() {
                   <li>Food and drinks menu, offers and what&apos;s on</li>
                   <li>Games for kids, adults and date nights</li>
                   <li>English and Arabic</li>
-                  <li>One venue QR and 20 coasters</li>
+                  <li>One venue QR and 20 coasters or stickers</li>
                 </ul>
               </div>
               <div className="plan featured">
@@ -227,7 +227,7 @@ export default async function Landing() {
                   <li>Call server, bill and celebration alerts on a live staff screen</li>
                   <li>Stats, leaderboards and a monthly report</li>
                   <li>Darts and pool scorers, drinking games and celebrations</li>
-                  <li>Up to 60 coasters</li>
+                  <li>Up to 60 coasters or stickers</li>
                 </ul>
               </div>
               <div className="plan">
