@@ -14,9 +14,6 @@ export default function YourVenue({ base }: { base: Venue }) {
   const [colour, setColour] = useState("#FF5A4E");
   const [dark, setDark] = useState(false);
   const [logo, setLogo] = useState("");
-  // On phones the form shows one step at a time, right under the phone, so both fit on screen.
-  const [step, setStep] = useState<"name" | "colour" | "look" | "logo">("name");
-  const on = (k: typeof step) => (step === k ? " on" : "");
 
   const venue: Venue = useMemo(() => {
     const theme: GuestTheme = dark
@@ -44,29 +41,15 @@ export default function YourVenue({ base }: { base: Venue }) {
   return (
     <div className="yv">
       <form className="yv-form" onSubmit={(e) => e.preventDefault()}>
-        <div className="yv-steps" role="tablist" aria-label="Customise">
-          {(
-            [
-              ["name", "1. Name"],
-              ["colour", "2. Colour"],
-              ["look", "3. Look"],
-              ["logo", "4. Logo"],
-            ] as const
-          ).map(([k, label]) => (
-            <button key={k} type="button" role="tab" aria-selected={step === k} onClick={() => setStep(k)}>
-              {label}
-            </button>
-          ))}
-        </div>
-        <label className={`yv-field${on("name")}`}>
+        <label className="yv-field">
           <span>Venue name</span>
           <input value={name} maxLength={32} onChange={(e) => setName(e.target.value)} placeholder="e.g. The Olive Tree" />
         </label>
-        <label className={`yv-field${on("name")}`}>
+        <label className="yv-field">
           <span>Area</span>
           <input value={area} maxLength={32} onChange={(e) => setArea(e.target.value)} placeholder="e.g. JLT · Dubai" />
         </label>
-        <fieldset className={`yv-field${on("colour")}`}>
+        <fieldset className="yv-field">
           <legend>Brand colour</legend>
           <div className="yv-swatches">
             {COLOURS.map((c) => (
@@ -78,7 +61,7 @@ export default function YourVenue({ base }: { base: Venue }) {
             </label>
           </div>
         </fieldset>
-        <fieldset className={`yv-field${on("look")}`}>
+        <fieldset className="yv-field">
           <legend>Look</legend>
           <div className="yv-seg">
             <button type="button" aria-pressed={!dark} onClick={() => setDark(false)}>
@@ -89,13 +72,13 @@ export default function YourVenue({ base }: { base: Venue }) {
             </button>
           </div>
         </fieldset>
-        <label className={`yv-field yv-logo${on("logo")}`}>
+        <label className="yv-field yv-logo">
           <span>Your logo (optional)</span>
           <input type="file" accept="image/*" onChange={(e) => onLogo(e.target.files?.[0])} />
           <small>It stays on your device. Nothing is uploaded.</small>
         </label>
         {logo && (
-          <button type="button" className={`yv-clear${on("logo")}`} onClick={() => setLogo("")}>
+          <button type="button" className="yv-clear" onClick={() => setLogo("")}>
             Remove logo
           </button>
         )}

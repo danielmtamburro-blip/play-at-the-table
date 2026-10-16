@@ -1837,20 +1837,6 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 #landing .nav{border-bottom:0}
 #landing .nav::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}
 
-/* ===== "Picture it in your place": step tabs (phones only) ===== */
-.yv-steps{display:none}
-@media (max-width:900px){
-  .yv{gap:14px}
-  .yv .phone-stage{order:-1}
-  .yv .phone{height:420px;width:min(290px,100%)}
-  .yv .phone-note{display:none}
-  .yv-form{padding:14px;gap:12px}
-  .yv-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(255,255,255,.5);border-radius:999px;padding:4px}
-  .yv-steps button{border:0;background:none;border-radius:999px;padding:8px 4px;font-weight:700;font-size:.8rem;color:#1B1740;white-space:nowrap}
-  .yv-steps button[aria-selected=true]{background:#1B1740;color:#fff}
-  .yv-form .yv-field:not(.on),.yv-form .yv-clear:not(.on){display:none}
-}
-
 /* Top bar on phones: "Venue login" next to "Join the pilot" (desktop has it in the links) */
 .nav-login{display:none}
 @media (max-width:760px){
