@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.URL ?? "https://playatyourtable.com"),
   title: "Play at Your Table",
   description:
-    "Play at Your Table: one QR coaster for menus, offers and games for kids, friends and couples. Built for Dubai restaurants and cafés.",
+    "Play at Your Table: one QR on every table for menus, offers and games for kids, friends and couples. Built for Dubai restaurants and cafés.",
   icons: { icon: "/favicon.png" },
 };
 

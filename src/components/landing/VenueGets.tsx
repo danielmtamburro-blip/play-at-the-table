@@ -38,11 +38,11 @@ export default function VenueGets() {
       {/* Coasters on a table */}
       <article className="vg-card vg-coasters">
         <div className="vg-head">
-          <span className="vg-tag">Printed coasters</span>
+          <span className="vg-tag">Coasters &amp; stickers</span>
           <h3>Your brand on every table</h3>
           <p>
-            Fully editable in your brand colours, with your logo, icons and your own text. Every coaster keeps the colourful Play at Your Table rim so
-            guests know there&apos;s fun to be had, and each table gets its own QR code.
+            Fully editable in your brand colours, with your logo, icons and your own text. Choose round or square acrylic coasters, or stickers in four
+            sizes. Every one keeps the colourful Play at Your Table rim so guests know there&apos;s fun to be had, and each table gets its own QR code.
           </p>
         </div>
         <div className="vg-table" aria-hidden="true">
