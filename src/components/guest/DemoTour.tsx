@@ -13,34 +13,36 @@ type Props = {
 const CAPTIONS = {
   en: {
     home: "Your venue's own page: one scan, no app",
-    offers: "📣 Tonight's offers and what's on",
-    menu: "🍽️ Your menu, with prices and allergens",
-    lock: "🍽️ Dinner's here! Parents pause the games",
-    baby: "🍓 Dancing fruit for babies and toddlers",
-    keepy: "⚽ Keepy-uppy for the kids",
-    racer: "🏎️ Car racing while they wait",
-    quiz: "🧠 Table trivia for the grown-ups",
-    split: "🧮 Split the bill in seconds",
-    wheel: "🎡 Who pays? Spin the wheel!",
-    pour: "🍺 Drinking games, age-checked",
-    date: "❤️ First-date questions for couples",
-    board: "🏆 Live leaderboards keep tables playing",
+    menu: "🥗 Your menu, filtered by dietary needs",
+    drinks: "🍹 And the drinks menu",
+    slice: "🍉 Fruit Slash",
+    stack: "🏙️ Sky Tower",
+    hoops: "🏀 Hoop Shot",
+    sudoku: "🔢 Sudoku",
+    words: "🔍 Word search",
+    sports: "⚽ Sports trivia",
+    date: "❤️ First-date questions",
+    darts: "🎯 Darts scorer",
+    pool: "🎱 Pool scoreboard",
+    versus: "🏆 Challenge another table",
+    board: "🏅 Live leaderboards",
     yourTurn: "Your turn! Tap anything to explore.",
   },
   ar: {
     home: "صفحة مكانك الخاصة: مسحة واحدة بدون تطبيق",
-    offers: "📣 عروض الليلة والفعاليات",
-    menu: "🍽️ قائمتك بالأسعار ومسببات الحساسية",
-    lock: "🍽️ وصل العشاء! الأهل يوقفون الألعاب",
-    baby: "🍓 فواكه راقصة للرضّع والصغار",
-    keepy: "⚽ تنطيط الكرة للأطفال",
-    racer: "🏎️ سباق سيارات أثناء الانتظار",
-    quiz: "🧠 مسابقات للكبار",
-    split: "🧮 قسّم الحساب في ثوانٍ",
-    wheel: "🎡 من يدفع؟ لف العجلة!",
-    pour: "🍺 ألعاب المشروبات مع التحقق من العمر",
-    date: "❤️ أسئلة الموعد الأول للأزواج",
-    board: "🏆 لوحات المتصدرين تبقي الطاولات تلعب",
+    menu: "🥗 قائمتك مع فلتر الأنظمة الغذائية",
+    drinks: "🍹 وقائمة المشروبات",
+    slice: "🍉 تقطيع الفواكه",
+    stack: "🏙️ برج السماء",
+    hoops: "🏀 رمية السلة",
+    sudoku: "🔢 سودوكو",
+    words: "🔍 البحث عن الكلمات",
+    sports: "⚽ مسابقة رياضية",
+    date: "❤️ أسئلة الموعد الأول",
+    darts: "🎯 حاسبة السهام",
+    pool: "🎱 لوحة البلياردو",
+    versus: "🏆 تحدَّ طاولة أخرى",
+    board: "🏅 لوحات المتصدرين",
     yourTurn: "دورك! اضغط على أي شيء للاستكشاف.",
   },
 };
@@ -101,7 +103,7 @@ export default function DemoTour({ root, body, onCaption }: Props) {
       throw new Error(`missing ${sel}`);
     };
     /** Glide the finger to a point (relative to the phone). */
-    const moveTo = async (x: number, y: number, ms = 380) => {
+    const moveTo = async (x: number, y: number, ms = 260) => {
       setFinger((f) => ({ ...f, x, y, show: true }));
       await wait(ms);
     };
@@ -119,7 +121,7 @@ export default function DemoTour({ root, body, onCaption }: Props) {
       b.scrollTo({ top: b.scrollTop + (er.top - br.top) - br.height / 3, behavior: "smooth" });
       await wait(320);
     };
-    const tap = async (sel: string, after = 260) => {
+    const tap = async (sel: string, after = 200) => {
       const el = await find(sel);
       await reveal(el);
       const [x, y] = pointOf(el);
@@ -154,16 +156,15 @@ export default function DemoTour({ root, body, onCaption }: Props) {
         if (!el || typeof IntersectionObserver === "undefined" || location.search.includes("tour=now")) return res();
         const io = new IntersectionObserver((es) => {
           if (es.some((e) => e.isIntersecting)) (io.disconnect(), res());
-        }, { threshold: 0.4 });
+        }, { threshold: 0.15 });
         io.observe(el);
       });
 
     (async () => {
       await visible();
-      await wait(800);
       while (ok()) {
         homeRef.current();
-        await wait(300);
+        await wait(60);
 
         /** Open the Play tab, then a game card on it. */
         const openGame = async (key: string, chip?: string) => {
@@ -176,148 +177,185 @@ export default function DemoTour({ root, body, onCaption }: Props) {
           el.dispatchEvent(new Event("input", { bubbles: true }));
         };
 
-        const kicks = async (n: number) => {
-          for (let k = 0; k < n; k++) {
-            const arena = await find(".arena.keepy");
-            const ball = await find(".keepy-ball");
-            let [x, y] = pointOf(ball);
-            await moveTo(x, y + 6, 160);
-            const r = ball.getBoundingClientRect();
-            [x, y] = pointOf(ball);
-            setFinger((f) => ({ ...f, x, y: y + 6 }));
-            ripple();
-            pressAt(arena, r.left + r.width / 2, r.top + r.height / 2);
-            await wait(380);
+        const canvasPt = (cv: Element, fx: number, fy: number) => {
+          const r = cv.getBoundingClientRect();
+          return [r.left + r.width * fx, r.top + r.height * fy] as const;
+        };
+        const fire = (cv: Element, type: string, cx: number, cy: number) =>
+          cv.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: cx, clientY: cy, pointerId: 7, isPrimary: true }));
+        /** Drag the finger across a game canvas (fractions of its size), sending real pointer events. */
+        const drag = async (cv: Element, from: [number, number], to: [number, number], ms: number, steps = 8) => {
+          const [x0, y0] = canvasPt(cv, ...from);
+          await moveTo(...pointOf(cv, ...from), 120);
+          ripple();
+          fire(cv, "pointerdown", x0, y0);
+          for (let i = 1; i <= steps; i++) {
+            const fx = from[0] + ((to[0] - from[0]) * i) / steps, fy = from[1] + ((to[1] - from[1]) * i) / steps;
+            const [x, y] = canvasPt(cv, fx, fy);
+            setFinger((f) => ({ ...f, ...(() => { const [px, py] = pointOf(cv, fx, fy); return { x: px, y: py }; })() }));
+            fire(cv, "pointermove", x, y);
+            await wait(ms / steps);
           }
+          const [x1, y1] = canvasPt(cv, ...to);
+          fire(cv, "pointerup", x1, y1);
+        };
+        const startGame = async (key: string, chip?: string) => {
+          await openGame(key, chip);
+          await tap('[data-act="start"]', 250);
+          return find(".ax-canvas");
         };
 
-        // The venue's page, tonight's offers and events
+        // The venue's page, then the menu filtered by diet, then drinks
         await part(async () => {
           caption("home");
-          await wait(700);
-          caption("offers");
-          const row = await find(".g-scroll-sec .g-scroller");
-          await reveal(row);
-          for (const left of [230, 460, 0]) {
+          const row = await find(".g-scroll-sec .g-scroller").catch(() => null);
+          if (row) {
             const [x, y] = pointOf(row, 0.7, 0.5);
-            await moveTo(x, y, 250);
-            row.scrollTo({ left, behavior: "smooth" });
-            await wait(650);
+            await moveTo(x, y, 200);
+            row.scrollTo({ left: 240, behavior: "smooth" });
+            await wait(700);
           }
-        });
-
-        // Menu, then drinks
-        await part(async () => {
           caption("menu");
-          await tap('[data-q="menu"]', 500);
-          await scrollBody(220, 700);
-          await tap('[data-act="menu-drinks"]', 700);
+          await tap('[data-q="menu"]', 350);
+          await tap('[data-act="diet"]', 300);
+          await tap('[data-diet="v"]', 700);
+          await scrollBody(260, 600);
+        });
+        await part(async () => {
+          caption("drinks");
+          if (root.current?.querySelector('[data-q="drinks"]')) await tap('[data-q="drinks"]', 400);
+          else (await tap('[data-q="menu"]', 300), await tap('[data-act="menu-drinks"]', 400));
+          await scrollBody(240, 700);
         });
 
-        // Dinner's here: lock, then a grown-up unlocks
+        // Fruit Slash: swipe through the fruit
         await part(async () => {
-          caption("lock");
-          await tap('[data-tile="kids"]', 350);
-          await tap(".kl-dinner", 1400);
-          await tap(".kl-grown", 250);
-          const label = (await find(".kl-gate label")).textContent ?? "";
-          const m = label.match(/(\d+)\s*×\s*(\d+)/);
-          const ans = (await find("#kl-ans")) as HTMLInputElement;
-          await moveTo(...pointOf(ans));
-          ripple();
-          setInput(ans, m ? String(Number(m[1]) * Number(m[2])) : "");
-          await wait(250);
-          await tap(".kl-gate .g-btn", 250);
-        });
-
-        // Babies and toddlers: dancing fruit
-        await part(async () => {
-          caption("baby");
-          await tap('[data-tile="kids"]', 300);
-          await tap('[data-game="fruit"]', 700);
-          await tap(".fruit-stage .fruit:nth-child(2)", 500);
-          await tap(".fruit-stage .fruit:nth-child(6)", 700);
-        });
-
-        // Kids: keepy-uppy and car racing
-        await part(async () => {
-          caption("keepy");
-          await openGame("keepy");
-          await tap('[data-act="start"]', 150);
-          await kicks(3);
-        });
-        await part(async () => {
-          caption("racer");
-          await openGame("racer");
-          await tap('[data-act="start"]', 250);
-          for (const side of ["left", "right", "right"]) await tap(`[data-act="${side}"]`, 280);
-        });
-
-        // Adults: trivia
-        await part(async () => {
-          caption("quiz");
-          await openGame("trivia");
-          await tap("[data-right]", 900);
-        });
-
-        // Split the bill
-        await part(async () => {
-          caption("split");
-          await tap('[data-tile="group"]', 300);
-          await tap('[data-game="split"]', 400);
-          const total = (await find("#split-total")) as HTMLInputElement;
-          await moveTo(...pointOf(total));
-          ripple();
-          for (const v of ["3", "34", "348"]) (setInput(total, v), await wait(160));
-          await tap('[aria-label="One more person"]', 200);
-          await tap('[aria-label="One more person"]', 200);
-          await tap(".split-card .g-seg button:nth-child(3)", 900);
-        });
-
-        // Who pays? Spin the wheel
-        await part(async () => {
-          caption("wheel");
-          await tap('[data-tile="group"]', 300);
-          await tap('[data-game="bill"]', 400);
-          await tap('[data-act="spin"]', 4700);
-        });
-
-        // Drinking games: pour it right
-        await part(async () => {
-          caption("pour");
-          await openGame("pour", "drink");
-          if (root.current?.querySelector('[data-act="age-yes"]')) await tap('[data-act="age-yes"]', 300);
-          const stage = await find(".pour-stage");
-          await reveal(stage);
-          const [x, y] = pointOf(stage, 0.5, 0.75);
-          await moveTo(x, y);
-          ripple();
-          stage.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-          // Let go once the beer (plus settling foam) reaches the middle of the band.
-          const band = await find(".pour-band");
-          const lo = parseFloat(band.style.bottom), hi = lo + parseFloat(band.style.height);
-          for (let t = 0; t < 6000; t += 30) {
-            await wait(30);
-            const beer = parseFloat((root.current?.querySelector(".pour-beer") as HTMLElement)?.style.height || "0");
-            const foam = parseFloat((root.current?.querySelector(".pour-foam") as HTMLElement)?.style.height || "0");
-            if (beer + foam * 0.35 >= lo + (hi - lo) * 0.45) break;
+          caption("slice");
+          const cv = (await startGame("slice")) as HTMLCanvasElement;
+          // Swipe through whichever fruit is in the air, for about five seconds.
+          for (let t = 0, n = 0; t < 5200 && n < 7; ) {
+            const fr = (cv.dataset.fruit || "").split(" ").filter(Boolean).map((p) => p.split(",").map((v) => Number(v) / 1000));
+            const target = fr.find(([, y]) => y > 0.12 && y < 0.8);
+            if (!target) (await wait(80), (t += 80));
+            else {
+              const [fx, fy] = target, dir = n % 2 ? -1 : 1;
+              await drag(cv, [Math.min(0.95, Math.max(0.05, fx - 0.28 * dir)), fy - 0.05], [Math.min(0.95, Math.max(0.05, fx + 0.28 * dir)), fy + 0.05], 110, 5);
+              n++;
+              await wait(220);
+              t += 600;
+            }
           }
-          stage.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
-          await wait(1100);
+          await wait(400);
+        });
+
+        // Sky Tower: drop each floor right on top
+        await part(async () => {
+          caption("stack");
+          const cv = (await startGame("stack")) as HTMLCanvasElement;
+          const [x, y] = pointOf(cv, 0.5, 0.45);
+          await moveTo(x, y, 150);
+          for (let n = 0; n < 5; n++) {
+            for (let t = 0; t < 2500; t += 20) {
+              await wait(20);
+              if (Math.abs(Number(cv.dataset.off ?? 999)) < 5) break;
+            }
+            ripple();
+            fire(cv, "pointerdown", ...canvasPt(cv, 0.5, 0.45));
+            await wait(120);
+          }
+          await wait(500);
+        });
+
+        // Hoop Shot: flick it in
+        await part(async () => {
+          caption("hoops");
+          const cv = await startGame("hoops");
+          for (let n = 0; n < 2; n++) {
+            const h = cv.getBoundingClientRect().height;
+            const by = (h - 78) / h;
+            await drag(cv, [0.5, by], [0.5, by - 90 / h], 100, 5);
+            await wait(1350);
+          }
+        });
+
+        // Puzzles: sudoku and word search
+        await part(async () => {
+          caption("sudoku");
+          await openGame("sudoku");
+          for (let n = 0; n < 3; n++) {
+            const cell = await find(".sudoku [data-sol]");
+            const sol = cell.dataset.sol;
+            await tap(".sudoku [data-sol]", 120);
+            await tap(`.numpad [data-n="${sol}"]`, 220);
+          }
+          await wait(300);
+        });
+        await part(async () => {
+          caption("words");
+          await openGame("wordsearch");
+          for (const n of [0, 1]) {
+            await tap(`.ws [data-ws~="s${n}"]`, 150);
+            await tap(`.ws [data-ws~="e${n}"]`, 450);
+          }
+        });
+
+        // Sports trivia
+        await part(async () => {
+          caption("sports");
+          await openGame("sports");
+          await tap("[data-right]", 900);
         });
 
         // Date night: first-date questions
         await part(async () => {
           caption("date");
-          await tap('[data-tile="date"]', 300);
-          await tap('[data-game="deck:first"]', 1100);
-          await tap('[data-act="next"]', 1100);
+          await tap('[data-tile="date"]', 250);
+          await tap('[data-game="deck:first"]', 900);
+          await tap('[data-act="next"]', 900);
+        });
+
+        // Darts and pool scorers
+        await part(async () => {
+          caption("darts");
+          await tap('[data-tile="bar"]', 250);
+          await tap('[data-game="darts"]', 300);
+          await tap('[data-act="darts-start"]', 300);
+          for (const v of [60, 140, 180]) {
+            await tap(`[data-score="${v}"]`, 150);
+            await tap('[data-act="darts-enter"]', 350);
+          }
+        });
+        await part(async () => {
+          caption("pool");
+          await tap('[data-tile="bar"]', 250);
+          await tap('[data-game="pool"]', 300);
+          await tap('[data-act="pool-start"]', 350);
+          await tap('[data-act="pool-won"]', 450);
+          await tap('.pool-p:nth-child(2) [data-act="pool-won"]', 450);
+          await tap('[data-act="pool-won"]', 700);
+        });
+
+        // Challenge another table
+        await part(async () => {
+          caption("versus");
+          await tap('[data-tab="play"]', 250);
+          await tap('[data-tile="versus"]', 450);
+          const to = (await find("#vs-to")) as HTMLInputElement;
+          await moveTo(...pointOf(to));
+          ripple();
+          setInput(to, "7");
+          await wait(300);
+          const team = (await find("#vs-team")) as HTMLInputElement;
+          await moveTo(...pointOf(team));
+          ripple();
+          for (const v of ["The", "The Cham", "The Champions"]) (setInput(team, v), await wait(150));
+          await wait(800);
         });
 
         // Leaderboards
         await part(async () => {
           caption("board");
-          await tap('[data-tab="play"]', 1600);
+          await tap('[data-tab="play"]', 1300);
         });
 
         setFinger((f) => ({ ...f, show: false }));

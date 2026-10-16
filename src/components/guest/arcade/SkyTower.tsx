@@ -108,6 +108,9 @@ export function SkyTower({ k }: { k: string }) {
       // Gentle demo sway on the start screen
       m.x = w / 2 - m.w / 2 + Math.sin(t * 1.5) * w * 0.25;
     }
+    // The sales-page tour reads this to drop floors right on top.
+    const cv = ctx.canvas;
+    if (cv.dataset) cv.dataset.off = String(Math.round(m.x - s.floors[s.floors.length - 1].x));
     const height = s.floors.length * FH;
     const targetCam = Math.max(0, height - h * 0.45);
     s.cam = lerp(s.cam, targetCam, Math.min(1, dt * 4));

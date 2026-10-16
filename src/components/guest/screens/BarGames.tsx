@@ -157,7 +157,7 @@ export function Darts({ k }: { k: string }) {
           <span className="split-label">{ui.players}</span>
           <PlayerList names={names} setNames={setNames} min={1} max={6} />
         </div>
-        <button className="g-btn" onClick={() => begin()}>
+        <button className="g-btn" data-act="darts-start" onClick={() => begin()}>
           🎯 {ui.start}
         </button>
       </>
@@ -225,7 +225,7 @@ export function Darts({ k }: { k: string }) {
           {msg && <p className="g-service-msg bad">{msg}</p>}
           <div className="darts-quick">
             {[26, 41, 45, 60, 81, 85, 100, 140, 180].map((n) => (
-              <button key={n} onClick={() => setEntry(String(n))}>
+              <button key={n} data-score={n} onClick={() => setEntry(String(n))}>
                 {n}
               </button>
             ))}
@@ -240,7 +240,7 @@ export function Darts({ k }: { k: string }) {
               ⌫
             </button>
             <button onClick={() => setEntry((e) => (e ? (e + "0").slice(0, 3) : ""))}>0</button>
-            <button className="ok" onClick={submit}>
+            <button className="ok" data-act="darts-enter" onClick={submit}>
               {ui.enter}
             </button>
           </div>
@@ -314,7 +314,7 @@ export function Pool({ k }: { k: string }) {
                       🟡 {ui.stripes}
                     </button>
                   </div>
-                  <button className="g-btn" onClick={() => win(i)}>
+                  <button className="g-btn" data-act="pool-won" onClick={() => win(i)}>
                     🏆 {ui.won}
                   </button>
                 </>
@@ -449,7 +449,7 @@ export function Pool({ k }: { k: string }) {
         <span className="split-label">{ui.players}</span>
         <PlayerList names={names} setNames={setNames} min={2} max={mode === "race" ? 2 : 10} />
       </div>
-      <button className="g-btn" onClick={start}>
+      <button className="g-btn" data-act="pool-start" onClick={start}>
         🎱 {ui.start}
       </button>
     </>

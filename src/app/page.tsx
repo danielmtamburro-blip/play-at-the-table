@@ -55,6 +55,9 @@ export default async function Landing() {
             <a href="#pricing">Pricing</a>
             <a href="/dashboard">Venue login</a>
           </nav>
+          <a className="btn btn-ghost nav-login" href="/dashboard" aria-label="Venue login">
+            Log in
+          </a>
           <a className="btn btn-primary" href="#pilot">
             Join the pilot
           </a>

@@ -145,6 +145,8 @@ export function FruitSlash({ k }: { k: string }) {
       }
     }
     s.fruits = s.fruits.filter((f) => !f.cut);
+    // The sales-page tour reads this to swipe through real fruit (positions in thousandths of the canvas).
+    ctx.canvas.dataset.fruit = s.fruits.filter((f) => f.kind !== "bomb").map((f) => `${Math.round((f.x / w) * 1000)},${Math.round((f.y / h) * 1000)}`).join(" ");
     for (const hf of s.halves) {
       hf.vy += G * dt;
       hf.x += hf.vx * dt;
@@ -294,7 +296,7 @@ export function FruitSlash({ k }: { k: string }) {
           className="ax-canvas tall"
           aria-label={ui.title}
           onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId);
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
             const s = g.current;
             s.down = true;
             s.swipeHits = 0;

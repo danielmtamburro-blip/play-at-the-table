@@ -307,7 +307,7 @@ export function HoopShot({ k }: { k: string }) {
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const s = g.current;
     if (state !== "play" || s.over || s.ball.flying) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
     s.drag = [pt(e)];
   };
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
