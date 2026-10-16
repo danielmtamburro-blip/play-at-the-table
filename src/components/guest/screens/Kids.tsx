@@ -100,7 +100,7 @@ export function Colour() {
       save();
       return;
     }
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
     remember();
     last.current = [x, y];
     stroke([x, y], [x + 0.1, y + 0.1]);

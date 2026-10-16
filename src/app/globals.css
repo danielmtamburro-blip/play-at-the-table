@@ -1688,7 +1688,7 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
   #landing .faq details:nth-child(4n+2){background:#FFD97A}
   #landing .faq details:nth-child(4n+3){background:#8FE0D2}
   #landing .faq details:nth-child(4n+4){background:#BDB0FF}
-  #landing .module.m-info{background:#BDB0FF}
+  #landing .module.m-info{background:#A9DBFF}
   #landing .vg-window{background:rgba(255,255,255,.45);border-color:rgba(27,23,64,.1)}
   #landing .nav .btn-primary{background:#FFB51F;color:#1B1740}
   #landing :is(.yv-form,.pilot form) :is(input,select,textarea){background:rgba(255,255,255,.7);border-color:rgba(27,23,64,.14)}
@@ -1836,3 +1836,19 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 /* Landing: a thick line in the five brand colours under the top bar */
 #landing .nav{border-bottom:0}
 #landing .nav::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}
+
+/* Top bar on phones: "Venue login" next to "Join the pilot" (desktop has it in the links) */
+.nav-login{display:none}
+@media (max-width:760px){
+  .nav .nav-login{display:inline-flex;margin-inline-start:auto;border:1.5px solid #1B1740;color:#1B1740;background:transparent}
+  .nav .nav-login + .btn{margin-inline-start:8px}
+  .nav .wrap{gap:8px}
+}
+@media (max-width:380px){.nav .btn{padding:6px 10px;font-size:.8rem}}
+@media (max-width:760px){
+  .nav .logo{font-size:.98rem;gap:8px;line-height:1.05;min-width:0}
+  .nav .logo{flex:none;font-size:.9rem}
+  .nav .logo span{width:6.2em;white-space:normal;display:block}
+  .nav .logo-mark{width:34px;height:34px}
+  .nav .btn{padding:7px 12px;font-size:.82rem}
+}
