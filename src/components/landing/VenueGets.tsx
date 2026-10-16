@@ -1,6 +1,6 @@
 // "What venues get": printed coasters (3D table scene), the stats dashboard and the live staff screen.
 // Everything here is an illustration with example numbers.
-import { coasterSvg, DEFAULT_DESIGN, inkOn } from "@/lib/coaster";
+import { coasterSvg, DEFAULT_DESIGN, inkOn, type CoasterShape } from "@/lib/coaster";
 
 const URL = "https://playatyourtable.com/v/saffron-terrace/12";
 
@@ -8,9 +8,10 @@ type Example = { base: string; icons: [string, string][]; iconColour: string; wo
 const ICON_SPOTS: [number, number][] = [[210, 380], [790, 380], [225, 575], [775, 575]];
 
 /** One example venue's coaster: the fixed colourful rim, with their own colour, logo, icons and words. */
-const coaster = (ex: Example, idPrefix: string) => {
+const coaster = (ex: Example, idPrefix: string, shape: CoasterShape = "round100") => {
   const d = {
     ...DEFAULT_DESIGN,
+    shape,
     base: ex.base,
     taglineColor: inkOn(ex.base),
     tagline: ex.words,
@@ -21,10 +22,18 @@ const coaster = (ex: Example, idPrefix: string) => {
   return coasterSvg(d, { url: URL, table: ex.table, logo: ex.logo, venueName: ex.venueName }).replace(/(arcTop|arcBottom|disc|qrShadow)/g, `${idPrefix}-$1`);
 };
 
-const EXAMPLES: Example[] = [
-  { base: "#1A1410", icons: [["cocktail", ""], ["music", ""], ["moon", ""], ["sparkle", ""]], iconColour: "#E3A94B", words: "Welcome to the terrace", table: "12", logo: "/showcase/saffron-logo.svg" },
-  { base: "#0E4D3A", icons: [["coffee", ""], ["food", ""], ["kids", ""], ["heart", ""]], iconColour: "#F7F1E3", words: "Family brunch every Friday", table: "4", venueName: "The Olive Tree" },
-  { base: "#F7F1E3", icons: [["palm", ""], ["icecream", ""], ["football", ""], ["smile", ""]], iconColour: "#12A594", words: "Sun, sea and good food", table: "9", venueName: "Beach Shack" },
+const SAFFRON: Example = { base: "#1A1410", icons: [["cocktail", ""], ["music", ""], ["moon", ""], ["sparkle", ""]], iconColour: "#E3A94B", words: "Welcome to the terrace", table: "12", logo: "/showcase/saffron-logo.svg" };
+const OLIVE: Example = { base: "#0E4D3A", icons: [["coffee", ""], ["food", ""], ["kids", ""], ["heart", ""]], iconColour: "#F7F1E3", words: "Family brunch every Friday", table: "4", venueName: "The Olive Tree" };
+const BEACH: Example = { base: "#F7F1E3", icons: [["palm", ""], ["icecream", ""], ["football", ""], ["smile", ""]], iconColour: "#12A594", words: "Sun, sea and good food", table: "9", venueName: "Beach Shack" };
+
+/** What lies on the table, drawn to scale: [example, shape, size in mm, css class]. */
+const PIECES: [Example, CoasterShape, number, string][] = [
+  [OLIVE, "round100", 100, "p-olive"],
+  [BEACH, "square", 95, "p-beach"],
+  [SAFFRON, "sticker", 60, "p-sticker"],
+  [OLIVE, "minicircle", 40, "p-mini"],
+  [BEACH, "minisquare", 40, "p-minisq"],
+  [SAFFRON, "corner", 50, "p-corner"],
 ];
 
 const DAYS = [["Mon", 142], ["Tue", 168], ["Wed", 155], ["Thu", 214], ["Fri", 296], ["Sat", 318], ["Sun", 241]] as const;
@@ -47,8 +56,8 @@ export default function VenueGets() {
         </div>
         <div className="vg-table" aria-hidden="true">
           <div className="vg-scene">
-            {EXAMPLES.map((ex, i) => (
-              <div key={i} className={`vg-coaster c${i + 1}`} dangerouslySetInnerHTML={{ __html: coaster(ex, `c${i + 1}`) }} />
+            {PIECES.map(([ex, shape, mm, cls], i) => (
+              <div key={cls} className={`vg-piece ${cls}`} style={{ ["--mm" as string]: mm }} dangerouslySetInnerHTML={{ __html: coaster(ex, `c${i + 1}`, shape) }} />
             ))}
             <span className="vg-glass" />
             <span className="vg-cup">☕</span>
