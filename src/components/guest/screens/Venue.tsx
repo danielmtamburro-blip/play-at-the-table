@@ -363,11 +363,6 @@ function MenuCards() {
   );
 }
 
-/** A thin line in the five Play at Your Table colours. */
-function BrandLine() {
-  return <div className="g-brand-line" aria-hidden="true" />;
-}
-
 /** Each event card gets its own colour, so cards side by side never match. */
 const EVENT_TONES = [
   "linear-gradient(135deg, #7A3D8C, #3B2360)",
@@ -478,7 +473,6 @@ export function Home() {
           </div>
         </section>
       )}
-      <BrandLine />
       <MenuCards />
       <ContactCard />
     </>
