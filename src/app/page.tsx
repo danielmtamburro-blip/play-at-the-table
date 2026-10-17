@@ -210,7 +210,7 @@ export default async function Landing() {
               <h2>Simple plans, all features included</h2>
               <p>One price per venue, in AED excluding VAT, with every feature included. Go monthly, or save with a longer plan. Got several venues? Ask us for a group quote.</p>
             </div>
-            <p className="swipe-hint" aria-hidden="true">Swipe to compare plans →</p>
+            <p className="swipe-hint" aria-hidden="true">Scroll across to see all 5 plans →</p>
             <div className="pricing">
               {PLANS.map((pl) => (
                 <div key={pl.name} className={`plan${pl.best ? " featured" : ""}`}>
@@ -222,7 +222,7 @@ export default async function Landing() {
                   <p className="plan-per">{pl.per}</p>
                   {pl.save && <span className="plan-save">{pl.save}</span>}
                   <a className={`btn ${pl.best ? "btn-primary" : "btn-ghost"} btn-sm plan-go`} href="#pilot">
-                    Start free pilot
+                    Start with a free pilot
                   </a>
                 </div>
               ))}

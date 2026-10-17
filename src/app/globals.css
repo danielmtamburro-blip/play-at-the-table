@@ -1890,11 +1890,12 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 /* ===== Pricing v2: four lengths of the same plan, features listed once ===== */
 /* One row of plans; scrolls sideways when they don't all fit */
 .pricing{display:flex;align-items:stretch;overflow-x:auto;scroll-snap-type:x mandatory;padding:14px 0 10px;scrollbar-width:thin}
-.pricing>.plan{flex:1 0 196px;scroll-snap-align:start;padding:24px 22px}
+.pricing>.plan{flex:0 0 290px;scroll-snap-align:start;padding:30px 28px;min-height:300px}
+#pricing .swipe-hint{display:block;margin:0 0 4px;text-align:right;font-size:.85rem;font-weight:600;opacity:.8}
 .plan-go{white-space:nowrap}
 .plan{position:relative}
-.plan .pill{position:absolute;top:0;left:22px;transform:translateY(-50%)}
-.plan .price{font-size:1.9rem;white-space:nowrap}
+.plan .pill{position:absolute;top:0;left:28px;transform:translateY(-50%)}
+.plan .price{font-size:2.3rem;white-space:nowrap}
 .plan-per{margin:-4px 0 0;font-size:.92rem;color:var(--muted)}
 .plan-save{align-self:flex-start;font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:999px;background:#12A594;color:#fff}
 .plan-go{margin-top:auto;align-self:flex-start}
@@ -1922,3 +1923,4 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .plan-multi .price{white-space:normal}
 #landing .plan.plan-multi{background:#FFE7F0;box-shadow:none}
 @media (max-width:640px){#landing .plan.plan-multi{background:#FFB8D2}}
+@media (max-width:640px){#pricing .swipe-hint{text-align:center}}
