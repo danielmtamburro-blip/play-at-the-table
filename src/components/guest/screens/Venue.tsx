@@ -238,12 +238,12 @@ function Cover() {
   const slides = useCoverSlides();
   const [at, setAt] = useState(0);
   const [tick, setTick] = useState(0);
-  // A new slide every 4.5 seconds; tapping a dot restarts the timer. Holds still for reduced motion.
+  // A new slide every 2 seconds; tapping a dot restarts the timer. Holds still for reduced motion.
   useEffect(() => {
     if (slides.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setAt((i) => (i + 1) % slides.length), demo ? 3500 : 4500);
+    const t = setInterval(() => setAt((i) => (i + 1) % slides.length), 2000);
     return () => clearInterval(t);
-  }, [slides.length, tick, demo]);
+  }, [slides.length, tick]);
   const cur = at % Math.max(1, slides.length);
   const initials = venue.name.en
     .split(/[\s&]+/)
