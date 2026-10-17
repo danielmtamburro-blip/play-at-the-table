@@ -479,8 +479,8 @@ export function Home() {
           </div>
         </section>
       )}
-      <MenuCards />
       <BrandLine />
+      <MenuCards />
       <ContactCard />
     </>
   );
@@ -495,8 +495,8 @@ function ContactCard() {
   const address = L(venue.address) || L(venue.area);
   const actions: { k: string; label: string; href: string; glyph: string }[] = [];
   if (venue.phone) actions.push({ k: "call", label: x.call, href: `tel:${venue.phone.replace(/[^\d+]/g, "")}`, glyph: "phone" });
-  if (venue.whatsapp) actions.push({ k: "wa", label: "WhatsApp", href: `https://wa.me/${venue.whatsapp}`, glyph: "chat" });
   if (venue.email) actions.push({ k: "email", label: x.email, href: `mailto:${venue.email}`, glyph: "receipt" });
+  if (venue.whatsapp) actions.push({ k: "wa", label: "WhatsApp", href: `https://wa.me/${venue.whatsapp}`, glyph: "chat" });
   if (venue.instagram) actions.push({ k: "insta", label: "Instagram", href: `https://instagram.com/${venue.instagram}`, glyph: "insta" });
   if (!address && !actions.length && !venue.reviewUrl) return null;
   // The showroom venue isn't real: its buttons explain instead of dialling.
