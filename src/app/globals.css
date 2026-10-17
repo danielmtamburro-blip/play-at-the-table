@@ -1605,7 +1605,7 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 
 /* ===== Slimmer "Challenge another table" banner ===== */
 .g-ex.t-versus{min-height:52px;padding:8px 12px}
-.g-ex.t-versus .glass-ico{width:36px;height:36px;border-radius:12px}
+
 
 /* ===== Landing page on phones only (desktop is unchanged) ===== */
 .swipe-hint{display:none}
@@ -1870,3 +1870,19 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .vg-corner .vg-piece.p-corner{position:absolute;left:6px;bottom:6px;border-radius:0 100% 0 0;box-shadow:0 1px 0 rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.3)}
 @media (max-width:860px){.vg-table.vg-flat{--u:1.6px}}
 @media (max-width:640px){.vg-table.vg-flat{--u:1.25px;padding:18px 10px 14px}.vg-row{gap:16px 14px}.vg-item figcaption{max-width:110px}.vg-item figcaption b{font-size:.74rem}}
+
+.ct-insta-btn,.ct-btn.ct-insta{background:linear-gradient(135deg,#F58529,#DD2A7B 55%,#8134AF);color:#fff;border-color:transparent}
+/* Challenge another table: the same card as every other Explore tile */
+.g-ex.t-versus{background:var(--surface);color:var(--ink);border:1px solid var(--line);min-height:64px;padding:12px}
+.g-ex.t-versus small{color:var(--muted)}
+.g.tiles-brand .g-ex.t-versus{background:var(--surface);color:var(--ink)}
+/* Contact buttons: two by two (Call, Email / WhatsApp, Instagram) */
+.ct-actions{grid-template-columns:1fr 1fr!important;gap:8px}
+.ct-actions .ct-btn{flex-direction:row;gap:8px;padding:12px 10px;font-size:.9rem;border-radius:14px}
+.ct-actions .ct-btn svg{width:18px;height:18px}
+/* The five brand colours run along the bottom edge of the cover photo, starting just after the venue logo (16px in, 84px wide) */
+.g-cover::after{content:"";position:absolute;inset-inline-start:98px;inset-inline-end:0;bottom:0;height:5px;z-index:3;pointer-events:none;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}
+/* One continuous line either side of the logo: full width, with the logo's space (16px to 100px) cut out */
+.g-cover::after{inset-inline-start:0;-webkit-mask-image:linear-gradient(90deg,#000 0 18px,transparent 18px 98px,#000 98px);mask-image:linear-gradient(90deg,#000 0 18px,transparent 18px 98px,#000 98px)}
+[dir="rtl"] .g-cover::after{-webkit-mask-image:linear-gradient(270deg,#000 0 18px,transparent 18px 98px,#000 98px);mask-image:linear-gradient(270deg,#000 0 18px,transparent 18px 98px,#000 98px)}
+.g-slide{transition:opacity .6s ease}

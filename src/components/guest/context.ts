@@ -43,7 +43,7 @@ export type ExtraKey =
   | "tonight" | "playNow" | "seeAll" | "explore" | "qMenu" | "qDrinks" | "qServer" | "qBill" | "qOffers" | "qWifi"
   | "tabHome" | "tabMenu" | "tabPlay" | "tabOffers" | "food" | "all" | "popular" | "challengeGo" | "eventToday" | "offerTag"
   | "playSub" | "kidsTag" | "adultsTag" | "dateTag" | "drinkTag"
-  | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions" | "barGames" | "barGamesS" | "contact" | "call" | "email" | "hours" | "access" | "review" | "demoContact" | "forEveryone" | "mixCelebrate" | "mixDarts" | "mixSplit" | "mixBill" | "mixPour" | "mixLocal" | "mixReview";
+  | "foodDrink" | "foodMenu" | "foodMenuS" | "drinksMenu" | "drinksMenuS" | "celebrate" | "celebrateS" | "nearby" | "nearbyS" | "nearbySub" | "directions" | "barGames" | "barGamesS" | "contact" | "call" | "email" | "hours" | "access" | "review" | "demoContact" | "forEveryone" | "mixCelebrate" | "mixDarts" | "mixSplit" | "mixBill" | "mixPour" | "mixLocal" | "mixReview";
 
 /** Strings added for the Next.js version that aren't in the original string table. */
 export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
@@ -88,12 +88,12 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     versus: "Challenge another table",
     versusS: "Live head-to-head games for points",
     kidsSub: "Games for every age, from colouring to football. No sign-up, no links, nothing is uploaded.",
-    tonight: "Tonight", playNow: "Play now", seeAll: "See all", explore: "Explore",
+    tonight: "What\'s on", playNow: "Play now", seeAll: "See all", explore: "Explore",
     qMenu: "Menu", qDrinks: "Drinks", qServer: "Server", qBill: "Bill", qOffers: "Offers", qWifi: "Wi-Fi",
     tabHome: "Home", tabMenu: "Menu", tabPlay: "Play", tabOffers: "Offers", food: "Food", all: "All",
     popular: "Popular right now", challengeGo: "Challenge", eventToday: "Today", offerTag: "Offer",
     playSub: "Games for everyone at the table", kidsTag: "Kids", adultsTag: "Adults", dateTag: "Date night", drinkTag: "Drinking",
-    foodMenu: "Food menu", foodMenuS: "Prices, allergens and dietary filters", drinksMenu: "Drinks menu", drinksMenuS: "Cocktails, mocktails, coffee and more",
+    foodDrink: "Food & drink", foodMenu: "Food menu", foodMenuS: "Prices, allergens and dietary filters", drinksMenu: "Drinks menu", drinksMenuS: "Cocktails, mocktails, coffee and more",
     celebrate: "Celebrations", celebrateS: "Birthdays, anniversaries and more", nearby: "Things to do nearby", nearbyS: "Our favourite local spots",
     nearbySub: "Places we love around the area, hand-picked by the team.", directions: "Directions",
     barGames: "Darts & pool", barGamesS: "Scorers for the board and table",
@@ -143,12 +143,12 @@ export const EXTRA: Record<Lang, Record<ExtraKey, string>> = {
     versus: "تحدَّ طاولة أخرى",
     versusS: "ألعاب مباشرة وجهاً لوجه لجمع النقاط",
     kidsSub: "ألعاب لكل الأعمار، من التلوين إلى كرة القدم. بدون تسجيل أو روابط، ولا يتم رفع أي شيء.",
-    tonight: "الليلة", playNow: "العب الآن", seeAll: "عرض الكل", explore: "استكشف",
+    tonight: "ما يحدث", playNow: "العب الآن", seeAll: "عرض الكل", explore: "استكشف",
     qMenu: "القائمة", qDrinks: "المشروبات", qServer: "النادل", qBill: "الحساب", qOffers: "العروض", qWifi: "واي فاي",
     tabHome: "الرئيسية", tabMenu: "القائمة", tabPlay: "العب", tabOffers: "العروض", food: "الطعام", all: "الكل",
     popular: "الأكثر لعباً الآن", challengeGo: "تحدَّ", eventToday: "اليوم", offerTag: "عرض",
     playSub: "ألعاب لكل من على الطاولة", kidsTag: "أطفال", adultsTag: "كبار", dateTag: "سهرة لشخصين", drinkTag: "مشروبات",
-    foodMenu: "قائمة الطعام", foodMenuS: "الأسعار ومسببات الحساسية والفلاتر الغذائية", drinksMenu: "قائمة المشروبات", drinksMenuS: "كوكتيلات وموكتيلات وقهوة والمزيد",
+    foodDrink: "الطعام والمشروبات", foodMenu: "قائمة الطعام", foodMenuS: "الأسعار ومسببات الحساسية والفلاتر الغذائية", drinksMenu: "قائمة المشروبات", drinksMenuS: "كوكتيلات وموكتيلات وقهوة والمزيد",
     celebrate: "احتفالات", celebrateS: "أعياد الميلاد والذكريات والمزيد", nearby: "أماكن قريبة", nearbyS: "أماكننا المفضلة في المنطقة",
     nearbySub: "أماكن نحبها في المنطقة، اختارها فريقنا.", directions: "الاتجاهات",
     barGames: "السهام والبلياردو", barGamesS: "حاسبات للوحة والطاولة",
