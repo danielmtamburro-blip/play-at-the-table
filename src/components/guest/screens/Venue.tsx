@@ -451,7 +451,6 @@ export function Home() {
   return (
     <>
       <Cover />
-      <BrandLine />
       <QuickActions />
       <WifiStrip />
       <Tonight />

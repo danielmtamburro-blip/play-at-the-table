@@ -1882,3 +1882,5 @@ table.simple td.num,table.simple th.num{text-align:end;font-variant-numeric:tabu
 .ct-actions{grid-template-columns:1fr 1fr!important;gap:8px}
 .ct-actions .ct-btn{flex-direction:row;gap:8px;padding:12px 10px;font-size:.9rem;border-radius:14px}
 .ct-actions .ct-btn svg{width:18px;height:18px}
+/* The five brand colours run along the bottom edge of the cover photo */
+.g-cover::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;z-index:3;pointer-events:none;background:linear-gradient(90deg,#FF5A4E 0 20%,#FFB51F 20% 40%,#12A594 40% 60%,#6E4BFF 60% 80%,#F0457F 80% 100%)}
