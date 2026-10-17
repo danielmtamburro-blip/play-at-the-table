@@ -39,6 +39,15 @@ const FAQ = [
   ["What data do you collect?", "Only totals, such as how many scans or game plays. We never collect names, game answers, contacts or precise location."],
 ];
 
+
+/** Pricing: one plan with every feature, priced by how long the venue commits. */
+const PLANS = [
+  { name: "Monthly", total: "AED 649", unit: "/ month", per: "Rolling. Cancel any month.", save: "", badge: "", best: false },
+  { name: "3 months", total: "AED 1,800", unit: "for 3 months", per: "That's AED 600 a month", save: "Save AED 147", badge: "", best: false },
+  { name: "6 months", total: "AED 3,300", unit: "for 6 months", per: "That's AED 550 a month", save: "Save AED 594", badge: "", best: false },
+  { name: "12 months", total: "AED 5,400", unit: "for 12 months", per: "That's AED 450 a month", save: "Save AED 2,388", badge: "Best value", best: true },
+];
+
 export default async function Landing() {
 
   return (
@@ -198,51 +207,39 @@ export default async function Landing() {
           <div className="wrap">
             <div className="section-head">
               <span className="eyebrow">Pricing</span>
-              <h2>Simple monthly plans</h2>
-              <p>Prices are per venue, in AED, excluding VAT. Cancel any month. Got several venues? Ask us for a group quote.</p>
+              <h2>Simple plans, all features included</h2>
+              <p>One price per venue, in AED excluding VAT, with every feature included. Go monthly, or save with a longer plan. Got several venues? Ask us for a group quote.</p>
             </div>
             <p className="swipe-hint" aria-hidden="true">Swipe to compare plans →</p>
             <div className="pricing">
-              <div className="plan">
-                <h3>Basic</h3>
-                <div className="price">
-                  249 <small>AED / month</small>
+              {PLANS.map((pl) => (
+                <div key={pl.name} className={`plan${pl.best ? " featured" : ""}`}>
+                  {pl.badge && <span className="pill">{pl.badge}</span>}
+                  <h3>{pl.name}</h3>
+                  <div className="price">
+                    {pl.total} <small>{pl.unit}</small>
+                  </div>
+                  <p className="plan-per">{pl.per}</p>
+                  {pl.save && <span className="plan-save">{pl.save}</span>}
+                  <a className={`btn ${pl.best ? "btn-primary" : "btn-ghost"} btn-sm plan-go`} href="#pilot">
+                    Start free pilot
+                  </a>
+                </div>
+              ))}
+              <div className="plan plan-multi">
+                <div className="plan-multi-head">
+                  <h3>Multi-venue</h3>
+                  <div className="price">
+                    Price on quote <small>for 2+ venues</small>
+                  </div>
                 </div>
                 <ul>
-                  <li>Food and drinks menu, offers and what&apos;s on</li>
-                  <li>Games for kids, adults and date nights</li>
-                  <li>English and Arabic</li>
-                  <li>One venue QR and 20 coasters or stickers</li>
-                </ul>
-              </div>
-              <div className="plan featured">
-                <span className="pill">Most popular</span>
-                <h3>Pro</h3>
-                <div className="price">
-                  449 <small>AED / month</small>
-                </div>
-                <ul>
-                  <li>Everything in Basic</li>
-                  <li>A numbered QR for every table</li>
-                  <li>Call server, bill and celebration alerts on a live staff screen</li>
-                  <li>Stats, leaderboards and a monthly report</li>
-                  <li>Darts and pool scorers, drinking games and celebrations</li>
-                  <li>Up to 60 coasters or stickers</li>
-                </ul>
-              </div>
-              <div className="plan">
-                <h3>Multi-venue</h3>
-                <div className="price">
-                  Price on quote <small>for 2+ venues</small>
-                </div>
-                <ul>
-                  <li>Every location from one login</li>
-                  <li>Stats for each venue and the whole group</li>
-                  <li>Your brand across all sites, with each venue&apos;s own menu</li>
-                  <li>A dedicated account manager</li>
+                  <li>All venues, one login</li>
+                  <li>Stats per venue and group</li>
+                  <li>Dedicated account manager</li>
                 </ul>
                 <div className="plan-cta">
-                  <a className="btn btn-primary" href="#pilot">
+                  <a className="btn btn-primary btn-sm" href="#pilot">
                     Request a quote
                   </a>
                   <a className="btn btn-wa btn-sm" href={whatsappLink("Hi! I have more than one venue and would like a quote for Play at Your Table.")} target="_blank" rel="noopener noreferrer">
@@ -250,6 +247,21 @@ export default async function Landing() {
                   </a>
                 </div>
               </div>
+            </div>
+            <div className="plan-all">
+              <h3>Every plan includes</h3>
+              <ul>
+                <li>Your own branded guest page: logo, colours and menu</li>
+                <li>Food and drinks menu with allergens and dietary filters</li>
+                <li>Offers, events and what&apos;s on, updated any time</li>
+                <li>Games for kids, adults, couples and groups</li>
+                <li>A numbered QR for every table</li>
+                <li>Call server and bill alerts on a live staff screen</li>
+                <li>Stats, leaderboards and a monthly report</li>
+                <li>Darts and pool scorers, challenges and celebrations</li>
+                <li>English and Arabic</li>
+                <li>Coasters, posters and table cards designed in your portal</li>
+              </ul>
             </div>
             <div className="pilot-note">
               <strong>Founding venues:</strong>
