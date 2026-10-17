@@ -232,7 +232,7 @@ function useCoverSlides(): Slide[] {
 
 /** Cover with the table and language on it, and the logo card overlapping. Slides through our artwork, what's on, an offer and the venue's photo. */
 function Cover() {
-  const { venue, table, tr, L, lang, toggleLang, demo } = useGuest();
+  const { venue, table, tr, L, lang, toggleLang } = useGuest();
   const name = L(venue.name);
   const accent = venue.theme?.accent ?? venue.brandColor ?? "#6E4BFF";
   const slides = useCoverSlides();
