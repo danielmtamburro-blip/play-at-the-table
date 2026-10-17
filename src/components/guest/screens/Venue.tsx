@@ -300,40 +300,16 @@ function Cover() {
 
 /** Four round shortcuts under the cover. */
 function QuickActions() {
-  const { venue, lang, go, demo } = useGuest();
+  const { lang, demo } = useGuest();
   const x = EXTRA[lang];
-  const m = venue.modules;
   const svc = useService(demo);
-  // The menus are why most guests scan, so they get big cards of their own.
-  const menus: { k: string; e: string; t: string; s: string }[] = [];
-  if (m.menu) menus.push({ k: "menu", e: "cutlery", t: x.foodMenu, s: x.foodMenuS });
-  if (m.drinks) menus.push({ k: "drinks", e: "glass", t: x.drinksMenu, s: x.drinksMenuS });
   const items: { k: string; label: string; icon: React.ReactNode; on: () => void; act?: string; off?: boolean }[] = [];
   if (svc.on) {
     items.push({ k: "server", label: x.callServer, icon: <Glyph k="bell" />, on: () => svc.call("server"), act: "call", off: svc.cool.server });
     items.push({ k: "bill", label: x.billPlease, icon: <Glyph k="receipt" />, on: () => svc.call("bill"), off: svc.cool.bill });
   }
-  // Offers and feedback live in the tab bar and the Explore list, so only the two service buttons sit here.
   return (
     <>
-      {menus.length > 0 && (
-        <div className={`g-menus${menus.length === 1 ? " one" : ""}`}>
-          {menus.map((mn) => (
-            <button key={mn.k} className={`g-menu-card mc-${mn.k}`} data-q={mn.k} onClick={() => go(mn.k)}>
-              <span className="glass-ico lg" aria-hidden="true">
-                <Glyph k={mn.e} />
-              </span>
-              <span className="g-menu-txt">
-                <b>{mn.t}</b>
-                <small>{mn.s}</small>
-              </span>
-              <span className="g-menu-go" aria-hidden="true">
-                ›
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
       {items.length > 0 && (
         <div className="g-quick g-quick-svc">
           {items.map((it) => (
@@ -353,6 +329,43 @@ function QuickActions() {
       )}
     </>
   );
+}
+
+/** Food and drinks menus: further down the page, so guests pass the games and what's on first. */
+function MenuCards() {
+  const { venue, lang, go } = useGuest();
+  const x = EXTRA[lang];
+  const m = venue.modules;
+  const menus: { k: string; e: string; t: string; s: string }[] = [];
+  if (m.menu) menus.push({ k: "menu", e: "cutlery", t: x.foodMenu, s: x.foodMenuS });
+  if (m.drinks) menus.push({ k: "drinks", e: "glass", t: x.drinksMenu, s: x.drinksMenuS });
+  if (!menus.length) return null;
+  return (
+    <section className="g-scroll-sec g-menus-sec">
+      <h3 className="g-sec">{x.foodDrink}</h3>
+      <div className={`g-menus${menus.length === 1 ? " one" : ""}`}>
+        {menus.map((mn) => (
+          <button key={mn.k} className={`g-menu-card mc-${mn.k}`} data-q={mn.k} onClick={() => go(mn.k)}>
+            <span className="glass-ico lg" aria-hidden="true">
+              <Glyph k={mn.e} />
+            </span>
+            <span className="g-menu-txt">
+              <b>{mn.t}</b>
+              <small>{mn.s}</small>
+            </span>
+            <span className="g-menu-go" aria-hidden="true">
+              ›
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** A thin line in the five Play at Your Table colours. */
+function BrandLine() {
+  return <div className="g-brand-line" aria-hidden="true" />;
 }
 
 /** Each event card gets its own colour, so cards side by side never match. */
@@ -418,7 +431,6 @@ export function Home() {
   const x = EXTRA[lang];
   const m = venue.modules;
   const games = (k: "kids" | "group" | "date" | "drink") => anyGameOn(venue.games as Record<string, boolean>, k);
-  const mix = useMix();
 
   const explore: [string, string, string][] = [];
   if (m.kids && games("kids")) explore.push(["kids", x.kidsGames, tr("kidsS")]);
@@ -439,6 +451,7 @@ export function Home() {
   return (
     <>
       <Cover />
+      <BrandLine />
       <QuickActions />
       <WifiStrip />
       <Tonight />
@@ -466,66 +479,11 @@ export function Home() {
           </div>
         </section>
       )}
-      {mix.length > 0 && (
-        <Scroller title={x.forEveryone} more={() => go("play")}>
-          {mix.map((c) =>
-            c.href ? (
-              <a key={c.k} className={`g-gcard mx-card mx-${c.tone}`} href={c.href} target="_blank" rel="noopener noreferrer" data-card={c.k}>
-                <MixIcon c={c} />
-                <b>{c.title}</b>
-                <small>{c.tag}</small>
-              </a>
-            ) : (
-              <button key={c.k} className={`g-gcard mx-card mx-${c.tone}`} onClick={() => go(c.k)} data-card={c.k}>
-                <MixIcon c={c} />
-                <b>{c.title}</b>
-                <small>{c.tag}</small>
-              </button>
-            ),
-          )}
-        </Scroller>
-      )}
+      <MenuCards />
+      <BrandLine />
       <ContactCard />
     </>
   );
-}
-
-type MixCard = { k: string; title: string; tag: string; tone: string; emoji?: string; glyph?: string; href?: string };
-
-function MixIcon({ c }: { c: MixCard }) {
-  return c.emoji ? (
-    <span className="g-gcard-ico" aria-hidden="true">
-      {c.emoji}
-    </span>
-  ) : (
-    <span className={`glass-ico mxi-${c.tone}`} aria-hidden="true">
-      <Glyph k={c.glyph ?? "star"} />
-    </span>
-  );
-}
-
-/** One thing from each part of the app, so guests see everything on offer. */
-function useMix(): MixCard[] {
-  const { venue, lang, L } = useGuest();
-  const x = EXTRA[lang];
-  const m = venue.modules;
-  const all = venueGames(venue);
-  const on = (k: string) => all.some((g) => g.key === k);
-  const first = (group: string, prefer: string[]) => prefer.map((k) => all.find((g) => g.key === k)).find(Boolean) ?? all.find((g) => g.group === group);
-  const out: MixCard[] = [];
-  const kid = first("kids", ["penalty", "racer", "keepy"]);
-  if (kid) out.push({ k: kid.key, title: L(kid.title), tag: x.kidsTag, tone: "kids", glyph: gameGlyph(kid) });
-  const adult = first("group", ["trivia", "wordguess", "charades"]);
-  if (adult) out.push({ k: adult.key, title: L(adult.title), tag: x.adultsTag, tone: "group", glyph: gameGlyph(adult) });
-  if (m.celebrate) out.push({ k: "celebrate", title: x.mixCelebrate, tag: x.celebrate, tone: "celebrate", glyph: "party" });
-  const date = first("date", ["deck:first"]);
-  if (date) out.push({ k: date.key, title: L(date.title), tag: x.dateTag, tone: "date", glyph: "heart" });
-  if (on("darts")) out.push({ k: "darts", title: x.mixDarts, tag: x.barGames, tone: "bar", glyph: "target" });
-  if (on("split")) out.push({ k: "split", title: x.mixSplit, tag: x.mixBill, tone: "bill", glyph: "calc" });
-  if (m.drink && on("pour")) out.push({ k: "pour", title: x.mixPour, tag: x.drinkTag, tone: "drink", glyph: "glass" });
-  if (m.nearby && venue.nearby.length) out.push({ k: "nearby", title: x.nearby, tag: x.mixLocal, tone: "nearby", glyph: "pin" });
-  if (venue.reviewUrl) out.push({ k: "review", title: x.mixReview, tag: x.feedback, tone: "review", glyph: "star", href: venue.reviewUrl });
-  return out;
 }
 
 /** Contact us: address, hours, call, WhatsApp, email, Instagram and a review link. */
@@ -535,12 +493,11 @@ function ContactCard() {
   const demo = venue.id === "sample";
   const [note, setNote] = useState("");
   const address = L(venue.address) || L(venue.area);
-  const maps = venue.mapsUrl || (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name.en} ${address}`)}` : "");
   const actions: { k: string; label: string; href: string; glyph: string }[] = [];
   if (venue.phone) actions.push({ k: "call", label: x.call, href: `tel:${venue.phone.replace(/[^\d+]/g, "")}`, glyph: "phone" });
   if (venue.whatsapp) actions.push({ k: "wa", label: "WhatsApp", href: `https://wa.me/${venue.whatsapp}`, glyph: "chat" });
   if (venue.email) actions.push({ k: "email", label: x.email, href: `mailto:${venue.email}`, glyph: "receipt" });
-  if (maps) actions.push({ k: "map", label: x.directions, href: maps, glyph: "pin" });
+  if (venue.instagram) actions.push({ k: "insta", label: "Instagram", href: `https://instagram.com/${venue.instagram}`, glyph: "insta" });
   if (!address && !actions.length && !venue.reviewUrl) return null;
   // The showroom venue isn't real: its buttons explain instead of dialling.
   const open = (k: string) => (e: React.MouseEvent) => {
@@ -576,17 +533,12 @@ function ContactCard() {
         {actions.length > 0 && (
           <div className="ct-actions">
             {actions.map((a) => (
-              <a key={a.k} className={`ct-btn ct-${a.k}`} href={a.href} target={a.k === "map" || a.k === "wa" ? "_blank" : undefined} rel="noopener noreferrer" onClick={open(a.k)}>
+              <a key={a.k} className={`ct-btn ct-${a.k}`} href={a.href} target={a.k === "insta" || a.k === "wa" ? "_blank" : undefined} rel="noopener noreferrer" onClick={open(a.k)}>
                 <Glyph k={a.glyph} />
                 {a.label}
               </a>
             ))}
           </div>
-        )}
-        {venue.instagram && (
-          <a className="ct-insta" href={`https://instagram.com/${venue.instagram}`} target="_blank" rel="noopener noreferrer" onClick={open("instagram")}>
-            @{venue.instagram}
-          </a>
         )}
         {venue.reviewUrl && (
           <a className="ct-review" href={venue.reviewUrl} target="_blank" rel="noopener noreferrer" onClick={open("review")}>
